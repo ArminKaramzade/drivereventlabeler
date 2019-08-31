@@ -2,14 +2,12 @@ package com.sharif.armin.drivingeventlabeler.detection;
 
 import android.content.Context;
 import android.hardware.SensorManager;
-import android.location.LocationManager;
 import android.support.v7.app.AppCompatActivity;
 
-import com.sharif.armin.drivingeventlabeler.gps.GPS;
 import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
-import com.sharif.armin.drivingeventlabeler.write.Writer;
-import com.sharif.armin.drivingeventlabeler.activity.MainActivity;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,6 +17,9 @@ import java.util.LinkedList;
 import mr.go.sgfilter.SGFilter;
 
 public class Detector extends AppCompatActivity {
+
+    private PropertyChangeListener Listener;
+
     private Thread threadSensor = null;
     private Thread threadDetection = null;
 
@@ -36,10 +37,8 @@ public class Detector extends AppCompatActivity {
     private SGFilter sgFilter;
     private int savgolWindow = windowSize + savgolNl + savgolNr;
 
-    private int sensor_f, gps_delay;
+    private int sensor_f;
     private Sensors sensors;
-    private GPS gps;
-    private Writer writer;
 
     private String filename;
 
@@ -70,22 +69,20 @@ public class Detector extends AppCompatActivity {
 
 
 
-    public Detector(int sensorFreq, int gpsDelay){
+    public Detector(int sensorFreq, PropertyChangeListener listener){
+        Listener = listener;
         sensor_f = sensorFreq;
-        gps_delay = gpsDelay;
+
 
         lacFiltered = new LinkedList<float[]>();
         gyrFiltered = new LinkedList<float[]>();
         lacSavgolFilter = new LinkedList<float[]>();
         gyrSavgolFilter = new LinkedList<float[]>();
 
-        writer = new Writer(MainActivity.directory.getPath());
-
         sensors = new Sensors((SensorManager) getSystemService(Context.SENSOR_SERVICE), sensor_f);
-        gps = new GPS((LocationManager) getSystemService((Context.LOCATION_SERVICE)), writer, gps_delay);
 
         sensors.start();
-        gps.start();
+
         filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
 
         sgFilter = new SGFilter(savgolNl, savgolNr);
@@ -164,12 +161,12 @@ public class Detector extends AppCompatActivity {
         // Turn
         turnDetect(gyrEnergy, gyrMean);
 
-        // lanechange
-        lanechange(lac, gyrEnergy, lacEnergy);
+        // lanechangeDetect
+        lanechangeDetect(lac, gyrEnergy, lacEnergy);
 
     }
 
-    private void lanechange(LinkedList<float[]> lac, float[] gyrEnergy, float[] lacEnergy) {
+    private void lanechangeDetect(LinkedList<float[]> lac, float[] gyrEnergy, float[] lacEnergy) {
         if (gyrEnergy[Z] / windowSize >= LaneChangeDetector.gyrEnergyThreshold || lacEnergy[X] / windowSize >= LaneChangeDetector.lacEnergyThreshold) {
             if (!laneChangeEvent && !laneChangeEventStopCheck) {
                 laneChangeWindow = (LinkedList<float[]>) lac.clone();
@@ -338,6 +335,10 @@ public class Detector extends AppCompatActivity {
             lacFiltered.removeFirst();
             gyrFiltered.removeFirst();
         }
+    }
+
+    private void NotifyListener(Object object, String property, String oldValue, String newValue) {
+        Listener.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
     }
 }
 

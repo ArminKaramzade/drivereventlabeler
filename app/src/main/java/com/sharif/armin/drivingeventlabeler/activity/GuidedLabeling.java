@@ -9,7 +9,10 @@ import android.view.View;
 
 import com.sharif.armin.drivingeventlabeler.R;
 
-public class GuidedLabeling extends AppCompatActivity {
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+
+public class GuidedLabeling extends AppCompatActivity implements PropertyChangeListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,4 +31,12 @@ public class GuidedLabeling extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
+        Object source = propertyChangeEvent.getSource();
+        String name = propertyChangeEvent.getPropertyName();
+        Object oldvalue = propertyChangeEvent.getOldValue();
+        Object newvalue = propertyChangeEvent.getNewValue();
+        //TODO what ever is necessary!!!!
+    }
 }
