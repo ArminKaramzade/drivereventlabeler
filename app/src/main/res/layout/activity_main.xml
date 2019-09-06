@@ -95,6 +95,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginBottom="40dp"
         android:background="@color/green"
+        android:onClick="guidedLabeling"
         android:text="Guided Labling"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintBottom_toBottomOf="parent"

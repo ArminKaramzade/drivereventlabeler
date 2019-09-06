@@ -178,7 +178,7 @@ public class ManualLabeling extends AppCompatActivity {
         changeButtonColor(btn, flag);
     }
 
-    public abstract class CountUpTimer extends CountDownTimer {
+    public abstract static class CountUpTimer extends CountDownTimer {
         private static final long INTERVAL_MS = 1000;
         private final long duration;
 

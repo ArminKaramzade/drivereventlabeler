@@ -13,6 +13,7 @@
     <string name="lane_change">تغییر باند</string>
     <string name="turn_right">گردش به راست</string>
     <string name="turn_left">گردش به چپ</string>
+    <string name="turn">گردش</string>
     <string name="u_turn">گردش U شکل</string>
     <string name="bump">دست انداز</string>
     <string name="ramp">رمپ</string>

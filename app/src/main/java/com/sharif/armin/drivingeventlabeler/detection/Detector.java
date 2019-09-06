@@ -16,31 +16,29 @@ import java.util.LinkedList;
 
 import mr.go.sgfilter.SGFilter;
 
-public class Detector extends AppCompatActivity {
+public class Detector {
 
     private PropertyChangeListener Listener;
 
     private Thread threadSensor = null;
     private Thread threadDetection = null;
 
-    private int X = 0, Y = 1, Z = 2;
+    public static int X = 0, Y = 1, Z = 2;
 
-    private int windowSize = 40;
-    private int overLap = 30;
-    private int stepSize = windowSize - overLap;
-    private int step = 9;
+    public static int windowSize = 40;
+    public static int overLap = 30;
+    public static int stepSize = windowSize - overLap;
+    public static int step = 9;
 
     private int savgolNl = 15;
     private int savgolNr = 15;
     private int savgolDegree = 1;
     private double[] savgolcoeffs;
     private SGFilter sgFilter;
-    private int savgolWindow = windowSize + savgolNl + savgolNr;
+    private int savgolWindow = 1 + savgolNl + savgolNr;
 
     private int sensor_f;
     private Sensors sensors;
-
-    private String filename;
 
     private LinkedList<float[]> lacFiltered;
     private LinkedList<float[]> gyrFiltered;
@@ -48,42 +46,24 @@ public class Detector extends AppCompatActivity {
     private LinkedList<float[]> lacSavgolFilter;
     private LinkedList<float[]> gyrSavgolFilter;
 
-    private LinkedList<float[]> brakeWindow;
-    private LinkedList<float[]> laneChangeWindow;
-
     private float[] lacEnergy = new float[3];
     private float[] lacMean = new float[3];
     private float[] gyrEnergy = new float[3];
     private float[] gyrMean = new float[3];
 
-    private boolean brakeEvent = false,
-                    turnEvent = false,
-                    laneChangeEvent = false, laneChangeEventStopCheck = false;
+    public LinkedList<Event> eventList;
 
-    private int laneChangeDist = 1;
-    private int laneChangeStopIndex = 0;
-
-    private long brakeStart, brakeStop,
-            turnStart, turnStop,
-            laneChangeStart, laneChangeStop;
-
-
-
-    public Detector(int sensorFreq, PropertyChangeListener listener){
+    public Detector(int sensorFreq, PropertyChangeListener listener, Sensors sensors){
         Listener = listener;
         sensor_f = sensorFreq;
 
+        eventList = new LinkedList<>();
 
         lacFiltered = new LinkedList<float[]>();
         gyrFiltered = new LinkedList<float[]>();
         lacSavgolFilter = new LinkedList<float[]>();
         gyrSavgolFilter = new LinkedList<float[]>();
-
-        sensors = new Sensors((SensorManager) getSystemService(Context.SENSOR_SERVICE), sensor_f);
-
-        sensors.start();
-
-        filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
+        this.sensors = sensors;
 
         sgFilter = new SGFilter(savgolNl, savgolNr);
         savgolcoeffs = SGFilter.computeSGCoefficients(savgolNl, savgolNr, savgolDegree);
@@ -142,8 +122,8 @@ public class Detector extends AppCompatActivity {
     private void EventDetector(LinkedList<float[]> lac, float[] lacEnergy, float[] lacMean, LinkedList<float[]> gyr, float[] gyrEnergy, float[] gyrMean) {
         float lacXVar = 0, lacYVar = 0, gyrZVar = 0;
 
-        Iterator<float[]> laciterator = lacSavgolFilter.iterator();
-        Iterator<float[]> gyriterator = gyrSavgolFilter.iterator();
+        Iterator<float[]> laciterator = lac.iterator();
+        Iterator<float[]> gyriterator = gyr.iterator();
         for (int i = 0; i < windowSize; i++) {
             float[] t = laciterator.next();
             lacXVar += Math.pow(lacMean[X] - t[X], 2);
@@ -155,88 +135,20 @@ public class Detector extends AppCompatActivity {
         lacYVar /= windowSize;
         gyrZVar /= windowSize;
 
+        Event event;
+
         // Brake
-        brakeDetect(lac, lacEnergy, lacMean);
+        event = BrakeEventDetector.brakeDetect(lac, lacEnergy, lacMean);
 
         // Turn
-        turnDetect(gyrEnergy, gyrMean);
+        event = TurnEventDetector.turnDetect(gyrEnergy, gyrMean);
 
         // lanechangeDetect
-        lanechangeDetect(lac, gyrEnergy, lacEnergy);
-
-    }
-
-    private void lanechangeDetect(LinkedList<float[]> lac, float[] gyrEnergy, float[] lacEnergy) {
-        if (gyrEnergy[Z] / windowSize >= LaneChangeDetector.gyrEnergyThreshold || lacEnergy[X] / windowSize >= LaneChangeDetector.lacEnergyThreshold) {
-            if (!laneChangeEvent && !laneChangeEventStopCheck) {
-                laneChangeWindow = (LinkedList<float[]>) lac.clone();
-                laneChangeStart = System.currentTimeMillis();
-            }
-            else if (laneChangeEventStopCheck){
-                laneChangeEventStopCheck = false;
-                laneChangeWindow.addAll(lac.subList(overLap, windowSize));
-            }
-            else {
-                laneChangeWindow.addAll(lac.subList(overLap, windowSize));
-            }
-            laneChangeEvent = true;
-        }
-        else if (laneChangeEvent) {
-            laneChangeStop = System.currentTimeMillis();
-            laneChangeEventStopCheck = true;
-            laneChangeEvent = false;
-            laneChangeStopIndex = laneChangeWindow.size();
-        }
-        if (laneChangeEventStopCheck) {
-            long t = System.currentTimeMillis();
-            if (t - laneChangeStop < laneChangeDist * 1000){
-                laneChangeWindow.addAll(lac.subList(overLap, windowSize));
-            }
-            else {
-                laneChangeEventStopCheck = false;
-                laneChangeWindow = (LinkedList<float[]>) laneChangeWindow.subList(0, laneChangeStopIndex);
-                if (laneChangeStop - laneChangeStart > LaneChangeDetector.MinDuration) {
-                    int[] starts = LaneChangeDetector.dtwDetection(laneChangeWindow);
-                    //TODO event observer
-                }
-            }
-
-        }
-    }
-
-    private void turnDetect(float[] gyrEnergy, float[] gyrMean) {
-        if (gyrEnergy[Z] / windowSize >= TurnEventDetector.gyrZEnergyThreshold && TurnEventDetector.AcceptWindowFunction(gyrMean[Z])) {
-            if (!turnEvent) {
-                turnStart = System.currentTimeMillis();
-            }
-            turnEvent = true;
-        }
-        else if (turnEvent) {
-            turnStop = System.currentTimeMillis();
-            turnEvent = false;
-            if (turnStop - turnStart < TurnEventDetector.MaxDuration * 1000 && turnStop - turnStart > TurnEventDetector.MinDuration * 1000){
-                // TODO event observer
-            }
-        }
-    }
-
-    private void brakeDetect(LinkedList<float[]> lac, float[] lacEnergy, float[] lacMean) {
-        if (lacEnergy[Y] / windowSize >= BrakeEventDetector.lacYEnergyThreshold && BrakeEventDetector.AcceptWindowFunction(lacMean[Y])) {
-            if (!brakeEvent) {
-                brakeWindow = (LinkedList<float[]>) lac.clone();
-                brakeStart = System.currentTimeMillis();
-            }
-            else {
-                brakeWindow.addAll(lac.subList(overLap, windowSize));
-            }
-            brakeEvent = true;
-        }
-        else if (brakeEvent) {
-            brakeEvent = false;
-            brakeStop = System.currentTimeMillis();
-            if (BrakeEventDetector.AcceptEventFunction(brakeWindow) && brakeStop - brakeStart < BrakeEventDetector.MaxDuration * 1000 && brakeStop - brakeStart > BrakeEventDetector.MinDuration * 1000){
-                //TODO event observer
-            }
+        event = LaneChangeDetector.lanechangeDetect(lac, gyrEnergy, lacEnergy);
+        if (event != null){
+            Event last = eventList.get(eventList.size() - 1);
+            eventList.add(event);
+            NotifyListener(this, event.getEventLable(), last, event);
         }
     }
 
@@ -278,7 +190,7 @@ public class Detector extends AppCompatActivity {
         Iterator<float[]> laciterator = lacSavgolFilter.iterator();
         Iterator<float[]> gyriterator = gyrSavgolFilter.iterator();
 
-        for (int i = X; i < savgolWindow; i++) {
+        for (int i = 0; i < savgolWindow; i++) {
             float[] t = laciterator.next();
             lacX[i] = t[X];
             lacY[i] = t[Y];
@@ -289,14 +201,14 @@ public class Detector extends AppCompatActivity {
             gyrZ[i] = t[Z];
         }
         lacFiltered.add(new float[]{
-                sgFilter.smooth(lacX, savgolNl, savgolNl + 1, savgolcoeffs)[savgolNl],
-                sgFilter.smooth(lacY, savgolNl, savgolNl + 1, savgolcoeffs)[savgolNl],
-                sgFilter.smooth(lacZ, savgolNl, savgolNl + 1, savgolcoeffs)[savgolNl]
+                sgFilter.smooth(lacX, savgolNl, savgolNl + 1, savgolcoeffs)[0],
+                sgFilter.smooth(lacY, savgolNl, savgolNl + 1, savgolcoeffs)[0],
+                sgFilter.smooth(lacZ, savgolNl, savgolNl + 1, savgolcoeffs)[0]
         });
         gyrFiltered.add(new float[]{
-                sgFilter.smooth(gyrX, savgolNl, savgolNl + 1, savgolcoeffs)[savgolNl],
-                sgFilter.smooth(gyrY, savgolNl, savgolNl + 1, savgolcoeffs)[savgolNl],
-                sgFilter.smooth(gyrZ, savgolNl, savgolNl + 1, savgolcoeffs)[savgolNl]
+                sgFilter.smooth(gyrX, savgolNl, savgolNl + 1, savgolcoeffs)[0],
+                sgFilter.smooth(gyrY, savgolNl, savgolNl + 1, savgolcoeffs)[0],
+                sgFilter.smooth(gyrZ, savgolNl, savgolNl + 1, savgolcoeffs)[0]
         });
 
         lacEnergy[X] += (float) Math.pow(lacFiltered.getLast()[X], 2);
@@ -337,17 +249,20 @@ public class Detector extends AppCompatActivity {
         }
     }
 
-    private void NotifyListener(Object object, String property, String oldValue, String newValue) {
-        Listener.propertyChange(new PropertyChangeEvent(this, property, oldValue, newValue));
+    private void NotifyListener(Object object, String event, Event oldValue, Event newValue) {
+        Listener.propertyChange(new PropertyChangeEvent(object, event, oldValue, newValue));
     }
 }
 
 class BrakeEventDetector {
-    public static int MinDuration = 1;
-    public static int MaxDuration = 10;
-    public static float lacYEnergyThreshold = 0.1f;
-    public static float VarThreshold = 0.02f;
+    private static int MinDuration = 1;
+    private static int MaxDuration = 10;
+    private static float lacYEnergyThreshold = 0.1f;
+    private static float VarThreshold = 0.02f;
     private static float AcceptFunctionThreshold = -0.1f;
+    private static boolean brakeEvent = false;
+    private static long brakeStart, brakeStop;
+    private static LinkedList<float[]> brakeWindow = new LinkedList<>();
 
     public static boolean AcceptWindowFunction(float Mean){
         return Mean < AcceptFunctionThreshold;
@@ -365,28 +280,76 @@ class BrakeEventDetector {
         var /= event.size();
         return var > VarThreshold;
     }
+
+    public static Event brakeDetect(LinkedList<float[]> lac, float[] lacEnergy, float[] lacMean) {
+        if (lacEnergy[Detector.Y] / Detector.windowSize >= BrakeEventDetector.lacYEnergyThreshold && BrakeEventDetector.AcceptWindowFunction(lacMean[Detector.Y])) {
+            if (!brakeEvent) {
+                brakeWindow = (LinkedList<float[]>) lac.clone();
+                brakeStart = System.currentTimeMillis();
+            }
+            else {
+                brakeWindow.addAll(lac.subList(Detector.overLap, Detector.windowSize));
+            }
+            brakeEvent = true;
+        }
+        else if (brakeEvent) {
+            brakeEvent = false;
+            brakeStop = System.currentTimeMillis();
+            if (BrakeEventDetector.AcceptEventFunction(brakeWindow) && brakeStop - brakeStart < BrakeEventDetector.MaxDuration * 1000 && brakeStop - brakeStart > BrakeEventDetector.MinDuration * 1000){
+                return new Event(brakeStart, brakeStop, new String("Brake"));
+            }
+        }
+        return null;
+    }
+
 }
 
 class TurnEventDetector {
-    public static int MinDuration = 2;
-    public static int MaxDuration = 10;
-    public static float gyrZEnergyThreshold = 0.01f;
+    private static int MinDuration = 2;
+    private static int MaxDuration = 10;
+    private static float gyrZEnergyThreshold = 0.01f;
     private static float AcceptFunctionThreshold = 0.1f;
+    private static long turnStart, turnStop;
+    private static boolean turnEvent = false;
 
-    public static boolean AcceptWindowFunction(float Mean){
+
+    private static boolean AcceptWindowFunction(float Mean){
         return Math.abs(Mean) >= AcceptFunctionThreshold;
+    }
+
+    public static Event turnDetect(float[] gyrEnergy, float[] gyrMean) {
+        if (gyrEnergy[Detector.Z] / Detector.windowSize >= TurnEventDetector.gyrZEnergyThreshold && TurnEventDetector.AcceptWindowFunction(gyrMean[Detector.Z])) {
+            if (!turnEvent) {
+                turnStart = System.currentTimeMillis();
+            }
+            turnEvent = true;
+        }
+        else if (turnEvent) {
+            turnStop = System.currentTimeMillis();
+            turnEvent = false;
+            if (turnStop - turnStart < TurnEventDetector.MaxDuration * 1000 && turnStop - turnStart > TurnEventDetector.MinDuration * 1000){
+                return new Event(turnStart, turnStop, new String("Turn"));
+            }
+        }
+        return null;
     }
 }
 
 class LaneChangeDetector {
-    public static int MinDuration = 2;
+    private static int MinDuration = 2;
     public static int MaxDuration = 10;
-    public static float lacEnergyThreshold = 0.01f;
-    public static float gyrEnergyThreshold = 0.0008f;
-    public static int subSampleParameter = 10;
+    private static float lacEnergyThreshold = 0.01f;
+    private static float gyrEnergyThreshold = 0.0008f;
+    private static int subSampleParameter = 10;
     private static int winLength = 30;
+    private static boolean laneChangeEvent = false, laneChangeEventStopCheck = false;
+    private static int laneChangeDist = 1;
+    private static int laneChangeStopIndex = 0;
+    private static long laneChangeStart, laneChangeStop;
+    private static LinkedList<float[]> laneChangeWindow = new LinkedList<>();
 
-    public static int[] dtwDetection(LinkedList<float[]> laneChangeWindow) {
+
+    private static long dtwDetection(LinkedList<float[]> laneChangeWindow) {
         ArrayList<Integer> starts = new ArrayList<>();
         ArrayList<Float> subSample = new ArrayList<>();
         int i = 10;
@@ -412,14 +375,53 @@ class LaneChangeDetector {
 
             DTW dtw = new DTW(win, template1);
             if (dtw.getDistance() < 0.09){
-                starts.add(j * subSampleParameter);
-                j += winLength;
+                return (long) (j*subSampleParameter + laneChangeStart);
             }
         }
-        int[] s = new int[starts.size()];
-        for (int j = 0; j < starts.size(); j++) {
-            s[j] = starts.get(j);
+//        int[] s = new int[starts.size()];
+//        for (int j = 0; j < starts.size(); j++) {
+//            s[j] = starts.get(j);
+//        }
+//        return s;
+        return 0;
+    }
+
+    public static Event lanechangeDetect(LinkedList<float[]> lac, float[] gyrEnergy, float[] lacEnergy) {
+        if (gyrEnergy[Detector.Z] / Detector.windowSize >= LaneChangeDetector.gyrEnergyThreshold || lacEnergy[Detector.X] / Detector.windowSize >= LaneChangeDetector.lacEnergyThreshold) {
+            if (!laneChangeEvent && !laneChangeEventStopCheck) {
+                laneChangeWindow = (LinkedList<float[]>) lac.clone();
+                laneChangeStart = System.currentTimeMillis();
+            }
+            else if (laneChangeEventStopCheck){
+                laneChangeEventStopCheck = false;
+                laneChangeWindow.addAll(lac.subList(Detector.overLap, Detector.windowSize));
+            }
+            else {
+                laneChangeWindow.addAll(lac.subList(Detector.overLap, Detector.windowSize));
+            }
+            laneChangeEvent = true;
         }
-        return s;
+        else if (laneChangeEvent) {
+            laneChangeStop = System.currentTimeMillis();
+            laneChangeEventStopCheck = true;
+            laneChangeEvent = false;
+            laneChangeStopIndex = laneChangeWindow.size();
+        }
+        if (laneChangeEventStopCheck) {
+            long t = System.currentTimeMillis();
+            if (t - laneChangeStop < laneChangeDist * 1000){
+                laneChangeWindow.addAll(lac.subList(Detector.overLap, Detector.windowSize));
+            }
+            else {
+                laneChangeEventStopCheck = false;
+                laneChangeWindow = (LinkedList<float[]>) laneChangeWindow.subList(0, laneChangeStopIndex);
+                if (laneChangeStop - laneChangeStart > LaneChangeDetector.MinDuration) {
+                    long starts = LaneChangeDetector.dtwDetection(laneChangeWindow);
+                    return new Event(starts, starts + 3000, new String("LaneChange"));
+                }
+            }
+
+        }
+        return null;
     }
 }

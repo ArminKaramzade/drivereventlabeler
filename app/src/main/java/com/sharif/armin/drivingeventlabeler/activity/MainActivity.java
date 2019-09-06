@@ -66,7 +66,13 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void guidedLabeling(){
+    public void guidedLabeling(View view){
+        Intent intent = new Intent(this, GuidedLabeling.class);
+        String sns_f = ((EditText)findViewById(R.id.sns_te)).getText().toString();
+        String gps_f = ((EditText)findViewById(R.id.gps_te)).getText().toString();
 
+        intent.putExtra(sensor_frequency, sns_f);
+        intent.putExtra(gps_delay, gps_f);
+        startActivity(intent);
     }
 }
