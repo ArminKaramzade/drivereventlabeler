@@ -1,16 +1,17 @@
 package com.sharif.armin.drivingeventlabeler.write;
 
-import android.hardware.SensorEvent;
 import android.location.Location;
 
 import com.opencsv.CSVWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import com.sharif.armin.drivingeventlabeler.sensor.SensorSample;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -18,7 +19,7 @@ public class Writer {
     private static final int BUFFER = 2048;
 
     private enum name{
-        RAC, GYR, MGM, ACC, GPS, ROT, LBL;
+        RAC, GYR, MGM, ACC, GPS, ROT, ROTV, ROT2, LAC, LBL;
     }
     private static String[]  filenames = new String[name.values().length];
     private CSVWriter[] writers = new CSVWriter[name.values().length];
@@ -31,18 +32,24 @@ public class Writer {
         filenames[name.GYR.ordinal()] = "Gyroscope.csv";
         filenames[name.MGM.ordinal()] = "Magnetometer.csv";
         filenames[name.ACC.ordinal()] = "Accelerometer.csv";
+        filenames[name.LAC.ordinal()] = "AccelerometerAndroid.csv";
         filenames[name.GPS.ordinal()] = "GPS.csv";
         filenames[name.ROT.ordinal()] = "RotationVector.csv";
+        filenames[name.ROTV.ordinal()] = "RotationVectorVehicle.csv";
+        filenames[name.ROT2.ordinal()] = "RotationVectorAndroid.csv";
         filenames[name.LBL.ordinal()] = "Label.csv";
-        headers[name.RAC.ordinal()] = new String[]{"timestamp", "RAC_X", "RAC_Y", "RAC_Z"};
-        headers[name.GYR.ordinal()] = new String[]{"timestamp", "GYR_X", "GYR_Y", "GYR_Z"};
-        headers[name.MGM.ordinal()] = new String[]{"timestamp", "MGM_X", "MGM_Y", "MGM_Z"};
-        headers[name.ACC.ordinal()] = new String[]{"timestamp", "ACC_X", "ACC_Y", "ACC_Z"};
+        headers[name.RAC.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        headers[name.GYR.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        headers[name.MGM.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        headers[name.ACC.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
         headers[name.GPS.ordinal()] = new String[]{"timestamp", "LONG", "LAT", "SPEED", "HAS_SPEED",
-                                                   "BEARING", "HAS_BEARING", "LOCATION_ACCURACY",
-                                                   "HAS_LOCATION_ACCURACY", "SPEED_ACCURACY",
-                                                   "HAS_SPEED_ACCURACY", "BEARING_ACCURACY", "HAS_BEARING_ACCURACY"};
-        headers[name.ROT.ordinal()] = new String[]{"timestamp", "ROT_X", "ROT_Y", "ROT_Z", "COS"};
+                "BEARING", "HAS_BEARING", "LOCATION_ACCURACY",
+                "HAS_LOCATION_ACCURACY", "SPEED_ACCURACY",
+                "HAS_SPEED_ACCURACY", "BEARING_ACCURACY", "HAS_BEARING_ACCURACY"};
+        headers[name.ROT.ordinal()] = new String[]{"timestamp", "Q0", "Q1", "Q2", "Q3"};
+        headers[name.ROTV.ordinal()] = new String[]{"timestamp", "Q0", "Q1", "Q2", "Q3"};
+        headers[name.ROT2.ordinal()] = new String[]{"timestamp", "Q0", "Q1", "Q2", "Q3"};
+        headers[name.LAC.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
         headers[name.LBL.ordinal()] = new String[]{"TYPE", "START", "END"};
         try{
             for (name n: name.values()){
@@ -66,32 +73,48 @@ public class Writer {
         String[] line = new String[] {type, String.valueOf(start), String.valueOf(finish)};
         writers[name.LBL.ordinal()].writeNext(line);
     }
-    public void writeRAC(long time, float[] rac){
-        String[] line = new String [] {String.valueOf(time), String.valueOf(rac[0])
-                , String.valueOf(rac[1]), String.valueOf(rac[2])};
+    public void writeRAC(SensorSample rac){
+        String[] line = new String [] {String.valueOf(rac.time), String.valueOf(rac.values[0])
+                , String.valueOf(rac.values[1]), String.valueOf(rac.values[2])};
         writers[name.RAC.ordinal()].writeNext(line);
     }
-    public void writeACC(long time, float[] acc){
-        String[] line = new String [] {String.valueOf(time), String.valueOf(acc[0])
-                , String.valueOf(acc[1]), String.valueOf(acc[2])};
+    public void writeACC(SensorSample acc){
+        String[] line = new String [] {String.valueOf(acc.time), String.valueOf(acc.values[0])
+                , String.valueOf(acc.values[1]), String.valueOf(acc.values[2])};
         writers[name.ACC.ordinal()].writeNext(line);
     }
-    public void writeGYR(long time, float[] gyr){
-        String[] line = new String [] {String.valueOf(time), String.valueOf(gyr[0])
-                , String.valueOf(gyr[1]), String.valueOf(gyr[2])};
+    public void writeGYR(SensorSample gyr){
+        String[] line = new String [] {String.valueOf(gyr.time), String.valueOf(gyr.values[0])
+                , String.valueOf(gyr.values[1]), String.valueOf(gyr.values[2])};
         writers[name.GYR.ordinal()].writeNext(line);
     }
-    public void writeMGM(long time, float[] mgm){
-        String[] line = new String [] {String.valueOf(time), String.valueOf(mgm[0])
-                , String.valueOf(mgm[1]), String.valueOf(mgm[2])};
+    public void writeMGM(SensorSample mgm){
+        String[] line = new String [] {String.valueOf(mgm.time), String.valueOf(mgm.values[0])
+                , String.valueOf(mgm.values[1]), String.valueOf(mgm.values[2])};
         writers[name.MGM.ordinal()].writeNext(line);
     }
-    public void writeROT(long time, float[] rot){
-        String[] line = new String [] {String.valueOf(time), String.valueOf(rot[0])
-                , String.valueOf(rot[1]), String.valueOf(rot[2]), String.valueOf(rot[3])};
+    public void writeROT(SensorSample rot){
+        String[] line = new String [] {String.valueOf(rot.time), String.valueOf(rot.values[0])
+                , String.valueOf(rot.values[1]), String.valueOf(rot.values[2]), String.valueOf(rot.values[3])};
         writers[name.ROT.ordinal()].writeNext(line);
     }
-    public void writeGPS(long time, Location location){
+    public void writeROTV(SensorSample rotV){
+        String[] line = new String [] {String.valueOf(rotV.time), String.valueOf(rotV.values[0])
+                , String.valueOf(rotV.values[1]), String.valueOf(rotV.values[2]), String.valueOf(rotV.values[3])};
+        writers[name.ROTV.ordinal()].writeNext(line);
+    }
+    public void writeROT2(SensorSample rot2){
+        String[] line = new String [] {String.valueOf(rot2.time), String.valueOf(rot2.values[0])
+                , String.valueOf(rot2.values[1]), String.valueOf(rot2.values[2]), String.valueOf(rot2.values[3])};
+        writers[name.ROT2.ordinal()].writeNext(line);
+    }
+    public void writeLAC(SensorSample lac){
+        String[] line = new String [] {String.valueOf(lac.time), String.valueOf(lac.values[0])
+                , String.valueOf(lac.values[1]), String.valueOf(lac.values[2])};
+        writers[name.LAC.ordinal()].writeNext(line);
+    }
+
+    public void writeGPS(Location location){
         if (location == null) {
             return;
         }
@@ -107,7 +130,7 @@ public class Writer {
             hasBearingAccuracy = "NOT SUPPORTED";
             bearingAccuracy = "NOT SUPPORTED";
         }
-        String[] line = new String[]{String.valueOf(time), String.valueOf(location.getLongitude()),
+        String[] line = new String[]{String.valueOf(location.getTime()), String.valueOf(location.getLongitude()),
                 String.valueOf(location.getLatitude()), String.valueOf(location.getSpeed()),
                 String.valueOf(location.hasSpeed()), String.valueOf(location.getBearing()), String.valueOf(location.hasBearing()),
                 String.valueOf(location.getAccuracy()), String.valueOf(location.hasAccuracy()), speedAccuracy, hasSpeedAccuracy,

@@ -52,6 +52,8 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
                 txttimer.setText(txt);
             }
         };
+        timer.start();
+
         Intent intent = getIntent();
         sensor_f = Integer.parseInt(intent.getStringExtra(MainActivity.sensor_frequency));
         gps_delay = Integer.parseInt(intent.getStringExtra(MainActivity.gps_delay));
@@ -86,12 +88,14 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
             public void run() {
                 while(true){
                     try{
-                        txtlabel.setBackgroundResource(R.color.green);
+                        txtlabel.setBackgroundResource(R.color.red);
                         txtlabel.setText(upcomingEvents.getFirst().getEventLable());
                         Thread.sleep(2000);
-                        writeLable(upcomingEvents.getFirst());
-                        upcomingEvents.removeFirst();
-                        showEvent();
+                        if (thread.isInterrupted()){
+                            writeLable(upcomingEvents.getFirst());
+                            upcomingEvents.removeFirst();
+                            showEvent();
+                        }
                     }catch (InterruptedException e){
                         e.printStackTrace();
                     }
@@ -103,7 +107,7 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
 
     private void writeLable(Event event) {
         writer.writeLBL(event.getEventLable(), event.getStart(), event.getEnd());
-        txtlabel.setBackgroundResource(R.color.red);
+        txtlabel.setBackgroundResource(R.color.green);
     }
 
     protected void onStop(){
@@ -135,8 +139,10 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
         if(thread == null || thread.isInterrupted()){
             return;
         }
+        upcomingEvents.getFirst().setEventLable("lane_change");
         writeLable(upcomingEvents.getFirst());
         upcomingEvents.removeFirst();
+        thread.interrupt();
         showEvent();
     }
 
@@ -144,8 +150,10 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
         if(thread == null || thread.isInterrupted()){
             return;
         }
+        upcomingEvents.getFirst().setEventLable("turn");
         writeLable(upcomingEvents.getFirst());
         upcomingEvents.removeFirst();
+        thread.interrupt();
         showEvent();
     }
 
@@ -153,8 +161,10 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
         if(thread == null || thread.isInterrupted()){
             return;
         }
+        upcomingEvents.getFirst().setEventLable("brake");
         writeLable(upcomingEvents.getFirst());
         upcomingEvents.removeFirst();
+        thread.interrupt();
         showEvent();
     }
 

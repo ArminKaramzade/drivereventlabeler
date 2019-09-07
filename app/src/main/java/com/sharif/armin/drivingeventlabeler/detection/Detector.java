@@ -296,7 +296,7 @@ class BrakeEventDetector {
             brakeEvent = false;
             brakeStop = System.currentTimeMillis();
             if (BrakeEventDetector.AcceptEventFunction(brakeWindow) && brakeStop - brakeStart < BrakeEventDetector.MaxDuration * 1000 && brakeStop - brakeStart > BrakeEventDetector.MinDuration * 1000){
-                return new Event(brakeStart, brakeStop, new String("Brake"));
+                return new Event(brakeStart, brakeStop, new String("brake"));
             }
         }
         return null;
@@ -328,7 +328,7 @@ class TurnEventDetector {
             turnStop = System.currentTimeMillis();
             turnEvent = false;
             if (turnStop - turnStart < TurnEventDetector.MaxDuration * 1000 && turnStop - turnStart > TurnEventDetector.MinDuration * 1000){
-                return new Event(turnStart, turnStop, new String("Turn"));
+                return new Event(turnStart, turnStop, new String("turn"));
             }
         }
         return null;
@@ -417,7 +417,7 @@ class LaneChangeDetector {
                 laneChangeWindow = (LinkedList<float[]>) laneChangeWindow.subList(0, laneChangeStopIndex);
                 if (laneChangeStop - laneChangeStart > LaneChangeDetector.MinDuration) {
                     long starts = LaneChangeDetector.dtwDetection(laneChangeWindow);
-                    return new Event(starts, starts + 3000, new String("LaneChange"));
+                    return new Event(starts, starts + 3000, new String("lane_change"));
                 }
             }
 

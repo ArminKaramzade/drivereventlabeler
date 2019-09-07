@@ -9,6 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
 
         requestForPermissions();
@@ -61,8 +63,10 @@ public class MainActivity extends AppCompatActivity {
     public void visualization(View view){
         Intent intent = new Intent(this, Visualization.class);
         String sns_f = ((EditText)findViewById(R.id.sns_te)).getText().toString();
+        String gps_f = ((EditText)findViewById(R.id.gps_te)).getText().toString();
 
         intent.putExtra(sensor_frequency, sns_f);
+        intent.putExtra(gps_delay, gps_f);
         startActivity(intent);
     }
 
