@@ -32,9 +32,6 @@ public class DTW {
         this.compute();
     }
 
-    public DTW(Float[] win, float[] template1) {
-    }
-
     public void clear() {
             seq1 = null;
             seq2 = null;
@@ -114,7 +111,7 @@ public class DTW {
             //this.reversePath(warpingPath);
 
             //Clear
-            this.clear();
+//            this.clear();
             //d = null;
             //D = null;
             //warpingPath = null;

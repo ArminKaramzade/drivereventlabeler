@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.hardware.SensorManager;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.ViewCompat;
@@ -18,7 +19,7 @@ import android.widget.Toast;
 import com.sharif.armin.drivingeventlabeler.R;
 import com.sharif.armin.drivingeventlabeler.detection.Detector;
 import com.sharif.armin.drivingeventlabeler.detection.Event;
-import com.sharif.armin.drivingeventlabeler.gps.GPS;
+import com.sharif.armin.drivingeventlabeler.detection.SensorTest;
 import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
 import com.sharif.armin.drivingeventlabeler.write.Writer;
 
@@ -34,11 +35,12 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
     private TextView txttimer, txtlabel;
     private int sensor_f, gps_delay;
     private Sensors sensors;
-    private GPS gps;
     private Writer writer;
+    boolean flag = false;
     private String filename;
     private Detector Detector;
     private LinkedList<Event> upcomingEvents;
+    private SensorTest sensorTest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +48,7 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
         setContentView(R.layout.activity_guided_labeling);
         txtlabel = (TextView) findViewById(R.id.textlabel);
         txttimer = (TextView) findViewById(R.id.textTimer);
-        ManualLabeling.CountUpTimer timer = new ManualLabeling.CountUpTimer(24 * 60 * 60 * 1000) {
+        CountUpTimer timer = new CountUpTimer(24 * 60 * 60 * 1000) {
             public void onTick(int second) {
                 String txt = String.format("%d", second / 60) + ":" + String.format("%02d", second % 60);
                 txttimer.setText(txt);
@@ -55,18 +57,20 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
         timer.start();
 
         Intent intent = getIntent();
+        writer = new Writer(MainActivity.directory.getPath());
         sensor_f = Integer.parseInt(intent.getStringExtra(MainActivity.sensor_frequency));
         gps_delay = Integer.parseInt(intent.getStringExtra(MainActivity.gps_delay));
 
-        writer = new Writer(MainActivity.directory.getPath());
 
-        sensors = new Sensors((SensorManager) getSystemService(Context.SENSOR_SERVICE), sensor_f);
-        gps = new GPS((LocationManager) getSystemService((Context.LOCATION_SERVICE)), writer, gps_delay);
-
+        sensors = Sensors.getInstance();
+        sensors.setSensorManager((SensorManager) getSystemService(Context.SENSOR_SERVICE));
+        sensors.setLocationManager((LocationManager) getSystemService((Context.LOCATION_SERVICE)));
+        sensors.setGpsDelay(gps_delay);
+        sensors.setSensorFrequency(sensor_f);
         sensors.start();
-        gps.start();
         filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
-
+//        sensorTest = new SensorTest();
+//        Detector = new Detector(sensor_f, this, sensorTest);
         Detector = new Detector(sensor_f, this, sensors);
         upcomingEvents = new LinkedList<>();
     }
@@ -80,25 +84,40 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
     }
 
     private void showEvent() {
-        if(thread == null ||thread.isInterrupted() || upcomingEvents.size() == 0){
+        if(thread != null && (flag || upcomingEvents.size() == 0)) {
             return;
         }
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true){
-                    try{
-                        txtlabel.setBackgroundResource(R.color.red);
-                        txtlabel.setText(upcomingEvents.getFirst().getEventLable());
-                        Thread.sleep(2000);
-                        if (thread.isInterrupted()){
-                            writeLable(upcomingEvents.getFirst());
-                            upcomingEvents.removeFirst();
-                            showEvent();
+                try{
+                    flag = true;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            txtlabel.setBackgroundResource(R.color.red);
+                            if (upcomingEvents.getFirst().getEventLable().equals("turn"))
+                                txtlabel.setText(R.string.turn);
+                            else if (upcomingEvents.getFirst().getEventLable().equals("brake"))
+                                txtlabel.setText(R.string.brake);
+                            else if (upcomingEvents.getFirst().getEventLable().equals("lane_change"))
+                                txtlabel.setText(R.string.lane_change);
                         }
-                    }catch (InterruptedException e){
-                        e.printStackTrace();
+                    });
+                    Thread.sleep(2000);
+                    if (flag){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                upcomingEvents.getFirst().setEventLable(upcomingEvents.getFirst() + "/" + upcomingEvents.getFirst());
+                                writeLable(upcomingEvents.getFirst());
+                                showEvent();
+                            }
+                        });
+                    flag = false;
                     }
+                }catch (InterruptedException e){
+                    e.printStackTrace();
                 }
             }
         });
@@ -107,65 +126,87 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
 
     private void writeLable(Event event) {
         writer.writeLBL(event.getEventLable(), event.getStart(), event.getEnd());
-        txtlabel.setBackgroundResource(R.color.green);
+        String[] s = upcomingEvents.getFirst().getEventLable().split("/");
+        if (s[0].equals(s[1])) {
+            txtlabel.setBackgroundResource(R.color.green);
+        }
+        else
+            txtlabel.setBackgroundResource(R.color.orange);
+        upcomingEvents.removeFirst();
     }
 
     protected void onStop(){
         super.onStop();
         sensors.stop();
-        gps.stop();
     }
     protected void onDestroy(){
         super.onDestroy();
         sensors.stop();
-        gps.stop();
     }
 
     public void stop(View view){
-        this.sensors.stop();
-        this.gps.stop();
         this.writer.saveAndRemove(filename);
+        this.sensors.stop();
         Context context = getApplicationContext();
         CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
         int duration = Toast.LENGTH_LONG;
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
-
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 
     public void laneChange(View view) {
-        if(thread == null || thread.isInterrupted()){
+        if(thread == null || !flag){
             return;
         }
-        upcomingEvents.getFirst().setEventLable("lane_change");
+        upcomingEvents.getFirst().setEventLable("lane_change/"+upcomingEvents.getFirst());
         writeLable(upcomingEvents.getFirst());
-        upcomingEvents.removeFirst();
-        thread.interrupt();
+        flag = false;
         showEvent();
     }
 
     public void turn(View view) {
-        if(thread == null || thread.isInterrupted()){
+        if(thread == null || !flag){
             return;
         }
-        upcomingEvents.getFirst().setEventLable("turn");
+        upcomingEvents.getFirst().setEventLable("turn/"+upcomingEvents.getFirst());
         writeLable(upcomingEvents.getFirst());
-        upcomingEvents.removeFirst();
-        thread.interrupt();
+        flag = false;
         showEvent();
     }
 
     public void brake(View view) {
-        if(thread == null || thread.isInterrupted()){
+        if(thread == null || !flag){
             return;
         }
-        upcomingEvents.getFirst().setEventLable("brake");
+        upcomingEvents.getFirst().setEventLable("brake/"+upcomingEvents.getFirst());
         writeLable(upcomingEvents.getFirst());
-        upcomingEvents.removeFirst();
-        thread.interrupt();
+        flag = false;
         showEvent();
     }
 
+}
+
+abstract class CountUpTimer extends CountDownTimer {
+    private static final long INTERVAL_MS = 1000;
+    private final long duration;
+
+    protected CountUpTimer(long durationMs) {
+        super(durationMs, INTERVAL_MS);
+        this.duration = durationMs;
+    }
+
+    public abstract void onTick(int second);
+
+    @Override
+    public void onTick(long msUntilFinished) {
+        int second = (int) ((duration - msUntilFinished) / 1000);
+        onTick(second);
+    }
+
+    @Override
+    public void onFinish() {
+        onTick(duration / 1000);
+    }
 }
