@@ -182,7 +182,8 @@ public class Sensors {
             float angle = bearing.getAngle();
             processBNG(time, new float [] {angle});
             Quaternion rotE = fusedOrientation.getRotationVector();
-            Quaternion rotV = rotE.multiply(new Quaternion(Math.cos(angle/2f), 0, 0, Math.sin(angle/2f)));
+            angle = 30f * (float) Math.PI / 180f;
+            Quaternion rotV = rotE.multiply(new Quaternion(Math.cos(angle/2f), 0, 0, Math.sin(-angle/2f)));
             processROTVehicle(time, new float[] {(float) rotV.getQ0(), (float) rotV.getQ1(),
                     (float) rotV.getQ2(), (float) rotV.getQ3()});
         }
@@ -246,12 +247,13 @@ public class Sensors {
             }else{
                 angle = 360 - angle;
             }
-            angle = angle * angle * 0.017453292519943295f;
+            angle = angle * 0.017453292519943295f;
             if(initBng == false){
                 this.bearing.setCovX(new float[][] {{0.01f, 0f}, {0f, 0.01f}});
                 this.bearing.setMuX(new float[] {angle, 0});
                 this.bearing.setSigmaA(0.01f);
                 this.bearing.setSigmaW(0.001f);
+                this.bearing.setPrevTime(loc.getTime());
                 initBng = true;
             }
             bearing.update(angle);

@@ -115,8 +115,13 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
                 break;
             case "ROT2":
                 writer.writeROT2(sample);
+                break;
             case "LAC":
                 writer.writeLAC(sample);
+                break;
+            case "BNG":
+                writer.writeBNG(sample);
+                break;
         }
     }
     @Override

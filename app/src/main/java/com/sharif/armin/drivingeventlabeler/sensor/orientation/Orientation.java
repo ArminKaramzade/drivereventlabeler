@@ -28,19 +28,16 @@ public class Orientation {
         System.arraycopy(mgmSensorSample.values, 0, mgm, 0, mgm.length);
         // -----------------
         // set freq properly
-        float freq = 1.f / ((time - prevTime) * MS2S);
-        prevTime = time;
-        // -----------------
         if (rotationVector == null){
             Quaternion q = Utils.getAccMgmOrientationVector(acc, mgm);
             rotationVector = q;
             madgwick.setQ(q);
         }
-        madgwick.MadgwickAHRSupdate(gyr, acc, mgm, freq);
-        // -----------------
-        // LPF ?
-        float alpha = 0f;
-        rotationVector = madgwick.getQuaternion().multiply(1-alpha);
-        // -----------------
+        if (prevTime != 0) {
+            float freq = 1.f / ((time - prevTime) * MS2S);
+            madgwick.MadgwickAHRSupdate(gyr, acc, mgm, freq);
+            rotationVector = madgwick.getQuaternion();
+        }
+        prevTime = time;
     }
 }

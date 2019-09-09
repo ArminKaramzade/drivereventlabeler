@@ -8,28 +8,43 @@ public class VehicleHeadingAngle {
     private float[][] covX = new float[2][2];
     private float prevTime = 0;
 
-    public float getAngle(){ return this.muX[0]; }
-    public void setMuX(float [] muX){ this.muX = muX; }
-    public void setCovX(float [][] covX){ this.covX = covX; }
-    public void setSigmaW(float sigma2W){ this.sigma2W = sigma2W; }
-    public void setSigmaA(float sigma2A){ this.sigma2A = sigma2A; }
+    public float getAngle(){
+        return this.muX[0];
+    }
+    public void setMuX(float [] muX){
+        this.muX = muX;
+    }
+    public void setCovX(float [][] covX){
+        this.covX = covX;
+    }
+    public void setSigmaW(float sigma2W){
+        this.sigma2W = sigma2W;
+    }
+    public void setSigmaA(float sigma2A){
+        this.sigma2A = sigma2A;
+    }
+    public void setPrevTime(float prevTime){
+        this.prevTime = prevTime;
+    }
 
     public void reset(){
         prevTime = 0;
     }
 
     public void predict(float w, long time){
-        float dT = (time - prevTime) * MS2S;
+        if (prevTime != 0) {
+            float dT = (time - prevTime) * MS2S;
+            float alpha = this.muX[0], bias = this.muX[1];
+            float c11 = this.covX[0][0], c12 = this.covX[0][1],
+                    c21 = this.covX[1][0], c22 = this.covX[1][1];
+            this.muX[0] = alpha + (w - bias) * dT;
+            this.muX[1] = bias;
+            this.covX[0][0] = c11 - dT * c21 + dT * dT * c22 - dT * c12 + dT * this.sigma2W;
+            this.covX[0][1] = c12 - dT * c22;
+            this.covX[1][0] = c21 - dT * c22;
+            this.covX[1][1] = c22 + this.sigma2W;
+        }
         prevTime = time;
-        float alpha = this.muX[0], bias = this.muX[1];
-        float c11 = this.covX[0][0], c12 = this.covX[0][1],
-                c21 = this.covX[1][0], c22 = this.covX[1][1];
-        this.muX[0] = alpha + (w - bias) * dT;
-        this.muX[1] = bias;
-        this.covX[0][0] = c11 - dT * c21 + dT * dT * c22 - dT * c12 + dT * this.sigma2W;
-        this.covX[0][1] = c12 - dT * c22;
-        this.covX[1][0] = c21 - dT * c22;
-        this.covX[1][1] = c22 + this.sigma2W;
     }
     public void update(float alphaZ){
         float alpha = this.muX[0], bias = this.muX[1];

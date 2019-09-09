@@ -19,7 +19,7 @@ public class Writer {
     private static final int BUFFER = 2048;
 
     private enum name{
-        RAC, GYR, MGM, ACC, GPS, ROT, ROTV, ROT2, LAC, LBL;
+        RAC, GYR, MGM, ACC, GPS, ROT, ROTV, ROT2, LAC, LBL, BNG;
     }
     private static String[]  filenames = new String[name.values().length];
     private CSVWriter[] writers = new CSVWriter[name.values().length];
@@ -37,6 +37,7 @@ public class Writer {
         filenames[name.ROT.ordinal()] = "RotationVector.csv";
         filenames[name.ROTV.ordinal()] = "RotationVectorVehicle.csv";
         filenames[name.ROT2.ordinal()] = "RotationVectorAndroid.csv";
+        filenames[name.BNG.ordinal()] = "Bearing.csv";
         filenames[name.LBL.ordinal()] = "Label.csv";
         headers[name.RAC.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
         headers[name.GYR.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
@@ -51,6 +52,7 @@ public class Writer {
         headers[name.ROT2.ordinal()] = new String[]{"timestamp", "Q0", "Q1", "Q2", "Q3"};
         headers[name.LAC.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
         headers[name.LBL.ordinal()] = new String[]{"TYPE", "START", "END"};
+        headers[name.BNG.ordinal()] = new String[]{"timestamp", "theta"};
         try{
             for (name n: name.values()){
                 writers[n.ordinal()] = get_writer(path, filenames[n.ordinal()]);
@@ -112,6 +114,10 @@ public class Writer {
         String[] line = new String [] {String.valueOf(lac.time), String.valueOf(lac.values[0])
                 , String.valueOf(lac.values[1]), String.valueOf(lac.values[2])};
         writers[name.LAC.ordinal()].writeNext(line);
+    }
+    public void writeBNG(SensorSample bng){
+        String[] line = new String [] {String.valueOf(bng.time), String.valueOf(bng.values[0])};
+        writers[name.BNG.ordinal()].writeNext(line);
     }
 
     public void writeGPS(Location location){

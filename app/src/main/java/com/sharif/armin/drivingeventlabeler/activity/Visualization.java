@@ -41,6 +41,8 @@ public class Visualization extends AppCompatActivity{
     private String to_plot = "acc";
     private boolean x = true, y = true, z = true;
     private int x_pos = 0;
+    ILineDataSet set, set1, set2;
+    LineData data;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,8 +71,8 @@ public class Visualization extends AppCompatActivity{
         mChart = findViewById(R.id.chart1);
         mChart.getDescription().setEnabled(true);
         mChart.getDescription().setText("Sensor Data");
-        mChart.setTouchEnabled(false);
-        mChart.setDragEnabled(false);
+//        mChart.setTouchEnabled(false);
+//        mChart.setDragEnabled(false);
         mChart.setDrawGridBackground(false);
         mChart.setScaleEnabled(true);
         mChart.setPinchZoom(true);
@@ -103,18 +105,21 @@ public class Visualization extends AppCompatActivity{
             @Override
             public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
                 x = ! x;
+                set.setVisible(x);
             }
         });
         yCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
                 y = ! y;
+                set1.setVisible(y);
             }
         });
         zCheck.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
                 z = ! z;
+                set2.setVisible(z);
             }
         });
     }
@@ -140,11 +145,11 @@ public class Visualization extends AppCompatActivity{
     }
 
     private void addEntry(float[] sensor_data) {
-        LineData data = mChart.getData();
+        data = mChart.getData();
         if(data != null){
-            ILineDataSet set = data.getDataSetByLabel("x", true);
-            ILineDataSet set1 = data.getDataSetByLabel("y", true);
-            ILineDataSet set2 = data.getDataSetByLabel("z", true);
+            set = data.getDataSetByLabel("x", true);
+            set1 = data.getDataSetByLabel("y", true);
+            set2 = data.getDataSetByLabel("z", true);
             if(set == null && x){
                 set = createSet();
                 data.addDataSet(set);
@@ -158,18 +163,21 @@ public class Visualization extends AppCompatActivity{
                 data.addDataSet(set2);
             }
 
-            if(x)
-                data.addEntry(new Entry(x_pos,sensor_data[0]), data.getIndexOfDataSet(set));
-            else
-                data.removeDataSet(set);
-            if(y)
-                data.addEntry(new Entry(x_pos, sensor_data[1]), data.getIndexOfDataSet(set1));
-            else
-                data.removeDataSet(set1);
-            if(z)
-                data.addEntry(new Entry(x_pos, sensor_data[2]), data.getIndexOfDataSet(set2));
-            else
-                data.removeDataSet(set2);
+            data.addEntry(new Entry(x_pos, sensor_data[0]), data.getIndexOfDataSet(set));
+            data.addEntry(new Entry(x_pos, sensor_data[1]), data.getIndexOfDataSet(set1));
+            data.addEntry(new Entry(x_pos, sensor_data[2]), data.getIndexOfDataSet(set2));
+
+            if(set.getEntryCount() >= 200){
+                set.removeFirst();
+            }
+            if(set1.getEntryCount() >= 200){
+                set1.removeFirst();
+            }
+            if(set2.getEntryCount() >= 200){
+                set2.removeFirst();
+            }
+
+
             x_pos += 1;
             data.notifyDataChanged();
             mChart.notifyDataSetChanged();
@@ -192,7 +200,6 @@ public class Visualization extends AppCompatActivity{
         set.setLabel("x");
         return  set;
     }
-
     private LineDataSet createSet1(){
         LineDataSet set = new LineDataSet(null,"Y Axis");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -206,7 +213,6 @@ public class Visualization extends AppCompatActivity{
         set.setLabel("y");
         return  set;
     }
-
     private LineDataSet createSet2(){
         LineDataSet set = new LineDataSet(null,"Z Axis");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -243,7 +249,6 @@ public class Visualization extends AppCompatActivity{
     public void change(String to_plot){
         if(this.to_plot != to_plot) {
             this.to_plot = to_plot;
-            LineData data = mChart.getData();
             data.clearValues();
             mChart.clearValues();
         }
@@ -280,6 +285,7 @@ public class Visualization extends AppCompatActivity{
                     addEntry(Utils.quaternion2euler(sensors.getRot().values));
 //                    addEntry(sensors.getMgm().values);
                 } else if (to_plot == "lac") {
+                    addEntry(sensors.getMgm().values);
 //                    addEntry(sensors.getLac().values);
                 }
             }
