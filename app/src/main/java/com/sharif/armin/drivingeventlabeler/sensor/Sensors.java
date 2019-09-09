@@ -65,7 +65,9 @@ public class Sensors {
         return this.rac;
     }
     public SensorSample getAcc() {
-        return this.acc;
+        if (hasGyr())
+            return this.acc;
+        return this.lac;
     }
     public SensorSample getGyr() {
         return this.gyr;
@@ -236,6 +238,10 @@ public class Sensors {
         this.bng.time = time;
         notifyObserversSensorChanged(this.bng);
     }
+    private boolean hasGyr() {
+        return sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null;
+    }
+
     private void processLOC(Location location){
         loc = location;
         notifyObserversLocationChanged(this.loc);

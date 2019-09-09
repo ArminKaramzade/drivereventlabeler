@@ -11,14 +11,14 @@ import java.io.IOException;
 import java.util.LinkedList;
 
 public class SensorTest {
-    String path = "/drivingeventlbl/labeled-route-2019-06-29-18-03-00/";
+    String path;
     Thread thread;
     public SensorSample acc, gyr;
     BufferedReader accReader = null, gyrReader = null;
     String accRow, gyrRow;
-    public SensorTest() {
+    public SensorTest(String testDir) {
         try {
-            path = Environment.getExternalStorageDirectory().toString()+ path;
+            path = new String(Environment.getExternalStorageDirectory().toString() + "/drivingeventlbl/" + testDir + "/");
             accReader = new BufferedReader(new FileReader(path + "aranged_Accelerometer.csv"));
             gyrReader = new BufferedReader(new FileReader(path + "aranged_Gyroscope.csv"));
             if(thread != null){

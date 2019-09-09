@@ -19,6 +19,8 @@ public class Detector {
     private Thread threadSensor = null;
     private Thread threadDetection = null;
 
+    private boolean TestFlag = false;
+
     public static int X = 0, Y = 1, Z = 2;
 
     public static int windowSize = 40;
@@ -35,7 +37,7 @@ public class Detector {
 
     private int sensor_f;
     private Sensors sensors;
-//    private SensorTest sensors;
+    private SensorTest sensorTest;
 
     private LinkedList<float[]> lacFiltered;
     private LinkedList<float[]> gyrFiltered;
@@ -120,74 +122,76 @@ public class Detector {
 
     }
 
-//    public Detector(int sensorFreq, GuidedLabeling listener, SensorTest sensorTest) {
-//        Listener = listener;
-//        sensor_f = sensorFreq;
-//
-//        eventList = new LinkedList<>();
-//
-//        lacFiltered = new LinkedList<float[]>();
-//        gyrFiltered = new LinkedList<float[]>();
-//        time = new LinkedList<>();
-//        lacSavgolFilter = new LinkedList<float[]>();
-//        gyrSavgolFilter = new LinkedList<float[]>();
-//        this.sensors = sensorTest;
-//
-//        sgFilter = new SGFilter(savgolNl, savgolNr);
-//        savgolcoeffs = SGFilter.computeSGCoefficients(savgolNl, savgolNr, savgolDegree);
-//
-//        if(threadDetection != null){
-//            threadDetection.interrupt();
-//        }
-//        threadDetection = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                try{
-//                    LinkedList lacCopy = (LinkedList) lacFiltered.clone();
-//                    LinkedList gyrCopy = (LinkedList) gyrFiltered.clone();
-//                    LinkedList t = (LinkedList) time.clone();
-//                    float[] lacEnergyCopy = new float[3],
-//                            lacMeanCopy = new float[3],
-//                            gyrEnergyCopy = new float[3],
-//                            gyrMeanCopy = new float[3];
-//                    System.arraycopy(lacEnergy, 0, lacEnergyCopy, 0, lacEnergy.length );
-//                    System.arraycopy(lacMean, 0, lacMeanCopy, 0, lacMean.length );
-//                    System.arraycopy(gyrEnergy, 0, gyrEnergyCopy, 0, gyrEnergy.length );
-//                    System.arraycopy(gyrMean, 0, gyrMeanCopy, 0, gyrMean.length );
-//
-//                    EventDetector(lacCopy, lacEnergyCopy, lacMeanCopy, gyrCopy, gyrEnergyCopy, gyrMeanCopy, t);
-//
-//                    Thread.sleep(1000 / sensor_f);
-//                }catch (InterruptedException e){
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-//
-//        if(threadSensor != null){
-//            threadSensor.interrupt();
-//        }
-//        threadSensor = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                while(true){
-//                    try{
-//                        if (SensorAdd())
-//                            step += 1;
-//                        if (step == stepSize) {
-//                            step = 0;
-//                            threadDetection.start();
-//                        }
-//                        Thread.sleep(1000 / sensor_f);
-//                    }catch (InterruptedException e){
-//                        e.printStackTrace();
-//                    }
-//                }
-//            }
-//        });
-//        threadSensor.start();
-//
-//    }
+    public Detector(int sensorFreq, GuidedLabeling listener, SensorTest sensorTest) {
+        Listener = listener;
+        sensor_f = sensorFreq;
+
+        TestFlag = true;
+
+        eventList = new LinkedList<>();
+
+        lacFiltered = new LinkedList<float[]>();
+        gyrFiltered = new LinkedList<float[]>();
+        time = new LinkedList<>();
+        lacSavgolFilter = new LinkedList<float[]>();
+        gyrSavgolFilter = new LinkedList<float[]>();
+        this.sensorTest = sensorTest;
+
+        sgFilter = new SGFilter(savgolNl, savgolNr);
+        savgolcoeffs = SGFilter.computeSGCoefficients(savgolNl, savgolNr, savgolDegree);
+
+        if(threadDetection != null){
+            threadDetection.interrupt();
+        }
+        threadDetection = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try{
+                    LinkedList lacCopy = (LinkedList) lacFiltered.clone();
+                    LinkedList gyrCopy = (LinkedList) gyrFiltered.clone();
+                    LinkedList t = (LinkedList) time.clone();
+                    float[] lacEnergyCopy = new float[3],
+                            lacMeanCopy = new float[3],
+                            gyrEnergyCopy = new float[3],
+                            gyrMeanCopy = new float[3];
+                    System.arraycopy(lacEnergy, 0, lacEnergyCopy, 0, lacEnergy.length );
+                    System.arraycopy(lacMean, 0, lacMeanCopy, 0, lacMean.length );
+                    System.arraycopy(gyrEnergy, 0, gyrEnergyCopy, 0, gyrEnergy.length );
+                    System.arraycopy(gyrMean, 0, gyrMeanCopy, 0, gyrMean.length );
+
+                    EventDetector(lacCopy, lacEnergyCopy, lacMeanCopy, gyrCopy, gyrEnergyCopy, gyrMeanCopy, t);
+
+                    Thread.sleep(1000 / sensor_f);
+                }catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        if(threadSensor != null){
+            threadSensor.interrupt();
+        }
+        threadSensor = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    try{
+                        if (SensorAdd())
+                            step += 1;
+                        if (step == stepSize) {
+                            step = 0;
+                            threadDetection.start();
+                        }
+                        Thread.sleep(1000 / sensor_f);
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        threadSensor.start();
+
+    }
 
     private void EventDetector(LinkedList<float[]> lac, float[] lacEnergy, float[] lacMean, LinkedList<float[]> gyr, float[] gyrEnergy, float[] gyrMean, LinkedList<Long> time) {
         float lacXVar = 0, lacYVar = 0, gyrZVar = 0;
@@ -231,36 +235,73 @@ public class Detector {
     }
 
     private boolean SensorAdd() {
+        if (!TestFlag) {
+            if (lacFiltered.size() < windowSize) {
+                lacSavgolFilter.add(new float[]{sensors.getAcc().values[0], sensors.getAcc().values[1], sensors.getAcc().values[2]});
+                gyrSavgolFilter.add(new float[]{sensors.getGyr().values[0], sensors.getGyr().values[1], sensors.getGyr().values[2]});
+                if (lacSavgolFilter.size() > savgolNr + savgolNl + 1) {
+                    lacSavgolFilter.removeFirst();
+                    gyrSavgolFilter.removeFirst();
+                }
+                if (lacSavgolFilter.size() == savgolNl + savgolNr + 1){
 
-        if (lacFiltered.size() < windowSize) {
-            lacSavgolFilter.add(new float[]{sensors.getAcc().values[0], sensors.getAcc().values[1], sensors.getAcc().values[2]});
-            gyrSavgolFilter.add(new float[]{sensors.getGyr().values[0], sensors.getGyr().values[1], sensors.getGyr().values[2]});
-            if (lacSavgolFilter.size() > savgolNr + savgolNl + 1) {
+                    time.add(sensors.getAcc().time - 150);
+                    SensorSmooth();
+                    if (time.size() > windowSize) {
+                        time.removeFirst();
+                    }
+                }
+                return false;
+            }
+            else {
+                lacSavgolFilter.add(new float[]{sensors.getAcc().values[0], sensors.getAcc().values[1], sensors.getAcc().values[2]});
+                gyrSavgolFilter.add(new float[]{sensors.getGyr().values[0], sensors.getGyr().values[1], sensors.getGyr().values[2]});
+
                 lacSavgolFilter.removeFirst();
                 gyrSavgolFilter.removeFirst();
-            }
-            if (lacSavgolFilter.size() == savgolNl + savgolNr + 1){
 
                 time.add(sensors.getAcc().time - 150);
                 SensorSmooth();
-                if (time.size() > windowSize)
+                if (time.size() > windowSize) {
                     time.removeFirst();
+                }
+
+                return true;
             }
-            return false;
         }
         else {
-            lacSavgolFilter.add(new float[]{sensors.getAcc().values[0], sensors.getAcc().values[1], sensors.getAcc().values[2]});
-            gyrSavgolFilter.add(new float[]{sensors.getGyr().values[0], sensors.getGyr().values[1], sensors.getGyr().values[2]});
+            if (lacFiltered.size() < windowSize) {
+                lacSavgolFilter.add(new float[]{sensorTest.getAcc().values[0], sensorTest.getAcc().values[1], sensorTest.getAcc().values[2]});
+                gyrSavgolFilter.add(new float[]{sensorTest.getGyr().values[0], sensorTest.getGyr().values[1], sensorTest.getGyr().values[2]});
+                if (lacSavgolFilter.size() > savgolNr + savgolNl + 1) {
+                    lacSavgolFilter.removeFirst();
+                    gyrSavgolFilter.removeFirst();
+                }
+                if (lacSavgolFilter.size() == savgolNl + savgolNr + 1){
 
-            lacSavgolFilter.removeFirst();
-            gyrSavgolFilter.removeFirst();
+                    time.add(sensorTest.getAcc().time - 150);
+                    SensorSmooth();
+                    if (time.size() > windowSize) {
+                        time.removeFirst();
+                    }
+                }
+                return false;
+            }
+            else {
+                lacSavgolFilter.add(new float[]{sensorTest.getAcc().values[0], sensorTest.getAcc().values[1], sensorTest.getAcc().values[2]});
+                gyrSavgolFilter.add(new float[]{sensorTest.getGyr().values[0], sensorTest.getGyr().values[1], sensorTest.getGyr().values[2]});
 
-            time.add(sensors.getAcc().time - 150);
-            SensorSmooth();
-            if (time.size() > windowSize)
-                time.removeFirst();
+                lacSavgolFilter.removeFirst();
+                gyrSavgolFilter.removeFirst();
 
-            return true;
+                time.add(sensorTest.getAcc().time - 150);
+                SensorSmooth();
+                if (time.size() > windowSize) {
+                    time.removeFirst();
+                }
+
+                return true;
+            }
         }
     }
 

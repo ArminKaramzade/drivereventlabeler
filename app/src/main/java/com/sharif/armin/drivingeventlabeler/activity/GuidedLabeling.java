@@ -31,12 +31,12 @@ import java.util.LinkedList;
 
 public class GuidedLabeling extends AppCompatActivity implements PropertyChangeListener {
     private Thread thread = null;
-
     private TextView txttimer, txtlabel;
     private int sensor_f, gps_delay;
     private Sensors sensors;
     private Writer writer;
-    boolean flag = false;
+    boolean TestFlag = false, flag = false;
+    private String TestDir;
     private String filename;
     private Detector Detector;
     private LinkedList<Event> upcomingEvents;
@@ -57,21 +57,28 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
         timer.start();
 
         Intent intent = getIntent();
-        writer = new Writer(MainActivity.directory.getPath());
         sensor_f = Integer.parseInt(intent.getStringExtra(MainActivity.sensor_frequency));
         gps_delay = Integer.parseInt(intent.getStringExtra(MainActivity.gps_delay));
+        TestFlag = intent.getBooleanExtra(MainActivity.TestFlag, false);
+        TestDir = intent.getStringExtra(MainActivity.Direction);
 
-
-        sensors = Sensors.getInstance();
-        sensors.setSensorManager((SensorManager) getSystemService(Context.SENSOR_SERVICE));
-        sensors.setLocationManager((LocationManager) getSystemService((Context.LOCATION_SERVICE)));
-        sensors.setGpsDelay(gps_delay);
-        sensors.setSensorFrequency(sensor_f);
-        sensors.start();
+        writer = new Writer(MainActivity.directory.getPath());
         filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
-//        sensorTest = new SensorTest();
-//        Detector = new Detector(sensor_f, this, sensorTest);
-        Detector = new Detector(sensor_f, this, sensors);
+        if (TestFlag) {
+            sensorTest = new SensorTest(TestDir);
+            Detector = new Detector(sensor_f, this, sensorTest);
+        }
+
+        else {
+            sensors = Sensors.getInstance();
+            sensors.setSensorManager((SensorManager) getSystemService(Context.SENSOR_SERVICE));
+            sensors.setLocationManager((LocationManager) getSystemService((Context.LOCATION_SERVICE)));
+            sensors.setGpsDelay(gps_delay);
+            sensors.setSensorFrequency(sensor_f);
+            sensors.start();
+            Detector = new Detector(sensor_f, this, sensors);
+
+        }
         upcomingEvents = new LinkedList<>();
     }
 

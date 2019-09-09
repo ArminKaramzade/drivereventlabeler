@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -21,6 +22,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String sensor_frequency = "com.drivingeventlabeler.mainActivity.sensor_frequency";
     public static final String gps_delay = "com.drivingeventlabeler.mainActivity.gps_delay";
+    public static final String TestFlag = "com.drivingeventlabeler.mainActivity.TestFlag";
+    public static final String Direction = "com.drivingeventlabeler.mainActivity.Direction";
+
 
     public static File directory;
 
@@ -74,9 +78,15 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GuidedLabeling.class);
         String sns_f = ((EditText)findViewById(R.id.sns_te)).getText().toString();
         String gps_f = ((EditText)findViewById(R.id.gps_te)).getText().toString();
+        String dir = ((EditText)findViewById(R.id.dir)).getText().toString();
+        CheckBox check = ((CheckBox)findViewById(R.id.TestFlag));
+        boolean flag = check.isChecked();
+
 
         intent.putExtra(sensor_frequency, sns_f);
         intent.putExtra(gps_delay, gps_f);
+        intent.putExtra(TestFlag, flag);
+        intent.putExtra(Direction, dir);
         startActivity(intent);
     }
 }
