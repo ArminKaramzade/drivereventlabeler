@@ -182,8 +182,7 @@ public class Sensors {
             float angle = bearing.getAngle();
             processBNG(time, new float [] {angle});
             Quaternion rotE = fusedOrientation.getRotationVector();
-            angle = 30f * (float) Math.PI / 180f;
-            Quaternion rotV = rotE.multiply(new Quaternion(Math.cos(angle/2f), 0, 0, Math.sin(-angle/2f)));
+            Quaternion rotV = (new Quaternion(Math.cos(angle/2f), 0, 0, Math.sin(-angle/2f))).multiply(rotE);
             processROTVehicle(time, new float[] {(float) rotV.getQ0(), (float) rotV.getQ1(),
                     (float) rotV.getQ2(), (float) rotV.getQ3()});
         }
