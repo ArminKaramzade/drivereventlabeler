@@ -140,6 +140,11 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
         else
             txtlabel.setBackgroundResource(R.color.orange);
         upcomingEvents.removeFirst();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     protected void onStop(){

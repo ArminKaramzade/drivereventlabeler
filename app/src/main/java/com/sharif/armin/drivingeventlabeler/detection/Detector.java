@@ -52,6 +52,7 @@ public class Detector {
     private float[] gyrMean = new float[3];
 
     public LinkedList<Event> eventList;
+    private boolean threadDetectionFlag;
 
     public Detector(int sensorFreq, PropertyChangeListener listener, Sensors sensors){
         Listener = listener;
@@ -76,27 +77,33 @@ public class Detector {
             @Override
             public void run() {
                 try{
-                    LinkedList lacCopy = (LinkedList) lacFiltered.clone();
-                    LinkedList gyrCopy = (LinkedList) gyrFiltered.clone();
-                    LinkedList t = (LinkedList) time.clone();
-                    float[] lacEnergyCopy = new float[3],
-                            lacMeanCopy = new float[3],
-                            gyrEnergyCopy = new float[3],
-                            gyrMeanCopy = new float[3];
-                    System.arraycopy(lacEnergy, 0, lacEnergyCopy, 0, lacEnergy.length );
-                    System.arraycopy(lacMean, 0, lacMeanCopy, 0, lacMean.length );
-                    System.arraycopy(gyrEnergy, 0, gyrEnergyCopy, 0, gyrEnergy.length );
-                    System.arraycopy(gyrMean, 0, gyrMeanCopy, 0, gyrMean.length );
+                    while (true) {
+                        if (threadDetectionFlag) {
+                            threadDetectionFlag = false;
+                            LinkedList lacCopy = (LinkedList) lacFiltered.clone();
+                            LinkedList gyrCopy = (LinkedList) gyrFiltered.clone();
+                            LinkedList t = (LinkedList) time.clone();
+                            float[] lacEnergyCopy = new float[3],
+                                    lacMeanCopy = new float[3],
+                                    gyrEnergyCopy = new float[3],
+                                    gyrMeanCopy = new float[3];
+                            System.arraycopy(lacEnergy, 0, lacEnergyCopy, 0, lacEnergy.length );
+                            System.arraycopy(lacMean, 0, lacMeanCopy, 0, lacMean.length );
+                            System.arraycopy(gyrEnergy, 0, gyrEnergyCopy, 0, gyrEnergy.length );
+                            System.arraycopy(gyrMean, 0, gyrMeanCopy, 0, gyrMean.length );
 
-                    EventDetector(lacCopy, lacEnergyCopy, lacMeanCopy, gyrCopy, gyrEnergyCopy, gyrMeanCopy, t);
+                            EventDetector(lacCopy, lacEnergyCopy, lacMeanCopy, gyrCopy, gyrEnergyCopy, gyrMeanCopy, t);
 
-                    Thread.sleep(1000 / sensor_f);
+                            Thread.sleep(1000 / sensor_f);
+
+                        }
+                    }
                 }catch (InterruptedException e){
                     e.printStackTrace();
                 }
             }
         });
-
+        threadDetection.start();
         if(threadSensor != null){
             threadSensor.interrupt();
         }
@@ -109,7 +116,7 @@ public class Detector {
                             step += 1;
                         if (step == stepSize) {
                             step = 0;
-                            threadDetection.start();
+                            threadDetectionFlag = true;
                         }
                         Thread.sleep(1000 / sensor_f);
                     }catch (InterruptedException e){
@@ -147,27 +154,33 @@ public class Detector {
             @Override
             public void run() {
                 try{
-                    LinkedList lacCopy = (LinkedList) lacFiltered.clone();
-                    LinkedList gyrCopy = (LinkedList) gyrFiltered.clone();
-                    LinkedList t = (LinkedList) time.clone();
-                    float[] lacEnergyCopy = new float[3],
-                            lacMeanCopy = new float[3],
-                            gyrEnergyCopy = new float[3],
-                            gyrMeanCopy = new float[3];
-                    System.arraycopy(lacEnergy, 0, lacEnergyCopy, 0, lacEnergy.length );
-                    System.arraycopy(lacMean, 0, lacMeanCopy, 0, lacMean.length );
-                    System.arraycopy(gyrEnergy, 0, gyrEnergyCopy, 0, gyrEnergy.length );
-                    System.arraycopy(gyrMean, 0, gyrMeanCopy, 0, gyrMean.length );
+                    while (true) {
+                        if (threadDetectionFlag) {
+                            threadDetectionFlag = true;
+                            LinkedList lacCopy = (LinkedList) lacFiltered.clone();
+                            LinkedList gyrCopy = (LinkedList) gyrFiltered.clone();
+                            LinkedList t = (LinkedList) time.clone();
+                            float[] lacEnergyCopy = new float[3],
+                                    lacMeanCopy = new float[3],
+                                    gyrEnergyCopy = new float[3],
+                                    gyrMeanCopy = new float[3];
+                            System.arraycopy(lacEnergy, 0, lacEnergyCopy, 0, lacEnergy.length );
+                            System.arraycopy(lacMean, 0, lacMeanCopy, 0, lacMean.length );
+                            System.arraycopy(gyrEnergy, 0, gyrEnergyCopy, 0, gyrEnergy.length );
+                            System.arraycopy(gyrMean, 0, gyrMeanCopy, 0, gyrMean.length );
 
-                    EventDetector(lacCopy, lacEnergyCopy, lacMeanCopy, gyrCopy, gyrEnergyCopy, gyrMeanCopy, t);
+                            EventDetector(lacCopy, lacEnergyCopy, lacMeanCopy, gyrCopy, gyrEnergyCopy, gyrMeanCopy, t);
 
-                    Thread.sleep(1000 / sensor_f);
+                            Thread.sleep(1000 / sensor_f);
+
+                        }
+                    }
                 }catch (InterruptedException e){
                     e.printStackTrace();
                 }
             }
         });
-
+        threadDetection.start();
         if(threadSensor != null){
             threadSensor.interrupt();
         }
