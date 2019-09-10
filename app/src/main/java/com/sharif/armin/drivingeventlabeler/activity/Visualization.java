@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.Legend;
@@ -44,12 +45,18 @@ public class Visualization extends AppCompatActivity{
     ILineDataSet set, set1, set2;
     LineData data;
 
+    private TextView tvX, tvY, tvZ;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_visualization);
         Intent intent = getIntent();
+
+        tvX = (TextView) findViewById(R.id.xVal);
+        tvY = (TextView) findViewById(R.id.yVal);
+        tvZ = (TextView) findViewById(R.id.zVal);
 
         sensor_f = Integer.parseInt(intent.getStringExtra(MainActivity.sensor_frequency));
         gpsDelay = Integer.parseInt(intent.getStringExtra(MainActivity.gps_delay));
@@ -71,8 +78,6 @@ public class Visualization extends AppCompatActivity{
         mChart = findViewById(R.id.chart1);
         mChart.getDescription().setEnabled(true);
         mChart.getDescription().setText("Sensor Data");
-//        mChart.setTouchEnabled(false);
-//        mChart.setDragEnabled(false);
         mChart.setDrawGridBackground(false);
         mChart.setScaleEnabled(true);
         mChart.setPinchZoom(true);
@@ -150,19 +155,36 @@ public class Visualization extends AppCompatActivity{
             set = data.getDataSetByLabel("x", true);
             set1 = data.getDataSetByLabel("y", true);
             set2 = data.getDataSetByLabel("z", true);
-            if(set == null && x){
+            if(set == null){
                 set = createSet();
                 data.addDataSet(set);
+                if(!x){
+                    set.setVisible(x);
+                }
             }
-            if(set1 == null && y) {
+            if(set1 == null) {
                 set1 = createSet1();
                 data.addDataSet(set1);
+                if(!y){
+                    set1.setVisible(y);
+                }
             }
-            if(set2 == null && z){
+            if(set2 == null){
                 set2 = createSet2();
                 data.addDataSet(set2);
+                if(!z){
+                    set2.setVisible(z);
+                }
             }
-
+            if(x){
+                tvX.setText(String.format("%.02f", sensor_data[0]));
+            }
+            if(y){
+                tvY.setText(String.format("%.02f", sensor_data[1]));
+            }
+            if(z){
+                tvZ.setText(String.format("%.02f", sensor_data[2]));
+            }
             data.addEntry(new Entry(x_pos, sensor_data[0]), data.getIndexOfDataSet(set));
             data.addEntry(new Entry(x_pos, sensor_data[1]), data.getIndexOfDataSet(set1));
             data.addEntry(new Entry(x_pos, sensor_data[2]), data.getIndexOfDataSet(set2));
@@ -176,7 +198,6 @@ public class Visualization extends AppCompatActivity{
             if(set2.getEntryCount() >= 200){
                 set2.removeFirst();
             }
-
 
             x_pos += 1;
             data.notifyDataChanged();
@@ -264,10 +285,10 @@ public class Visualization extends AppCompatActivity{
         change("rac");
     }
     public void gyro(View view){
-        change("gyr");
+        change("rotv");
     }
     public void magno(View view){
-        change("mgm");
+        change("rot");
     }
 
     private class SensorListener implements SensorEventListener {
@@ -278,15 +299,12 @@ public class Visualization extends AppCompatActivity{
                     addEntry(sensors.getRac().values);
                 } else if (to_plot == "acc") {
                     addEntry(sensors.getAcc().values);
-                } else if (to_plot == "gyr") {
+                } else if (to_plot == "rotv") {
                     addEntry(Utils.quaternion2euler(sensors.getRotV().values));
-//                    addEntry(sensors.getGyr().values);
-                } else if (to_plot == "mgm") {
+                } else if (to_plot == "rot") {
                     addEntry(Utils.quaternion2euler(sensors.getRot().values));
-//                    addEntry(sensors.getMgm().values);
                 } else if (to_plot == "lac") {
-                    addEntry(sensors.getMgm().values);
-//                    addEntry(sensors.getLac().values);
+                    addEntry(sensors.getLac().values);
                 }
             }
             plotData = false;

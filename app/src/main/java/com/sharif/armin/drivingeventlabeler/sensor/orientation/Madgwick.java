@@ -16,7 +16,7 @@ public class Madgwick {
         q3 = (float)q.getQ3();
     }
 
-    public void MadgwickAHRSupdate(float[] gyr, float[] acc, float[] mgm, float sampleFreq){
+    public void MadgwickAHRSupdate(float[] gyr, float[] acc, float[] mgm, float dT){
         float recipNorm;
         float s0, s1, s2, s3;
         float qDot1, qDot2, qDot3, qDot4;
@@ -26,7 +26,7 @@ public class Madgwick {
         float gx = gyr[0], gy = gyr[1], gz = gyr[2];
         float mx = mgm[0], my = mgm[1], mz = mgm[2];
         if((mx == 0.0f) && (my == 0.0f) && (mz == 0.0f)) {
-            MadgwickAHRSupdateIMU(gyr, acc, sampleFreq);
+            MadgwickAHRSupdateIMU(gyr, acc, dT);
             return;
         }
         qDot1 = 0.5f * (-q1 * gx - q2 * gy - q3 * gz);
@@ -105,10 +105,10 @@ public class Madgwick {
             qDot4 -= beta * s3;
         }
         // Integrate rate of change of quaternion to yield quaternion
-        q0 += qDot1 * (1.0f / sampleFreq);
-        q1 += qDot2 * (1.0f / sampleFreq);
-        q2 += qDot3 * (1.0f / sampleFreq);
-        q3 += qDot4 * (1.0f / sampleFreq);
+        q0 += qDot1 * dT;
+        q1 += qDot2 * dT;
+        q2 += qDot3 * dT;
+        q3 += qDot4 * dT;
 
         // Normalise quaternion
         recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
@@ -118,7 +118,7 @@ public class Madgwick {
         q3 *= recipNorm;
     }
 
-    public void MadgwickAHRSupdateIMU(float[] gyr, float [] acc, float sampleFreq){
+    public void MadgwickAHRSupdateIMU(float[] gyr, float [] acc, float dT){
         float recipNorm;
         float s0, s1, s2, s3;
         float qDot1, qDot2, qDot3, qDot4;
@@ -174,10 +174,10 @@ public class Madgwick {
         }
 
         // Integrate rate of change of quaternion to yield quaternion
-        q0 += qDot1 * (1.0f / sampleFreq);
-        q1 += qDot2 * (1.0f / sampleFreq);
-        q2 += qDot3 * (1.0f / sampleFreq);
-        q3 += qDot4 * (1.0f / sampleFreq);
+        q0 += qDot1 * dT;
+        q1 += qDot2 * dT;
+        q2 += qDot3 * dT;
+        q3 += qDot4 * dT;
 
         // Normalise quaternion
         recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);

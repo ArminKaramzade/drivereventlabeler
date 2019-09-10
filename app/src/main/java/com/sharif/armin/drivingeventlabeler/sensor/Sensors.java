@@ -10,7 +10,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.SystemClock;
-
 import com.sharif.armin.drivingeventlabeler.sensor.headingAngle.VehicleHeadingAngle;
 import com.sharif.armin.drivingeventlabeler.sensor.linearAcceleration.LinearAcceleration;
 import com.sharif.armin.drivingeventlabeler.sensor.orientation.Orientation;
@@ -78,13 +77,18 @@ public class Sensors {
     public SensorSample getRotV(){
         return this.rotV;
     }
+    public SensorSample getRotA() {
+        return this.rot2;
+    }
+    public SensorSample getLac(){
+        return this.lac;
+    }
     public SensorSample getBng() {
         return this.bng;
     }
     public Location     getLoc() {
         return this.loc;
     }
-
 
     private Sensors(){
         this.sensorListener = new SensorListener();
@@ -241,7 +245,6 @@ public class Sensors {
     private boolean hasGyr() {
         return sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE) != null;
     }
-
     private void processLOC(Location location){
         loc = location;
         notifyObserversLocationChanged(this.loc);

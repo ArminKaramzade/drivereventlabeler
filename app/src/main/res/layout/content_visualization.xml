@@ -17,20 +17,20 @@
         android:id="@+id/linear_acc_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="24dp"
         android:onClick="linearAcc"
         android:text=" andrd lac"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintEnd_toStartOf="@+id/gyro_button"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/x_check" />
+        app:layout_constraintTop_toBottomOf="@+id/xVal" />
 
     <Button
         android:id="@+id/magno_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:onClick="magno"
         android:text="rot"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
@@ -43,14 +43,14 @@
         android:id="@+id/gyro_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="24dp"
         android:onClick="gyro"
         android:text="rotV"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/linear_acc_button"
-        app:layout_constraintTop_toBottomOf="@+id/z_check" />
+        app:layout_constraintTop_toBottomOf="@+id/zVal" />
 
     <Button
         android:id="@+id/own_linear_acc_button"
@@ -73,7 +73,7 @@
         android:id="@+id/raw_acc_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:onClick="rawAcc"
         android:text="raw acc"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
@@ -120,5 +120,41 @@
         android:text="z"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chart1" />
+
+    <TextView
+        android:id="@+id/yVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:text="00.0"
+        app:layout_constraintEnd_toStartOf="@+id/zVal"
+        app:layout_constraintStart_toEndOf="@+id/xVal"
+        app:layout_constraintTop_toBottomOf="@+id/y_check" />
+
+    <TextView
+        android:id="@+id/xVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="101dp"
+        android:layout_marginLeft="101dp"
+        android:layout_marginTop="16dp"
+        android:text="00.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/x_check" />
+
+    <TextView
+        android:id="@+id/zVal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="102dp"
+        android:layout_marginRight="102dp"
+        android:text="00.0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/z_check" />
 
 </android.support.constraint.ConstraintLayout>

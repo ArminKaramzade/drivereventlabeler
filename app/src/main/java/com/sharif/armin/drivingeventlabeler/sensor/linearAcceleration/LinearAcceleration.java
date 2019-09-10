@@ -10,17 +10,20 @@ public class LinearAcceleration {
     private float[] acc = {0, 0, 0};
     private float[] grv = {0, 0, 0};
     private long prevTime = 0;
+    private static float timeConstant = 1f;
 
     public float[] getAcc(){ return this.acc;}
     public float[] getGrv(){ return this.grv;}
 
+    public static void setTimeConstant(float timeConstant) {
+        LinearAcceleration.timeConstant = timeConstant;
+    }
     public void reset(){
         grv[0] = 0;
         grv[1] = 0;
         grv[2] = 0;
     }
 
-    // Fusion filter for linear acc
     public void filter(SensorSample rac, SensorSample rot){
         Quaternion rotationVector = new Quaternion(rot.values[0], rot.values[1], rot.values[2], rot.values[3]);
         float[] rotatedRac = Utils.rotate(rotationVector, rac.values);
@@ -28,8 +31,7 @@ public class LinearAcceleration {
         this.acc = Utils.rotate(rotationVector.getConjugate(), rotatedRac);
     }
 
-    // High-pass filter for grv
-    private static float timeConstant = 1f;
+
     public void filter(SensorSample rac){
         final float dT = (rac.time - this.prevTime) * MS2S;
         this.prevTime = rac.time;
@@ -38,7 +40,5 @@ public class LinearAcceleration {
         grv[1] = grv[1] * alpha + (1 - alpha) * rac.values[1];
         grv[2] = grv[2] * alpha + (1 - alpha) * rac.values[2];
     }
-    public static void setTimeConstant(float timeConstant) {
-        LinearAcceleration.timeConstant = timeConstant;
-    }
+
 }
