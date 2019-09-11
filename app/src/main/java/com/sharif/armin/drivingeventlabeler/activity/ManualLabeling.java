@@ -55,9 +55,7 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
         initButton((Button) findViewById(R.id.turn_left_button));
         sensor_f = Integer.parseInt(intent.getStringExtra(MainActivity.sensor_frequency));
         gps_delay = Integer.parseInt(intent.getStringExtra(MainActivity.gps_delay));
-
         writer = new Writer(MainActivity.directory.getPath());
-
         sensors = Sensors.getInstance();
         sensors.setSensorManager((SensorManager) getSystemService(Context.SENSOR_SERVICE));
         sensors.setLocationManager((LocationManager) getSystemService((Context.LOCATION_SERVICE)));
@@ -65,7 +63,6 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
         sensors.setSensorFrequency(sensor_f);
         sensors.registerObserver(this);
         sensors.start();
-
         filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
     }
 
@@ -95,33 +92,45 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
     @Override
     public void onSensorChanged(SensorSample sample){
         switch (sample.type){
-            case "ACC":
-                writer.writeACC(sample);
+            case Sensors.TYPE_LINEAR_ACCELERATION_PHONE:
+                writer.writeLinearAccelerationPhone(sample);
                 break;
-            case "RAC":
-                writer.writeRAC(sample);
+            case Sensors.TYPE_LINEAR_ACCELERATION_VEHICLE:
+                writer.writeLinearAccelerationVehicle(sample);
                 break;
-            case "GYR":
-                writer.writeGYR(sample);
+            case Sensors.TYPE_RAW_ACCELERATION_PHONE:
+                writer.writeRawAccelerationPhone(sample);
                 break;
-            case "MGM":
-                writer.writeMGM(sample);
+            case Sensors.TYPE_ANGULAR_VELOCITY_PHONE:
+                writer.writeAngularVelocityPhone(sample);
                 break;
-            case "ROT":
-                writer.writeROT(sample);
+            case Sensors.TYPE_ANGULAR_VELOCITY_EARTH:
+                writer.writeAngularVelocityEarth(sample);
                 break;
-            case "ROTV":
-                writer.writeROTV(sample);
+            case Sensors.TYPE_MAGNETIC_PHONE:
+                writer.writeMagneticPhone(sample);
                 break;
-            case "ROT2":
-                writer.writeROT2(sample);
+            case Sensors.TYPE_GRAVITY_PHONE:
+                writer.writeGravityPhone(sample);
                 break;
-            case "LAC":
-                writer.writeLAC(sample);
+            case Sensors.TYPE_ROTATION_VECTOR_EARTH:
+                writer.writeRotationVectorEarth(sample);
                 break;
-            case "BNG":
-                writer.writeBNG(sample);
+            case Sensors.TYPE_ROTATION_VECTOR_VEHICLE:
+                writer.writeRotationVectorVehicle(sample);
                 break;
+            case Sensors.TYPE_HEADING_ANGLE_VEHICLE:
+                writer.writeHeadingAngleVehicle(sample);
+                break;
+
+            // start to remove
+            case Sensors.TYPE_ROTATION_VECTOR_EARTH_ANDROID:
+                writer.writeRotationVectorEarthAndroid(sample);
+                break;
+            case Sensors.TYPE_LINEAR_ACCELERATION_PHONE_ANDROID:
+                writer.writeLinearAccelerationPhoneAndroid(sample);
+                break;
+            // end to remove
         }
     }
     @Override
@@ -151,7 +160,7 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
             laneChangeStart = System.currentTimeMillis();
         }
         else {
-            writer.writeLBL("lane_change", laneChangeStart, System.currentTimeMillis());
+            writer.writeLabel("lane_change", laneChangeStart, System.currentTimeMillis());
         }
         changeButtonColor(btn, flag);
     }
@@ -163,7 +172,7 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
             turnRightStart = System.currentTimeMillis();
         }
         else {
-            writer.writeLBL("turn_rigth", turnRightStart, System.currentTimeMillis());
+            writer.writeLabel("turn_rigth", turnRightStart, System.currentTimeMillis());
         }
         changeButtonColor(btn, flag);
     }
@@ -175,7 +184,7 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
             turnLeftStart = System.currentTimeMillis();
         }
         else {
-            writer.writeLBL("turn_left", turnLeftStart, System.currentTimeMillis());
+            writer.writeLabel("turn_left", turnLeftStart, System.currentTimeMillis());
         }
         changeButtonColor(btn, flag);
     }
@@ -187,7 +196,7 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
             uTurnStart = System.currentTimeMillis();
         }
         else {
-            writer.writeLBL("u_turn", uTurnStart, System.currentTimeMillis());
+            writer.writeLabel("u_turn", uTurnStart, System.currentTimeMillis());
         }
         changeButtonColor(btn, flag);
     }
@@ -199,7 +208,7 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
             accelerateStart = System.currentTimeMillis();
         }
         else {
-            writer.writeLBL("acceleration", accelerateStart, System.currentTimeMillis());
+            writer.writeLabel("acceleration", accelerateStart, System.currentTimeMillis());
         }
         changeButtonColor(btn, flag);
     }
@@ -211,7 +220,7 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
             brakeStart = System.currentTimeMillis();
         }
         else {
-            writer.writeLBL("brake", brakeStart, System.currentTimeMillis());
+            writer.writeLabel("brake", brakeStart, System.currentTimeMillis());
         }
         changeButtonColor(btn, flag);
     }

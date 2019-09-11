@@ -1,6 +1,7 @@
 package com.sharif.armin.drivingeventlabeler.detection;
 
 import com.sharif.armin.drivingeventlabeler.activity.GuidedLabeling;
+import com.sharif.armin.drivingeventlabeler.sensor.SensorSample;
 import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
 
 import java.beans.PropertyChangeEvent;
@@ -248,17 +249,23 @@ public class Detector {
     }
 
     private boolean SensorAdd() {
+        SensorSample accSS =  sensors.getLinearAccelerationPhone(),
+                     gyrSS =  sensors.getAngularVelocityPhone();
+        float[] acc = accSS.values,
+                gyr = gyrSS.values;
+        long accTime = accSS.time,
+             gyrTime = gyrSS.time;
         if (!TestFlag) {
             if (lacFiltered.size() < windowSize) {
-                lacSavgolFilter.add(new float[]{sensors.getAcc().values[0], sensors.getAcc().values[1], sensors.getAcc().values[2]});
-                gyrSavgolFilter.add(new float[]{sensors.getGyr().values[0], sensors.getGyr().values[1], sensors.getGyr().values[2]});
+                lacSavgolFilter.add(new float[]{acc[0], acc[1], acc[2]});
+                gyrSavgolFilter.add(new float[]{gyr[0], gyr[1], gyr[2]});
                 if (lacSavgolFilter.size() > savgolNr + savgolNl + 1) {
                     lacSavgolFilter.removeFirst();
                     gyrSavgolFilter.removeFirst();
                 }
                 if (lacSavgolFilter.size() == savgolNl + savgolNr + 1){
 
-                    time.add(sensors.getAcc().time - 150);
+                    time.add(accTime - 150);
                     SensorSmooth();
                     if (time.size() > windowSize) {
                         time.removeFirst();
@@ -267,13 +274,13 @@ public class Detector {
                 return false;
             }
             else {
-                lacSavgolFilter.add(new float[]{sensors.getAcc().values[0], sensors.getAcc().values[1], sensors.getAcc().values[2]});
-                gyrSavgolFilter.add(new float[]{sensors.getGyr().values[0], sensors.getGyr().values[1], sensors.getGyr().values[2]});
+                lacSavgolFilter.add(new float[]{acc[0], acc[1], acc[2]});
+                gyrSavgolFilter.add(new float[]{gyr[0], gyr[1], gyr[2]});
 
                 lacSavgolFilter.removeFirst();
                 gyrSavgolFilter.removeFirst();
 
-                time.add(sensors.getAcc().time - 150);
+                time.add(accTime - 150);
                 SensorSmooth();
                 if (time.size() > windowSize) {
                     time.removeFirst();
@@ -284,15 +291,15 @@ public class Detector {
         }
         else {
             if (lacFiltered.size() < windowSize) {
-                lacSavgolFilter.add(new float[]{sensorTest.getAcc().values[0], sensorTest.getAcc().values[1], sensorTest.getAcc().values[2]});
-                gyrSavgolFilter.add(new float[]{sensorTest.getGyr().values[0], sensorTest.getGyr().values[1], sensorTest.getGyr().values[2]});
+                lacSavgolFilter.add(new float[]{acc[0], acc[1], acc[2]});
+                gyrSavgolFilter.add(new float[]{gyr[0], gyr[1], gyr[2]});
                 if (lacSavgolFilter.size() > savgolNr + savgolNl + 1) {
                     lacSavgolFilter.removeFirst();
                     gyrSavgolFilter.removeFirst();
                 }
                 if (lacSavgolFilter.size() == savgolNl + savgolNr + 1){
 
-                    time.add(sensorTest.getAcc().time - 150);
+                    time.add(accTime - 150);
                     SensorSmooth();
                     if (time.size() > windowSize) {
                         time.removeFirst();
@@ -301,13 +308,13 @@ public class Detector {
                 return false;
             }
             else {
-                lacSavgolFilter.add(new float[]{sensorTest.getAcc().values[0], sensorTest.getAcc().values[1], sensorTest.getAcc().values[2]});
-                gyrSavgolFilter.add(new float[]{sensorTest.getGyr().values[0], sensorTest.getGyr().values[1], sensorTest.getGyr().values[2]});
+                lacSavgolFilter.add(new float[]{acc[0], acc[1], acc[2]});
+                gyrSavgolFilter.add(new float[]{gyr[0], gyr[1], gyr[2]});
 
                 lacSavgolFilter.removeFirst();
                 gyrSavgolFilter.removeFirst();
 
-                time.add(sensorTest.getAcc().time - 150);
+                time.add(accTime - 150);
                 SensorSmooth();
                 if (time.size() > windowSize) {
                     time.removeFirst();

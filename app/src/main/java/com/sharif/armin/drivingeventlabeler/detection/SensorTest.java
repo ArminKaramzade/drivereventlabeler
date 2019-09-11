@@ -3,6 +3,7 @@ package com.sharif.armin.drivingeventlabeler.detection;
 import android.os.Environment;
 
 import com.sharif.armin.drivingeventlabeler.sensor.SensorSample;
+import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -33,8 +34,8 @@ public class SensorTest {
                         while (!((accRow = accReader.readLine()) == null | (gyrRow = gyrReader.readLine()) == null)) {
                             String[] accs = accRow.split(",");
                             String[] gyrs = gyrRow.split(",");
-                            acc = new SensorSample(3, "ACC");
-                            gyr = new SensorSample(3, "GYR");
+                            acc = new SensorSample(3, Sensors.TYPE_LINEAR_ACCELERATION_PHONE);
+                            gyr = new SensorSample(3, Sensors.TYPE_ANGULAR_VELOCITY_PHONE);
                             acc.time = (long) Double.parseDouble(accs[0]);
                             gyr.time = (long) Double.parseDouble(gyrs[0]);
                             acc.values[0] = Float.parseFloat(accs[1]);

@@ -3,7 +3,7 @@ package com.sharif.armin.drivingeventlabeler.sensor.orientation;
 import org.apache.commons.math3.complex.Quaternion;
 
 public class Madgwick {
-    private float beta = 0.133f;
+    private float beta = .01f;
     private float q0 = 1.0f, q1 = 0, q2 = 0, q3 = 0;
 
     public Quaternion getQuaternion(){

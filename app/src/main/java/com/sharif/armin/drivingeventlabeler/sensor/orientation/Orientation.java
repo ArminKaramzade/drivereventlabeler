@@ -8,9 +8,9 @@ public class Orientation {
     private static final float MS2S = 1.0f / 1000.0f;
     private long prevTime = 0;
     private Quaternion rotationVector = null;
-    private float[] gyr = new float[3],
-            acc = new float[3],
-            mgm = new float[3];
+    private float[] angularVelocity = new float[3],
+            gravity = new float[3],
+            magnetic = new float[3];
     private static float timeConstant = 0.1f;
     private Madgwick madgwick = new Madgwick();
 
@@ -25,18 +25,18 @@ public class Orientation {
         rotationVector = null;
     }
 
-    public void filter(SensorSample gyrSensorSample, SensorSample accSensorSample, SensorSample mgmSensorSample, long time) {
-        System.arraycopy(gyrSensorSample.values, 0, gyr, 0, gyr.length);
-        System.arraycopy(accSensorSample.values, 0, acc, 0, acc.length);
-        System.arraycopy(mgmSensorSample.values, 0, mgm, 0, mgm.length);
+    public void filter(SensorSample angularVelocitySS, SensorSample gravitySS, SensorSample magneticSS, long time) {
+        System.arraycopy(angularVelocitySS.values, 0, angularVelocity, 0, angularVelocity.length);
+        System.arraycopy(gravitySS.values, 0, gravity, 0, gravity.length);
+        System.arraycopy(magneticSS.values, 0, magnetic, 0, magnetic.length);
         if (rotationVector == null){
-            Quaternion q = Utils.getAccMgmOrientationVector(acc, mgm);
+            Quaternion q = Utils.getAccMgmOrientationVector(gravity, magnetic);
             rotationVector = q;
             madgwick.setQ(q);
         }
         if (prevTime != 0) {
             final float dT = (time - prevTime) * MS2S;
-            madgwick.MadgwickAHRSupdate(gyr, acc, mgm, dT);
+            madgwick.MadgwickAHRSupdate(angularVelocity, gravity, magnetic, dT);
             final float alpha = timeConstant / (timeConstant + dT);
             rotationVector = rotationVector.multiply(alpha).add(madgwick.getQuaternion().multiply(1f-alpha));
         }

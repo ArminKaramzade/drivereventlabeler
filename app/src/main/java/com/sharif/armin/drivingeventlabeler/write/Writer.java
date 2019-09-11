@@ -19,7 +19,22 @@ public class Writer {
     private static final int BUFFER = 2048;
 
     private enum name{
-        RAC, GYR, MGM, ACC, GPS, ROT, ROTV, ROT2, LAC, LBL, BNG;
+        angularVelocityPhone,
+        angularVelocityEarth,
+        magneticPhone,
+        gravityPhone,
+        rawAccelerationPhone,
+        linearAccelerationPhone,
+        linearAccelerationVehicle,
+        rotationVectorEarth,
+        rotationVectorVehicle,
+        headingAngleVehicle,
+        GPS,
+        label,
+        // start to remove
+        rotationVectorEarthAndroid,
+        linearAccelerationPhoneAndroid,
+        // end to remove
     }
     private static String[]  filenames = new String[name.values().length];
     private CSVWriter[] writers = new CSVWriter[name.values().length];
@@ -28,31 +43,41 @@ public class Writer {
 
     public Writer(String path){
         this.path = path;
-        filenames[name.RAC.ordinal()] = "RawAccelerometer.csv";
-        filenames[name.GYR.ordinal()] = "Gyroscope.csv";
-        filenames[name.MGM.ordinal()] = "Magnetometer.csv";
-        filenames[name.ACC.ordinal()] = "Accelerometer.csv";
-        filenames[name.LAC.ordinal()] = "AccelerometerAndroid.csv";
+        filenames[name.angularVelocityPhone.ordinal()] = "AngularVelocityPhone.csv";
+        filenames[name.angularVelocityEarth.ordinal()] = "AngularVelocityEarth.csv";
+        filenames[name.magneticPhone.ordinal()] = "MagneticPhone.csv";
+        filenames[name.gravityPhone.ordinal()] = "GravityPhone.csv";
+        filenames[name.rawAccelerationPhone.ordinal()] = "RawAccelerationPhone.csv";
+        filenames[name.linearAccelerationPhone.ordinal()] = "LinearAccelerationPhone.csv";
+        filenames[name.linearAccelerationVehicle.ordinal()] = "LinearAccelerationVehicle.csv";
+        filenames[name.rotationVectorEarth.ordinal()] = "RotationVectorEarth.csv";
+        filenames[name.rotationVectorVehicle.ordinal()] = "RotationVectorVehicle.csv";
+        filenames[name.headingAngleVehicle.ordinal()] = "HeadingAngleVehicle.csv";
         filenames[name.GPS.ordinal()] = "GPS.csv";
-        filenames[name.ROT.ordinal()] = "RotationVector.csv";
-        filenames[name.ROTV.ordinal()] = "RotationVectorVehicle.csv";
-        filenames[name.ROT2.ordinal()] = "RotationVectorAndroid.csv";
-        filenames[name.BNG.ordinal()] = "Bearing.csv";
-        filenames[name.LBL.ordinal()] = "Label.csv";
-        headers[name.RAC.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
-        headers[name.GYR.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
-        headers[name.MGM.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
-        headers[name.ACC.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        filenames[name.label.ordinal()] = "Label.csv";
+        // start to remove
+        filenames[name.rotationVectorEarthAndroid.ordinal()] = "RotationVectorEarthAndroid.csv";
+        filenames[name.linearAccelerationPhoneAndroid.ordinal()] = "LinearAccelerationPhoneAndroid.csv";
+        // end to remove
+        headers[name.angularVelocityPhone.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        headers[name.angularVelocityEarth.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        headers[name.magneticPhone.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        headers[name.gravityPhone.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        headers[name.rawAccelerationPhone.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        headers[name.linearAccelerationPhone.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        headers[name.linearAccelerationVehicle.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        headers[name.rotationVectorEarth.ordinal()] = new String[]{"timestamp", "Q0", "Q1", "Q2", "Q3"};
+        headers[name.rotationVectorVehicle.ordinal()] = new String[]{"timestamp", "Q0", "Q1", "Q2", "Q3"};
+        headers[name.headingAngleVehicle.ordinal()] = new String[]{"timestamp", "theta"};
         headers[name.GPS.ordinal()] = new String[]{"timestamp", "LONG", "LAT", "SPEED", "HAS_SPEED",
-                "BEARING", "HAS_BEARING", "LOCATION_ACCURACY",
-                "HAS_LOCATION_ACCURACY", "SPEED_ACCURACY",
-                "HAS_SPEED_ACCURACY", "BEARING_ACCURACY", "HAS_BEARING_ACCURACY"};
-        headers[name.ROT.ordinal()] = new String[]{"timestamp", "Q0", "Q1", "Q2", "Q3"};
-        headers[name.ROTV.ordinal()] = new String[]{"timestamp", "Q0", "Q1", "Q2", "Q3"};
-        headers[name.ROT2.ordinal()] = new String[]{"timestamp", "Q0", "Q1", "Q2", "Q3"};
-        headers[name.LAC.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
-        headers[name.LBL.ordinal()] = new String[]{"TYPE", "START", "END"};
-        headers[name.BNG.ordinal()] = new String[]{"timestamp", "theta"};
+                                                    "BEARING", "HAS_BEARING", "LOCATION_ACCURACY",
+                                                    "HAS_LOCATION_ACCURACY", "SPEED_ACCURACY",
+                                                    "HAS_SPEED_ACCURACY", "BEARING_ACCURACY", "HAS_BEARING_ACCURACY"};
+        headers[name.label.ordinal()] = new String[]{"TYPE", "START", "END"};
+        // start to remove
+        headers[name.rotationVectorEarthAndroid.ordinal()] = new String[]{"timestamp", "Q0", "Q1", "Q2", "Q3"};
+        headers[name.linearAccelerationPhoneAndroid.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
+        // end to remove
         try{
             for (name n: name.values()){
                 writers[n.ordinal()] = get_writer(path, filenames[n.ordinal()]);
@@ -64,62 +89,65 @@ public class Writer {
             writers[n.ordinal()].writeNext(headers[n.ordinal()]);
         }
     }
-
-    public static CSVWriter get_writer(String path, String fn) throws IOException {
+    private CSVWriter get_writer(String path, String fn) throws IOException {
         String full_path = path + File.separator + fn;
         File f = new File(full_path);
         return new CSVWriter(new FileWriter(f, true));
     }
 
-    public void writeLBL(String type, long start, long finish){
+    public void writeLabel(String type, long start, long finish){
         String[] line = new String[] {type, String.valueOf(start), String.valueOf(finish)};
-        writers[name.LBL.ordinal()].writeNext(line);
+        writers[name.label.ordinal()].writeNext(line);
     }
-    public void writeRAC(SensorSample rac){
+    public void writeRawAccelerationPhone(SensorSample rac){
         String[] line = new String [] {String.valueOf(rac.time), String.valueOf(rac.values[0])
                 , String.valueOf(rac.values[1]), String.valueOf(rac.values[2])};
-        writers[name.RAC.ordinal()].writeNext(line);
+        writers[name.rawAccelerationPhone.ordinal()].writeNext(line);
     }
-    public void writeACC(SensorSample acc){
+    public void writeLinearAccelerationPhone(SensorSample acc){
         String[] line = new String [] {String.valueOf(acc.time), String.valueOf(acc.values[0])
                 , String.valueOf(acc.values[1]), String.valueOf(acc.values[2])};
-        writers[name.ACC.ordinal()].writeNext(line);
+        writers[name.linearAccelerationPhone.ordinal()].writeNext(line);
     }
-    public void writeGYR(SensorSample gyr){
+    public void writeLinearAccelerationVehicle(SensorSample acc){
+        String[] line = new String [] {String.valueOf(acc.time), String.valueOf(acc.values[0])
+                , String.valueOf(acc.values[1]), String.valueOf(acc.values[2])};
+        writers[name.linearAccelerationVehicle.ordinal()].writeNext(line);
+    }
+    public void writeAngularVelocityPhone(SensorSample gyr){
         String[] line = new String [] {String.valueOf(gyr.time), String.valueOf(gyr.values[0])
                 , String.valueOf(gyr.values[1]), String.valueOf(gyr.values[2])};
-        writers[name.GYR.ordinal()].writeNext(line);
+        writers[name.angularVelocityPhone.ordinal()].writeNext(line);
     }
-    public void writeMGM(SensorSample mgm){
+    public void writeAngularVelocityEarth(SensorSample gyr){
+        String[] line = new String [] {String.valueOf(gyr.time), String.valueOf(gyr.values[0])
+                , String.valueOf(gyr.values[1]), String.valueOf(gyr.values[2])};
+        writers[name.angularVelocityEarth.ordinal()].writeNext(line);
+    }
+    public void writeMagneticPhone(SensorSample mgm){
         String[] line = new String [] {String.valueOf(mgm.time), String.valueOf(mgm.values[0])
                 , String.valueOf(mgm.values[1]), String.valueOf(mgm.values[2])};
-        writers[name.MGM.ordinal()].writeNext(line);
+        writers[name.magneticPhone.ordinal()].writeNext(line);
     }
-    public void writeROT(SensorSample rot){
+    public void writeGravityPhone(SensorSample mgm){
+        String[] line = new String [] {String.valueOf(mgm.time), String.valueOf(mgm.values[0])
+                , String.valueOf(mgm.values[1]), String.valueOf(mgm.values[2])};
+        writers[name.gravityPhone.ordinal()].writeNext(line);
+    }
+    public void writeRotationVectorEarth(SensorSample rot){
         String[] line = new String [] {String.valueOf(rot.time), String.valueOf(rot.values[0])
                 , String.valueOf(rot.values[1]), String.valueOf(rot.values[2]), String.valueOf(rot.values[3])};
-        writers[name.ROT.ordinal()].writeNext(line);
+        writers[name.rotationVectorEarth.ordinal()].writeNext(line);
     }
-    public void writeROTV(SensorSample rotV){
+    public void writeRotationVectorVehicle(SensorSample rotV){
         String[] line = new String [] {String.valueOf(rotV.time), String.valueOf(rotV.values[0])
                 , String.valueOf(rotV.values[1]), String.valueOf(rotV.values[2]), String.valueOf(rotV.values[3])};
-        writers[name.ROTV.ordinal()].writeNext(line);
+        writers[name.rotationVectorVehicle.ordinal()].writeNext(line);
     }
-    public void writeROT2(SensorSample rot2){
-        String[] line = new String [] {String.valueOf(rot2.time), String.valueOf(rot2.values[0])
-                , String.valueOf(rot2.values[1]), String.valueOf(rot2.values[2]), String.valueOf(rot2.values[3])};
-        writers[name.ROT2.ordinal()].writeNext(line);
-    }
-    public void writeLAC(SensorSample lac){
-        String[] line = new String [] {String.valueOf(lac.time), String.valueOf(lac.values[0])
-                , String.valueOf(lac.values[1]), String.valueOf(lac.values[2])};
-        writers[name.LAC.ordinal()].writeNext(line);
-    }
-    public void writeBNG(SensorSample bng){
+    public void writeHeadingAngleVehicle(SensorSample bng){
         String[] line = new String [] {String.valueOf(bng.time), String.valueOf(bng.values[0])};
-        writers[name.BNG.ordinal()].writeNext(line);
+        writers[name.headingAngleVehicle.ordinal()].writeNext(line);
     }
-
     public void writeGPS(Location location){
         if (location == null) {
             return;
@@ -143,6 +171,19 @@ public class Writer {
                 bearingAccuracy, hasBearingAccuracy};
         writers[name.GPS.ordinal()].writeNext(line);
     }
+    // start to remove
+    public void writeRotationVectorEarthAndroid(SensorSample rot2){
+        String[] line = new String [] {String.valueOf(rot2.time), String.valueOf(rot2.values[0])
+                , String.valueOf(rot2.values[1]), String.valueOf(rot2.values[2]), String.valueOf(rot2.values[3])};
+        writers[name.rotationVectorEarthAndroid.ordinal()].writeNext(line);
+    }
+    public void writeLinearAccelerationPhoneAndroid(SensorSample lac){
+        String[] line = new String [] {String.valueOf(lac.time), String.valueOf(lac.values[0])
+                , String.valueOf(lac.values[1]), String.valueOf(lac.values[2])};
+        writers[name.linearAccelerationPhoneAndroid.ordinal()].writeNext(line);
+    }
+    // end to remove
+
 
     public void saveAndRemove(String fn){
         try {
@@ -162,7 +203,6 @@ public class Writer {
             file.delete();
         }
     }
-
     public void zip(String[] _files, String zipFileName) {
         try {
             BufferedInputStream origin = null;

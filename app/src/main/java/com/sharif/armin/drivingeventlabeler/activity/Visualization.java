@@ -296,15 +296,16 @@ public class Visualization extends AppCompatActivity{
         public void onSensorChanged(SensorEvent event) {
             if (plotData) {
                 if (to_plot == "rac") {
-                    addEntry(sensors.getRac().values);
+                    addEntry(sensors.getRawAccelerationPhone().values);
                 } else if (to_plot == "acc") {
-                    addEntry(sensors.getAcc().values);
+                    addEntry(sensors.getLinearAccelerationPhone().values);
                 } else if (to_plot == "rotv") {
-                    addEntry(Utils.quaternion2euler(sensors.getRotV().values));
+                    addEntry(Utils.quaternion2euler(sensors.getRotationVectorVehicle().values));
                 } else if (to_plot == "rot") {
-                    addEntry(Utils.quaternion2euler(sensors.getRot().values));
+                    addEntry(Utils.quaternion2euler(sensors.getRotationVectorEarth().values));
                 } else if (to_plot == "lac") {
-                    addEntry(sensors.getLac().values);
+                    addEntry(sensors.getLinearAccelerationPhoneAndroid().values);
+//                    addEntry(sensors.getMagneticPhone().values);
                 }
             }
             plotData = false;
