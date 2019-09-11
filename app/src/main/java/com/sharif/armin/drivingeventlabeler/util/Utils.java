@@ -1,11 +1,22 @@
 package com.sharif.armin.drivingeventlabeler.util;
 
 import android.hardware.SensorManager;
+import android.util.Log;
+
+import com.opencsv.CSVReader;
+import com.sharif.armin.drivingeventlabeler.activity.MainActivity;
 
 import org.apache.commons.math3.complex.Quaternion;
 import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.RotationConvention;
 import org.apache.commons.math3.geometry.euclidean.threed.RotationOrder;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class Utils {
     public static int freq2delay(int f) {
@@ -70,6 +81,50 @@ public class Utils {
         double yaw = Math.atan2(siny_cosp, cosy_cosp);
         float []euler = {(float)(roll*180f/Math.PI), (float)(pitch*180f/Math.PI), (float)(yaw*180f/Math.PI)};
         return euler;
+    }
+
+    public static float[] getGyrBias() {
+        CSVReader csvReader;
+        String [] line;
+        String path = MainActivity.directory.getPath() + File.separator + "biases.csv";
+        float[] ret = {0, 0, 0};
+        try {
+            csvReader = new CSVReader(new FileReader(path));
+
+            while ((line = csvReader.readNext()) != null) {
+                if (line[0].equals("gyr")) {
+                    ret[0] = Float.valueOf(line[1]);
+                    ret[1] = Float.valueOf(line[2]);
+                    ret[2] = Float.valueOf(line[3]);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ret;
+    }
+
+    public static float[] getRacBias(){
+        CSVReader csvReader;
+        String [] line;
+        String path = MainActivity.directory.getPath() + File.separator + "biases.csv";
+        float[] ret = {0, 0, 0};
+        try {
+            csvReader = new CSVReader(new FileReader(path));
+
+            while ((line = csvReader.readNext()) != null) {
+                if (line[0].equals("rac")) {
+                    ret[0] = Float.valueOf(line[1]);
+                    ret[1] = Float.valueOf(line[2]);
+                    ret[2] = Float.valueOf(line[3]);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ret;
     }
 
 }

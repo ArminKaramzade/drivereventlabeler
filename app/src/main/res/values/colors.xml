@@ -6,4 +6,5 @@
     <color name="green">@android:color/holo_green_dark</color>
     <color name="orange">@android:color/holo_orange_dark</color>
     <color name="red">@android:color/holo_red_light</color>
+    <color name="gray">#888888</color>
 </resources>

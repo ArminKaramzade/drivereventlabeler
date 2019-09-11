@@ -10,6 +10,8 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
+
 import com.sharif.armin.drivingeventlabeler.sensor.headingAngle.VehicleHeadingAngle;
 import com.sharif.armin.drivingeventlabeler.sensor.linearAcceleration.LinearAcceleration;
 import com.sharif.armin.drivingeventlabeler.sensor.orientation.Orientation;
@@ -50,6 +52,7 @@ public class Sensors {
     private long time;
     private int sensorFrequency, gpsDelay;
     private boolean hasRac, hasMgm, initBng;
+    private float [] gyrBias, racBias;
     private SensorSample mgm, rac, grv, gyr, acc, rot, rotV, bng;
     private SensorSample rot2, lac;
     private Location loc;
@@ -107,6 +110,8 @@ public class Sensors {
         rot2 = new SensorSample(4, "ROT2");
         lac = new SensorSample(3, "LAC");
         mObservers = new ArrayList<>();
+        gyrBias = Utils.getGyrBias();
+        racBias = Utils.getRacBias();
     }
     private static class BillPughSingleton{
         private static final Sensors INSTANCE = new Sensors();
@@ -171,6 +176,9 @@ public class Sensors {
 
     private void processGYR(long time, SensorEvent event){
         System.arraycopy(event.values, 0, gyr.values, 0, this.gyr.values.length);
+        this.gyr.values[0] -= gyrBias[0];
+        this.gyr.values[1] -= gyrBias[1];
+        this.gyr.values[2] -= gyrBias[2];
         this.gyr.time = time;
         notifyObserversSensorChanged(this.gyr);
         if(this.hasRac && this.hasMgm){
@@ -195,6 +203,9 @@ public class Sensors {
     }
     private void processRAC(long time, SensorEvent event){
         System.arraycopy(event.values, 0, rac.values, 0, this.rac.values.length);
+        this.rac.values[0] -= racBias[0];
+        this.rac.values[1] -= racBias[1];
+        this.rac.values[2] -= racBias[2];
         this.rac.time = time;
         notifyObserversSensorChanged(this.rac);
         hasRac = true;

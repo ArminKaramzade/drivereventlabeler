@@ -89,4 +89,9 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(Direction, dir);
         startActivity(intent);
     }
+
+    public void biasEstimation(View view){
+        Intent intent = new Intent(this, BiasEstimation.class);
+        startActivity(intent);
+    }
 }

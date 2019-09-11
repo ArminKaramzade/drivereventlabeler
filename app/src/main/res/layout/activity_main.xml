@@ -58,13 +58,13 @@
         android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="108dp"
         android:background="@color/green"
         android:onClick="manualLabeling"
         android:text="Manual Labling"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        app:layout_constraintBottom_toTopOf="@+id/guided_labling"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guided_labling"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -75,15 +75,16 @@
         android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="8dp"
         android:background="@color/green"
         android:onClick="visualization"
         android:text="@string/title_activity_visualization"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintBottom_toTopOf="@+id/manual_labling"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.501"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toStartOf="@+id/guided_labling"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dir"
+        app:layout_constraintVertical_bias="0.8" />
 
     <Button
         android:id="@+id/guided_labling"
@@ -93,14 +94,34 @@
         android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginBottom="108dp"
         android:background="@color/green"
         android:onClick="guidedLabeling"
         android:text="Guided Labling"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/manual_labling" />
+
+    <Button
+        android:id="@+id/bias_estimation"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/green"
+        android:onClick="biasEstimation"
+        android:text="Bias Estimation"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintBottom_toTopOf="@+id/guided_labling"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.52"
+        app:layout_constraintStart_toEndOf="@+id/Visualization"
+        app:layout_constraintTop_toBottomOf="@+id/dir"
+        app:layout_constraintVertical_bias="0.8" />
 
     <CheckBox
         android:id="@+id/TestFlag"
@@ -125,14 +146,12 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginBottom="16dp"
         android:ems="10"
         android:inputType="textPersonName"
         android:text="labeled-route-2019-06-29-18-03-00"
-        app:layout_constraintBottom_toTopOf="@+id/Visualization"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/TestFlag" />

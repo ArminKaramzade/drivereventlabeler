@@ -20,5 +20,14 @@
     <string name="aggresive">رانندگی خطرناک</string>
     <string name="title_activity_guided_labling">GuidedLabling</string>
     <string name="title_activity_visualization">Visualization</string>
+    <string name="title_activity_bias_estimation">bias_estimation</string>
+
+    <string name="text_activity_bias_estimation">
+        Please put your phone on a flat area like table then touch the start
+        button.
+    </string>
+    <string name="start_button_activity_bias_estimation">Start</string>
+
+
 
 </resources>

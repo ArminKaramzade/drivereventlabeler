@@ -13,9 +13,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:name=".activity.BiasEstimation"
+            android:label="@string/title_activity_bias_estimation"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
             android:name=".activity.Visualization"
             android:label="@string/title_activity_visualization"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.GuidedLabeling"
             android:label="@string/title_activity_guided_labling"
