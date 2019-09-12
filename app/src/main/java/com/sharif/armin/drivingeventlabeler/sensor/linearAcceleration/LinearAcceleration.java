@@ -10,7 +10,7 @@ public class LinearAcceleration {
     private float[] acceleration = {0, 0, 0};
     private float[] gravity = {0, 0, 0};
     private long prevTime = 0;
-    private static float timeConstant = 1f;
+    private static float timeConstant = .2f;
 
     public float[] getAcceleration(){ return this.acceleration;}
     public float[] getGravity(){ return this.gravity;}

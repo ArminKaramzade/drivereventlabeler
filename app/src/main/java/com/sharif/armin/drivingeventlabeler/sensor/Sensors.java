@@ -230,7 +230,7 @@ public class Sensors {
         this.angularVelocityPhone.time = time;
         notifyObserversSensorChanged(this.angularVelocityPhone);
         if(this.rawAccelerationArrived && this.magneticArrived){
-            fusedOrientationFilter.filter(getAngularVelocityPhone(), getRawAccelerationPhone(),
+            fusedOrientationFilter.filter(getAngularVelocityPhone(), getGravityPhone(),
                                           getMagneticPhone(), time);
             Quaternion rotE = fusedOrientationFilter.getRotationVector();
             processRotationVectorEarth(time, new float[] {(float) rotE.getQ0(), (float) rotE.getQ1(),
