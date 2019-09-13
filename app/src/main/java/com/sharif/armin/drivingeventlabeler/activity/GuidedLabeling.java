@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.sharif.armin.drivingeventlabeler.R;
 import com.sharif.armin.drivingeventlabeler.detection.Detector;
+import com.sharif.armin.drivingeventlabeler.detection.DetectorObserver;
 import com.sharif.armin.drivingeventlabeler.detection.Event;
 import com.sharif.armin.drivingeventlabeler.detection.SensorTest;
 import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
@@ -24,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 
-public class GuidedLabeling extends AppCompatActivity implements PropertyChangeListener {
+public class GuidedLabeling extends AppCompatActivity implements DetectorObserver {
     private Thread thread = null;
     private TextView txttimer, txtlabel;
     private int sensor_f, gps_delay;
@@ -61,7 +62,7 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
         filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
         if (TestFlag) {
             sensorTest = new SensorTest(TestDir);
-            Detector = new Detector(sensor_f, this, sensorTest);
+            Detector = new Detector(sensor_f, sensorTest);
         }
 
         else {
@@ -71,17 +72,17 @@ public class GuidedLabeling extends AppCompatActivity implements PropertyChangeL
             sensors.setGpsDelay(gps_delay);
             sensors.setSensorFrequency(sensor_f);
             sensors.start();
-            Detector = new Detector(sensor_f, this, sensors);
+            Detector = new Detector(sensor_f, sensors);
 
         }
         upcomingEvents = new LinkedList<>();
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent propertyChangeEvent) {
-        String name = propertyChangeEvent.getPropertyName();
-        Event newvalue = (Event) propertyChangeEvent.getNewValue();
-        upcomingEvents.add(newvalue);
+    public void onEventDetected(Event event) {
+        // inja felan faghat write kon label e bedas omade ro bad ba python moqayese konim yeki bashe
+        // feedback o inaro badan ok mikonim
+        upcomingEvents.add(event);
         showEvent();
     }
 

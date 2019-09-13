@@ -19,6 +19,7 @@ public class SensorTest {
     String accRow, gyrRow;
     public SensorTest(String testDir) {
         try {
+            // path bayad intori bashe: MainActivity.directory.getPath() + File.seprator + testDir + File.seprator
             path = new String(Environment.getExternalStorageDirectory().toString() + "/drivingeventlbl/" + testDir + "/");
             accReader = new BufferedReader(new FileReader(path + "aranged_Accelerometer.csv"));
             gyrReader = new BufferedReader(new FileReader(path + "aranged_Gyroscope.csv"));
@@ -34,6 +35,8 @@ public class SensorTest {
                         while (!((accRow = accReader.readLine()) == null | (gyrRow = gyrReader.readLine()) == null)) {
                             String[] accs = accRow.split(",");
                             String[] gyrs = gyrRow.split(",");
+                            // thread haye dg momkene vaght in thread dare khate paeeno mikhone
+                            // getAcc bezanan va 0 bebinan, in 2 khate paeen ro bebar bala
                             acc = new SensorSample(3, Sensors.TYPE_LINEAR_ACCELERATION_PHONE);
                             gyr = new SensorSample(3, Sensors.TYPE_ANGULAR_VELOCITY_PHONE);
                             acc.time = (long) Double.parseDouble(accs[0]);
@@ -48,11 +51,16 @@ public class SensorTest {
                         }
                         accReader.close();
                         gyrReader.close();
+                        // ye flag bezar finished inja true konesh
+                        // az to activity guided check kon age true shod
+                        // detector ro stop koni bad writer ham save kone
+                        // labele bedas omade ro ba ona ke python detect mikone check konim
                     }catch (InterruptedException e){
                         e.printStackTrace();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
                 }
             });
         } catch (FileNotFoundException e) {

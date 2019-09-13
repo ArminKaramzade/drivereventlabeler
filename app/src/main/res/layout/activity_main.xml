@@ -151,7 +151,7 @@
         android:layout_marginRight="16dp"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="labeled-route-2019-06-29-18-03-00"
+        android:text="test1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/TestFlag" />

@@ -3,6 +3,7 @@ package com.sharif.armin.drivingeventlabeler.detection;
 import com.sharif.armin.drivingeventlabeler.activity.GuidedLabeling;
 import com.sharif.armin.drivingeventlabeler.sensor.SensorSample;
 import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
+import com.sharif.armin.drivingeventlabeler.sensor.SensorsObserver;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -15,7 +16,22 @@ import mr.go.sgfilter.SGFilter;
 
 public class Detector {
 
-    private PropertyChangeListener Listener;
+    private ArrayList<DetectorObserver> mObservers;
+    public void registerObserver(DetectorObserver detectorObserver){
+        if(!mObservers.contains(detectorObserver)) {
+            mObservers.add(detectorObserver);
+        }
+    }
+    public void removeObserver(DetectorObserver detectorObserver){
+        if(mObservers.contains(detectorObserver)) {
+            mObservers.remove(detectorObserver);
+        }
+    }
+    public void notifyObserversEventDetected(Event event){
+        for (DetectorObserver observer: mObservers) {
+            observer.onEventDetected(event);
+        }
+    }
 
     private Thread threadSensor = null;
     private Thread threadDetection = null;
@@ -27,7 +43,7 @@ public class Detector {
     public static int windowSize = 40;
     public static int overLap = 30;
     public static int stepSize = windowSize - overLap;
-    public static int step = 9;
+    public static int step = 9; // stepSize - 1?
 
     private int savgolNl = 15;
     private int savgolNr = 15;
@@ -55,8 +71,10 @@ public class Detector {
     public LinkedList<Event> eventList;
     private boolean threadDetectionFlag;
 
-    public Detector(int sensorFreq, PropertyChangeListener listener, Sensors sensors){
-        Listener = listener;
+    // start kardan thread ro to constructor nazara ye tabe start benevis onja bashan
+    // ye tabe stop ham dashte bashe in thread haro stop kone bad az to activity guided inaro seda bezan
+    public Detector(int sensorFreq, Sensors sensors){
+        mObservers = new ArrayList<>();
         sensor_f = sensorFreq;
 
         eventList = new LinkedList<>();
@@ -130,8 +148,8 @@ public class Detector {
 
     }
 
-    public Detector(int sensorFreq, GuidedLabeling listener, SensorTest sensorTest) {
-        Listener = listener;
+    public Detector(int sensorFreq, SensorTest sensorTest) {
+        mObservers = new ArrayList<>();
         sensor_f = sensorFreq;
 
         TestFlag = true;
@@ -158,6 +176,8 @@ public class Detector {
                     while (true) {
                         if (threadDetectionFlag) {
                             threadDetectionFlag = true;
+                            // inja bayad havaset bashe onyeki thread bekhad be ina access peyda kone
+                            // exception mikhore barname (motmaen nistam momkene moshekli pish biad ya na)
                             LinkedList lacCopy = (LinkedList) lacFiltered.clone();
                             LinkedList gyrCopy = (LinkedList) gyrFiltered.clone();
                             LinkedList t = (LinkedList) time.clone();
@@ -172,6 +192,7 @@ public class Detector {
 
                             EventDetector(lacCopy, lacEnergyCopy, lacMeanCopy, gyrCopy, gyrEnergyCopy, gyrMeanCopy, t);
 
+                            // sleep lazeme inja?
                             Thread.sleep(1000 / sensor_f);
 
                         }
@@ -194,6 +215,7 @@ public class Detector {
                             step += 1;
                         if (step == stepSize) {
                             step = 0;
+                            // khate paeen bayad in bashe? -> threadDetectionFlag = true
                             threadDetection.start();
                         }
                         Thread.sleep(1000 / sensor_f);
@@ -207,6 +229,7 @@ public class Detector {
 
     }
 
+    // kafie accY, accX, gyrZ ro begire baghiash kond (momkene saf e event bozorg she) mikone karo
     private void EventDetector(LinkedList<float[]> lac, float[] lacEnergy, float[] lacMean, LinkedList<float[]> gyr, float[] gyrEnergy, float[] gyrMean, LinkedList<Long> time) {
         float lacXVar = 0, lacYVar = 0, gyrZVar = 0;
 
@@ -219,32 +242,24 @@ public class Detector {
             t = gyriterator.next();
             gyrZVar += Math.pow(gyrMean[Z] - gyr.get(i)[Z], 2);
         }
-        lacXVar /= windowSize;
-        lacYVar /= windowSize;
-        gyrZVar /= windowSize;
+
+        lacXVar /= windowSize; // useless?
+        lacYVar /= windowSize; // useless?
+        gyrZVar /= windowSize; // useless?
 
         Event event1, event2, event3;
-        Event last = null;
-        // Brake
         event1 = BrakeEventDetector.brakeDetect(lac, lacEnergy, lacMean, time);
-
-        // Turn
         event2 = TurnEventDetector.turnDetect(gyrEnergy, gyrMean, time);
-
-        // lanechangeDetect
         event3 = LaneChangeDetector.lanechangeDetect(lac, gyrEnergy, lacEnergy, time);
         if (event1 != null){
-//            Event last = eventList.get(eventList.size() - 1);
             eventList.add(event1);
-            NotifyListener(this, event1.getEventLable(), last, event1);
+            notifyObserversEventDetected(event1);
         }else if (event2 != null){
-//            Event last = eventList.get(eventList.size() - 1);
             eventList.add(event2);
-            NotifyListener(this, event2.getEventLable(), last, event2);
+            notifyObserversEventDetected(event2);
         }else if (event3 != null){
-//            Event last = eventList.get(eventList.size() - 1);
             eventList.add(event3);
-            NotifyListener(this, event3.getEventLable(), last, event3);
+            notifyObserversEventDetected(event3);
         }
     }
 
@@ -255,6 +270,7 @@ public class Detector {
                 gyr = gyrSS.values;
         long accTime = accSS.time,
              gyrTime = gyrSS.time;
+        // inja ro ye check bokon hatman
         if (!TestFlag) {
             if (lacFiltered.size() < windowSize) {
                 lacSavgolFilter.add(new float[]{acc[0], acc[1], acc[2]});
@@ -265,7 +281,7 @@ public class Detector {
                 }
                 if (lacSavgolFilter.size() == savgolNl + savgolNr + 1){
 
-                    time.add(accTime - 150);
+                    time.add(accTime - 150); // 150 chie? (savgolNl * 1000 / sensorFreq)?
                     SensorSmooth();
                     if (time.size() > windowSize) {
                         time.removeFirst();
@@ -280,7 +296,7 @@ public class Detector {
                 lacSavgolFilter.removeFirst();
                 gyrSavgolFilter.removeFirst();
 
-                time.add(accTime - 150);
+                time.add(accTime - 150); // 150 chie? (savgolNl * 1000 / sensorFreq)?
                 SensorSmooth();
                 if (time.size() > windowSize) {
                     time.removeFirst();
@@ -299,7 +315,7 @@ public class Detector {
                 }
                 if (lacSavgolFilter.size() == savgolNl + savgolNr + 1){
 
-                    time.add(accTime - 150);
+                    time.add(accTime - 150); // 150 chie? (savgolNl * 1000 / sensorFreq)?
                     SensorSmooth();
                     if (time.size() > windowSize) {
                         time.removeFirst();
@@ -314,7 +330,7 @@ public class Detector {
                 lacSavgolFilter.removeFirst();
                 gyrSavgolFilter.removeFirst();
 
-                time.add(accTime - 150);
+                time.add(accTime - 150); // 150 chie? (savgolNl * 1000 / sensorFreq)?
                 SensorSmooth();
                 if (time.size() > windowSize) {
                     time.removeFirst();
@@ -393,13 +409,11 @@ public class Detector {
             gyrFiltered.removeFirst();
         }
     }
-
-    private void NotifyListener(Object object, String event, Event oldValue, Event newValue) {
-        Listener.propertyChange(new PropertyChangeEvent(object, event, oldValue, newValue));
-    }
 }
 
 class BrakeEventDetector {
+    // minduration = 1 * 1000 beja inke badan hey zarb koni?
+    // maxduration = 10 * 1000
     private static int MinDuration = 1;
     private static int MaxDuration = 10;
     private static float lacYEnergyThreshold = 0.1f;
@@ -413,6 +427,8 @@ class BrakeEventDetector {
         return Mean < AcceptFunctionThreshold;
     }
 
+    // inja faghat LinkedList<float> event kafie(faghat y), baghie ro ham mifresti
+    // copy kardaneshon tool mikeshe
     public static boolean AcceptEventFunction(LinkedList<float[]> event, float mean){
         float var = 0;
         Iterator<float[]> iter = event.iterator();
@@ -423,7 +439,9 @@ class BrakeEventDetector {
         var /= event.size();
         return var > VarThreshold;
     }
-
+    // inja faghat LinkedList<float> lac kafie, baghie ro ham mifresti
+    // copy kardaneshon tool mikeshe,
+    // hamintor lacEnergy, lacMean
     public static Event brakeDetect(LinkedList<float[]> lac, float[] lacEnergy, float[] lacMean, LinkedList<Long> time) {
         if (lacEnergy[Detector.Y] / Detector.windowSize >= BrakeEventDetector.lacYEnergyThreshold && BrakeEventDetector.AcceptWindowFunction(lacMean[Detector.Y])) {
             if (!brakeEvent) {
@@ -437,7 +455,8 @@ class BrakeEventDetector {
         }
         else if (brakeEvent) {
             brakeEvent = false;
-            brakeStop = time.getLast();
+            brakeStop = time.getLast(); // brakeStop = time.get(overlap) ? [bare turn , lane ham hamintor]
+            // lacMean[1] mean vase window e na kole event ( bare acceptEventFunction )
             if (BrakeEventDetector.AcceptEventFunction(brakeWindow, lacMean[1]) && brakeStop - brakeStart < BrakeEventDetector.MaxDuration * 1000 && brakeStop - brakeStart > BrakeEventDetector.MinDuration * 1000){
                 return new Event(brakeStart, brakeStop, new String("brake"));
             }
