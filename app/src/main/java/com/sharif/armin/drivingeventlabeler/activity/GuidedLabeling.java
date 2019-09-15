@@ -34,7 +34,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
     boolean TestFlag = false, flag = false;
     private String TestDir;
     private String filename;
-    private Detector Detector;
+    private Detector detector;
     private LinkedList<Event> upcomingEvents;
     private SensorTest sensorTest;
 
@@ -62,7 +62,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
         filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
         if (TestFlag) {
             sensorTest = new SensorTest(TestDir);
-            Detector = new Detector(sensor_f, sensorTest);
+            detector = new Detector(sensor_f, sensorTest);
         }
 
         else {
@@ -72,9 +72,10 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             sensors.setGpsDelay(gps_delay);
             sensors.setSensorFrequency(sensor_f);
             sensors.start();
-            Detector = new Detector(sensor_f, sensors);
+            detector = new Detector(sensor_f, sensors);
 
         }
+        detector.registerObserver(this);
         upcomingEvents = new LinkedList<>();
     }
 
