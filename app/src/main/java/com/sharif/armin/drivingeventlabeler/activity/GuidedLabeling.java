@@ -63,6 +63,9 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
         if (TestFlag) {
             sensorTest = new SensorTest(TestDir);
             detector = new Detector(sensor_f, sensorTest);
+            detector.registerObserver(this);
+            detector.start();
+            sensorTest.start();
         }
 
         else {
@@ -71,20 +74,34 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             sensors.setLocationManager((LocationManager) getSystemService((Context.LOCATION_SERVICE)));
             sensors.setGpsDelay(gps_delay);
             sensors.setSensorFrequency(sensor_f);
-            sensors.start();
             detector = new Detector(sensor_f, sensors);
+            detector.registerObserver(this);
+            detector.start();
+            sensors.start();
 
         }
-        detector.registerObserver(this);
         upcomingEvents = new LinkedList<>();
     }
 
     @Override
     public void onEventDetected(Event event) {
-        // inja felan faghat write kon label e bedas omade ro bad ba python moqayese konim yeki bashe
+        //TODO inja felan faghat write kon label e bedas omade ro bad ba python moqayese konim yeki bashe
         // feedback o inaro badan ok mikonim
         upcomingEvents.add(event);
-        showEvent();
+        if (TestFlag && event.getEventLable().compareTo("Finish") == 0){
+            this.writer.saveAndRemove(filename);
+            this.sensorTest.stop();
+            this.detector.stop();
+            Context context = getApplicationContext();
+            CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+        writer.writeLabel(event.getEventLable(), event.getStart(), event.getEnd());
+//        showEvent();
     }
 
     private void showEvent() {
@@ -128,34 +145,42 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
         thread.start();
     }
 
+
+
     private void writeLable(Event event) {
         writer.writeLabel(event.getEventLable(), event.getStart(), event.getEnd());
-        String[] s = upcomingEvents.getFirst().getEventLable().split("/");
-        if (s[0].equals(s[1])) {
-            txtlabel.setBackgroundResource(R.color.green);
-        }
-        else
-            txtlabel.setBackgroundResource(R.color.orange);
-        upcomingEvents.removeFirst();
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        //TODO
+//        String[] s = upcomingEvents.getFirst().getEventLable().split("/");
+//        if (s[0].equals(s[1])) {
+//            txtlabel.setBackgroundResource(R.color.green);
+//        }
+//        else
+//            txtlabel.setBackgroundResource(R.color.orange);
+//        upcomingEvents.removeFirst();
+//        try {
+//            Thread.sleep(500);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
     }
 
     protected void onStop(){
         super.onStop();
-        sensors.stop();
+        if (!TestFlag)
+            sensors.stop();
+        detector.stop();
     }
     protected void onDestroy(){
         super.onDestroy();
-        sensors.stop();
+        if (!TestFlag)
+            sensors.stop();
+        detector.stop();
     }
 
     public void stop(View view){
         this.writer.saveAndRemove(filename);
         this.sensors.stop();
+        this.detector.stop();
         Context context = getApplicationContext();
         CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
         int duration = Toast.LENGTH_LONG;
