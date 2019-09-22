@@ -18,7 +18,7 @@ public class SensorTest {
     public SensorSample acc, gyr;
     BufferedReader accReader = null, gyrReader = null;
     String accRow, gyrRow;
-    boolean fin = false;
+    boolean fin = false, start = false;
     public SensorTest(String testDir) {
         try {
             path = new String(MainActivity.directory.getPath() + "/" + testDir + "/");
@@ -26,13 +26,18 @@ public class SensorTest {
             gyrReader = new BufferedReader(new FileReader(path + "aranged_Gyroscope.csv"));
             acc = new SensorSample(3, Sensors.TYPE_LINEAR_ACCELERATION_PHONE);
             gyr = new SensorSample(3, Sensors.TYPE_ANGULAR_VELOCITY_PHONE);
+            accReader.readLine();
+            gyrReader.readLine();
 
         } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void start() {
+        start = true;
         if(thread != null){
             thread.interrupt();
         }
@@ -40,8 +45,7 @@ public class SensorTest {
             @Override
             public void run() {
                 try{
-                    accReader.readLine();
-                    gyrReader.readLine();
+
                     while (!((accRow = accReader.readLine()) == null | (gyrRow = gyrReader.readLine()) == null)) {
                         synchronized (this) {
                             String[] accs = accRow.split(",");

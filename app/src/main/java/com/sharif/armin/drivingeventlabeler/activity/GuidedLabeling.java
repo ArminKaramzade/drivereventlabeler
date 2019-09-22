@@ -66,6 +66,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             detector.registerObserver(this);
             detector.start();
             sensorTest.start();
+            filename = new String(TestDir + "test.zip");
         }
 
         else {
