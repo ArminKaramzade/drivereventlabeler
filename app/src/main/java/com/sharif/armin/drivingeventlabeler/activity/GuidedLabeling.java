@@ -102,7 +102,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             startActivity(intent);
         }
         writer.writeLabel(event.getEventLable(), event.getStart(), event.getEnd());
-//        showEvent();
+        showEvent();
     }
 
     private void showEvent() {

@@ -104,47 +104,47 @@ public class Detector {
     }
 
     public void stop() {
-        threadDetection.interrupt();
+//        threadDetection.interrupt();
         threadSensor.interrupt();
     }
 
     public void start() {
-        if(threadDetection != null){
-            threadDetection.interrupt();
-        }
-        threadDetection = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    float[] lacEnergyCopy = new float[2],
-                            lacMeanCopy = new float[2],
-                            gyrEnergyCopy = new float[1],
-                            gyrMeanCopy = new float[1];
-                    LinkedList lacCopy, gyrCopy, t;
-                    while (true) {
-                        if (threadDetectionFlag) {
-                            synchronized (this) {
-                                threadDetectionFlag = false;
-                                lacCopy = (LinkedList) lacFilteredWindow.clone();
-                                gyrCopy = (LinkedList) gyrFilteredWindow.clone();
-                                t = (LinkedList) time.clone();
-                                System.arraycopy(lacEnergy, 0, lacEnergyCopy, 0, lacEnergy.length );
-                                System.arraycopy(lacMean, 0, lacMeanCopy, 0, lacMean.length );
-                                System.arraycopy(gyrEnergy, 0, gyrEnergyCopy, 0, gyrEnergy.length );
-                                System.arraycopy(gyrMean, 0, gyrMeanCopy, 0, gyrMean.length );
-                            }
-                            EventDetector(lacCopy, lacEnergyCopy, lacMeanCopy, gyrCopy, gyrEnergyCopy, gyrMeanCopy, t);
-
-                        }
-                        Thread.sleep(1000 / Detector.this.sensorFreq);
-                    }
-                }catch (InterruptedException e){
-                    System.err.println("threadDetection");
-                    e.printStackTrace();
-                }
-            }
-        });
-        threadDetection.start();
+//        if(threadDetection != null){
+//            threadDetection.interrupt();
+//        }
+//        threadDetection = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                try{
+//                    float[] lacEnergyCopy = new float[2],
+//                            lacMeanCopy = new float[2],
+//                            gyrEnergyCopy = new float[1],
+//                            gyrMeanCopy = new float[1];
+//                    LinkedList lacCopy, gyrCopy, t;
+//                    while (true) {
+//                        if (threadDetectionFlag) {
+//                            synchronized (this) {
+//                                threadDetectionFlag = false;
+//                                lacCopy = (LinkedList) lacFilteredWindow.clone();
+//                                gyrCopy = (LinkedList) gyrFilteredWindow.clone();
+//                                t = (LinkedList) time.clone();
+//                                System.arraycopy(lacEnergy, 0, lacEnergyCopy, 0, lacEnergy.length );
+//                                System.arraycopy(lacMean, 0, lacMeanCopy, 0, lacMean.length );
+//                                System.arraycopy(gyrEnergy, 0, gyrEnergyCopy, 0, gyrEnergy.length );
+//                                System.arraycopy(gyrMean, 0, gyrMeanCopy, 0, gyrMean.length );
+//                            }
+//                            EventDetector(lacCopy, lacEnergyCopy, lacMeanCopy, gyrCopy, gyrEnergyCopy, gyrMeanCopy, t);
+//
+//                        }
+//                        Thread.sleep(1000 / Detector.this.sensorFreq);
+//                    }
+//                }catch (InterruptedException e){
+//                    System.err.println("threadDetection");
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//        threadDetection.start();
 
 
         if(threadSensor != null){
@@ -166,7 +166,8 @@ public class Detector {
                                 step += 1;
                             if (step == stepSize) {
                                 step = 0;
-                                threadDetectionFlag = true;
+//                                threadDetectionFlag = true;
+                                EventDetector(lacFilteredWindow, lacEnergy, lacMean, gyrFilteredWindow, gyrEnergy, gyrMean, time);
                             }
                         }
                         Thread.sleep(1000 / Detector.this.sensorFreq);
@@ -185,16 +186,10 @@ public class Detector {
         Event event1, event2, event3;
         LinkedList <Float> lacX = new LinkedList<>(),
                 lacY = new LinkedList<>();
-//                gyrZ = new LinkedList<>();
-//        Iterator<float[]> laciterator = lac.iterator();
-//        Iterator<float[]> gyriterator = gyr.iterator();
 
         for (float[] t: lac) {
-//            float[] t = laciterator.next();
             lacX.add(t[0]);
             lacY.add(t[1]);
-//            t = gyriterator.next();
-//            gyrZ.add(t[0]);
         }
 
         event1 = BrakeEventDetector.brakeDetect(lacY, lacEnergy[Y], lacMean[Y], time);

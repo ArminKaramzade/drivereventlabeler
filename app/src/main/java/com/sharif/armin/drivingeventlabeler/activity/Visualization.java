@@ -304,8 +304,8 @@ public class Visualization extends AppCompatActivity{
                 } else if (to_plot == "rot") {
                     addEntry(Utils.quaternion2euler(sensors.getRotationVectorEarth().values));
                 } else if (to_plot == "lac") {
-                    addEntry(sensors.getGravityPhone().values);
-//                    addEntry(sensors.getLinearAccelerationPhoneAndroid().values);
+//                    addEntry(sensors.getGravityPhone().values);
+                    addEntry(sensors.getLinearAccelerationPhoneAndroid().values);
 //                    addEntry(sensors.getMagneticPhone().values);
                 }
             }
