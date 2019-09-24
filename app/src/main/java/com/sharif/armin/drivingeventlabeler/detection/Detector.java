@@ -397,14 +397,14 @@ class TurnEventDetector {
 }
 
 class LaneChangeDetector {
-    private static int MinDuration = 2;
-    public static int MaxDuration = 10;
+    private static int MinDuration = 2 * 1000;
+    public static int MaxDuration = 10 * 1000;
     private static float lacEnergyThreshold = 0.01f;
     private static float gyrEnergyThreshold = 0.0008f;
     private static int subSampleParameter = 10;
     private static int winLength = 300;
     private static boolean laneChangeEvent = false, laneChangeEventStopCheck = false;
-    private static int laneChangeDist = 1;
+    private static int laneChangeDist = 1 * 1000;
     private static int laneChangeStopIndex = 0;
     private static long laneChangeStart, laneChangeStop;
     private static LinkedList<Float> laneChangeWindow = new LinkedList<>();
@@ -445,8 +445,7 @@ class LaneChangeDetector {
     }
 
     public static Event lanechangeDetect(LinkedList<Float> lac, float gyrZEnergy, float lacXEnergy, LinkedList<Long> time) {
-        if (gyrZEnergy / Detector.windowSize >= LaneChangeDetector.gyrEnergyThreshold ||
-                lacXEnergy / Detector.windowSize >= LaneChangeDetector.lacEnergyThreshold) {
+        if (gyrZEnergy / Detector.windowSize >= LaneChangeDetector.gyrEnergyThreshold || lacXEnergy / Detector.windowSize >= LaneChangeDetector.lacEnergyThreshold) {
             if (!laneChangeEvent && !laneChangeEventStopCheck) {
                 laneChangeWindow = (LinkedList<Float>) lac.clone();
                 laneChangeStart = time.getFirst();
@@ -480,19 +479,19 @@ class LaneChangeDetector {
         }
         if (laneChangeEventStopCheck) {
             long t = time.getFirst();
-            if (t - laneChangeStop < laneChangeDist * 1000){
+            if (t - laneChangeStop < laneChangeDist){
                 laneChangeWindow.addAll(lac.subList(Detector.overLap, Detector.windowSize));
             }
             else {
                 laneChangeEventStopCheck = false;
                 LinkedList<Float> temp = new LinkedList<>();
-                ListIterator<Float> iter = laneChangeWindow.listIterator(laneChangeWindow.size() - Math.min(winLength, laneChangeWindow.size()));
-                for (int i = 0; i < Math.min(winLength, laneChangeWindow.size()); i++) {
+                ListIterator<Float> iter = laneChangeWindow.listIterator(laneChangeStopIndex - Math.min(winLength, laneChangeStopIndex));
+                for (int i = 0; iter.hasNext(); i++) {
                     temp.add(iter.next());
                 }
                 if (LaneChangeDetector.dtwDetection(temp)) {
-                    long end = time.get(Detector.overLap);
-                    return new Event(Math.max(Math.max(end - winLength*10, laneChangeStart), laneChangeStart), end, "lane_change");
+//                    long end = time.get(Detector.overLap);
+                    return new Event(Math.max(laneChangeStop - winLength*10, laneChangeStart), laneChangeStop, "lane_change");
                 }
             }
 

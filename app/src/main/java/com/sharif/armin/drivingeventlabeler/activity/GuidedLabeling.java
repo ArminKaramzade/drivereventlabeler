@@ -96,8 +96,8 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             Context context = getApplicationContext();
             CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
             int duration = Toast.LENGTH_LONG;
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
+//            Toast toast = Toast.makeText(context, text, duration);
+//            toast.show();
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
@@ -118,11 +118,11 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
                         @Override
                         public void run() {
                             txtlabel.setBackgroundResource(R.color.red);
-                            if (upcomingEvents.getFirst().getEventLable().equals("turn"))
+                            if (upcomingEvents.getFirst().getEventLable().compareTo("turn") == 0)
                                 txtlabel.setText(R.string.turn);
-                            else if (upcomingEvents.getFirst().getEventLable().equals("brake"))
+                            else if (upcomingEvents.getFirst().getEventLable().compareTo("brake") == 0)
                                 txtlabel.setText(R.string.brake);
-                            else if (upcomingEvents.getFirst().getEventLable().equals("lane_change"))
+                            else if (upcomingEvents.getFirst().getEventLable().compareTo("lane_change") == 0)
                                 txtlabel.setText(R.string.lane_change);
                         }
                     });
