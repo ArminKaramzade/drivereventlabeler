@@ -102,7 +102,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             startActivity(intent);
         }
         writer.writeLabel(event.getEventLable(), event.getStart(), event.getEnd());
-        showEvent();
+//        showEvent();
     }
 
     private void showEvent() {
@@ -131,7 +131,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                upcomingEvents.getFirst().setEventLable(upcomingEvents.getFirst() + "/" + upcomingEvents.getFirst());
+                                upcomingEvents.getFirst().setEventLable(upcomingEvents.getFirst().getEventLable() + "/" + upcomingEvents.getFirst().getEventLable());
                                 writeLable(upcomingEvents.getFirst());
                                 showEvent();
                             }
