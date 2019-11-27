@@ -19,8 +19,6 @@ import com.sharif.armin.drivingeventlabeler.detection.SensorTest;
 import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
 import com.sharif.armin.drivingeventlabeler.write.Writer;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -31,12 +29,14 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
     private int sensor_f, gps_delay;
     private Sensors sensors;
     private Writer writer;
-    boolean TestFlag = false, flag = false;
+    boolean TestFlag = false;
     private String TestDir;
     private String filename;
     private Detector detector;
     private LinkedList<Event> upcomingEvents;
+    private Event event;
     private SensorTest sensorTest;
+    private boolean removeFlag = false, proccessingFlag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,59 +85,59 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
     }
 
     @Override
-    public void onEventDetected(Event event) {
-        //TODO inja felan faghat write kon label e bedas omade ro bad ba python moqayese konim yeki bashe
-        // feedback o inaro badan ok mikonim
-        upcomingEvents.add(event);
-        if (TestFlag && event.getEventLable().compareTo("Finish") == 0){
+    public void onEventDetected(Event _event) {
+        upcomingEvents.add(_event);
+        if (TestFlag && _event.getEventLabel().compareTo("Finish") == 0){
             this.writer.saveAndRemove(filename);
             this.sensorTest.stop();
             this.detector.stop();
-            Context context = getApplicationContext();
-            CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
-            int duration = Toast.LENGTH_LONG;
+//            Context context = getApplicationContext();
+//            CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
+//            int duration = Toast.LENGTH_LONG;
 //            Toast toast = Toast.makeText(context, text, duration);
 //            toast.show();
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
-        writer.writeLabel(event.getEventLable(), event.getStart(), event.getEnd());
-//        showEvent();
+        proccessingFlag = true;
+        event = upcomingEvents.getFirst();
+        upcomingEvents.removeFirst();
+        correctEvent(event);
     }
 
-    private void showEvent() {
-        if(thread != null && (flag || upcomingEvents.size() == 0)) {
-            return;
+    private void correctEvent(final Event event) {
+        if(thread != null) {
+            thread.interrupt();
         }
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try{
-                    flag = true;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             txtlabel.setBackgroundResource(R.color.red);
-                            if (upcomingEvents.getFirst().getEventLable().compareTo("turn") == 0)
+                            if (event.getEventLabel().compareTo("turn") == 0)
                                 txtlabel.setText(R.string.turn);
-                            else if (upcomingEvents.getFirst().getEventLable().compareTo("brake") == 0)
+                            else if (event.getEventLabel().compareTo("brake") == 0)
                                 txtlabel.setText(R.string.brake);
-                            else if (upcomingEvents.getFirst().getEventLable().compareTo("lane_change") == 0)
+                            else if (event.getEventLabel().compareTo("lane_change") == 0)
                                 txtlabel.setText(R.string.lane_change);
                         }
                     });
                     Thread.sleep(2000);
-                    if (flag){
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                upcomingEvents.getFirst().setEventLable(upcomingEvents.getFirst().getEventLable() + "/" + upcomingEvents.getFirst().getEventLable());
-                                writeLable(upcomingEvents.getFirst());
-                                showEvent();
-                            }
-                        });
-                    flag = false;
+                    if (! removeFlag) {
+                        writer.writeLabel(event.getEventLabel(), event.getStart(), event.getEnd());
                     }
+                    removeFlag = false;
+                    proccessingFlag = false;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            txtlabel.setBackgroundResource(R.color.design_default_color_primary);
+                            txtlabel.setText("");
+                        }
+                    });
                 }catch (InterruptedException e){
                     e.printStackTrace();
                 }
@@ -146,41 +146,28 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
         thread.start();
     }
 
-
-
-    private void writeLable(Event event) {
-        writer.writeLabel(event.getEventLable(), event.getStart(), event.getEnd());
-        //TODO
-//        String[] s = upcomingEvents.getFirst().getEventLable().split("/");
-//        if (s[0].equals(s[1])) {
-//            txtlabel.setBackgroundResource(R.color.green);
-//        }
-//        else
-//            txtlabel.setBackgroundResource(R.color.orange);
-//        upcomingEvents.removeFirst();
-//        try {
-//            Thread.sleep(500);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-    }
-
     protected void onStop(){
         super.onStop();
-        if (!TestFlag)
-            sensors.stop();
-        detector.stop();
     }
     protected void onDestroy(){
         super.onDestroy();
-        if (!TestFlag)
+        if (!TestFlag) {
             sensors.stop();
+        }
+        else {
+            sensorTest.stop();
+        }
         detector.stop();
     }
 
     public void stop(View view){
         this.writer.saveAndRemove(filename);
-        this.sensors.stop();
+        if (!TestFlag) {
+            this.sensors.stop();
+        }
+        else {
+            sensorTest.stop();
+        }
         this.detector.stop();
         Context context = getApplicationContext();
         CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
@@ -192,33 +179,27 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
     }
 
     public void laneChange(View view) {
-        if(thread == null || !flag){
-            return;
+        if(proccessingFlag) {
+            event.setEventLabel("lane_change/" + event.getEventLabel());
         }
-        upcomingEvents.getFirst().setEventLable("lane_change/"+upcomingEvents.getFirst());
-        writeLable(upcomingEvents.getFirst());
-        flag = false;
-        showEvent();
     }
 
     public void turn(View view) {
-        if(thread == null || !flag){
-            return;
+        if(proccessingFlag) {
+            event.setEventLabel("turn/" + event.getEventLabel());
         }
-        upcomingEvents.getFirst().setEventLable("turn/"+upcomingEvents.getFirst());
-        writeLable(upcomingEvents.getFirst());
-        flag = false;
-        showEvent();
     }
 
     public void brake(View view) {
-        if(thread == null || !flag){
-            return;
+        if(proccessingFlag) {
+            event.setEventLabel("brake/" + event.getEventLabel());
         }
-        upcomingEvents.getFirst().setEventLable("brake/"+upcomingEvents.getFirst());
-        writeLable(upcomingEvents.getFirst());
-        flag = false;
-        showEvent();
+    }
+
+    public void remove(View view) {
+        if(proccessingFlag){
+            removeFlag = true;
+        }
     }
 
     abstract class CountUpTimer extends CountDownTimer {

@@ -80,12 +80,6 @@ public class SensorTest {
 
     public void stop() {
         thread.interrupt();
-        try {
-            gyrReader.close();
-            accReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public SensorSample getAcc() {

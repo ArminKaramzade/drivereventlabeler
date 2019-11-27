@@ -20,11 +20,11 @@ public class Event {
         this.end = end;
     }
 
-    public String getEventLable() {
+    public String getEventLabel() {
         return eventLable;
     }
 
-    public void setEventLable(String eventLable) {
+    public void setEventLabel(String eventLable) {
         this.eventLable = eventLable;
     }
 

@@ -17,6 +17,7 @@
     <string name="u_turn">گردش U شکل</string>
     <string name="bump">دست انداز</string>
     <string name="ramp">رمپ</string>
+    <string name="no_event">حذف</string>
     <string name="aggresive">رانندگی خطرناک</string>
     <string name="title_activity_guided_labling">GuidedLabling</string>
     <string name="title_activity_visualization">Visualization</string>
