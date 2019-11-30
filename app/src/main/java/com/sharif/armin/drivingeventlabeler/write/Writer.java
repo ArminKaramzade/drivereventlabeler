@@ -30,11 +30,7 @@ public class Writer {
         rotationVectorVehicle,
         headingAngleVehicle,
         GPS,
-        label,
-        // start to remove
-        rotationVectorEarthAndroid,
-        linearAccelerationPhoneAndroid,
-        // end to remove
+        label
     }
     private static String[]  filenames = new String[name.values().length];
     private CSVWriter[] writers = new CSVWriter[name.values().length];
@@ -55,10 +51,7 @@ public class Writer {
         filenames[name.headingAngleVehicle.ordinal()] = "HeadingAngleVehicle.csv";
         filenames[name.GPS.ordinal()] = "GPS.csv";
         filenames[name.label.ordinal()] = "Label.csv";
-        // start to remove
-        filenames[name.rotationVectorEarthAndroid.ordinal()] = "RotationVectorEarthAndroid.csv";
-        filenames[name.linearAccelerationPhoneAndroid.ordinal()] = "LinearAccelerationPhoneAndroid.csv";
-        // end to remove
+
         headers[name.angularVelocityPhone.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
         headers[name.angularVelocityEarth.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
         headers[name.magneticPhone.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
@@ -74,10 +67,7 @@ public class Writer {
                                                     "HAS_LOCATION_ACCURACY", "SPEED_ACCURACY",
                                                     "HAS_SPEED_ACCURACY", "BEARING_ACCURACY", "HAS_BEARING_ACCURACY"};
         headers[name.label.ordinal()] = new String[]{"TYPE", "START", "END"};
-        // start to remove
-        headers[name.rotationVectorEarthAndroid.ordinal()] = new String[]{"timestamp", "Q0", "Q1", "Q2", "Q3"};
-        headers[name.linearAccelerationPhoneAndroid.ordinal()] = new String[]{"timestamp", "X", "Y", "Z"};
-        // end to remove
+
         try{
             for (name n: name.values()){
                 writers[n.ordinal()] = get_writer(path, filenames[n.ordinal()]);
@@ -171,19 +161,6 @@ public class Writer {
                 bearingAccuracy, hasBearingAccuracy};
         writers[name.GPS.ordinal()].writeNext(line);
     }
-    // start to remove
-    public void writeRotationVectorEarthAndroid(SensorSample rot2){
-        String[] line = new String [] {String.valueOf(rot2.time), String.valueOf(rot2.values[0])
-                , String.valueOf(rot2.values[1]), String.valueOf(rot2.values[2]), String.valueOf(rot2.values[3])};
-        writers[name.rotationVectorEarthAndroid.ordinal()].writeNext(line);
-    }
-    public void writeLinearAccelerationPhoneAndroid(SensorSample lac){
-        String[] line = new String [] {String.valueOf(lac.time), String.valueOf(lac.values[0])
-                , String.valueOf(lac.values[1]), String.valueOf(lac.values[2])};
-        writers[name.linearAccelerationPhoneAndroid.ordinal()].writeNext(line);
-    }
-    // end to remove
-
 
     public void saveAndRemove(String fn){
         try {

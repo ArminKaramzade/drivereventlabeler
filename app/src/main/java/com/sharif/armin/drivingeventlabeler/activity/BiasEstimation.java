@@ -1,51 +1,37 @@
 package com.sharif.armin.drivingeventlabeler.activity;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.os.SystemClock;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.os.CountDownTimer;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.opencsv.CSVWriter;
 import com.sharif.armin.drivingeventlabeler.R;
-import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
-import com.sharif.armin.drivingeventlabeler.util.Utils;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.concurrent.TimeUnit;
 
 public class BiasEstimation extends AppCompatActivity {
-
     private int gyrN, racN;
     private float[] gyrMu, racMu;
-    private FileOutputStream fileout;
-    OutputStreamWriter outputWriter;
     private SensorManager sensorManager;
     private SensorListener sensorListener;
-    static final int READ_BLOCK_SIZE = 100;
+    private String dir = "setting";
     private String fn = "biases.csv";
     private CSVWriter writer;
     final static int msecs = 20000;
     boolean finished = false;
+    private TextView txttimer;
     File f;
     private Thread thread;
     private boolean pause;
@@ -53,42 +39,53 @@ public class BiasEstimation extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pause = false;
         setContentView(R.layout.activity_bias_estimation);
+        pause = false;
         gyrMu = new float[] {0, 0, 0};
         racMu = new float[] {0, 0, 0};
         gyrN = 0;
         racN = 0;
-
     }
 
     @Override
     protected void onPause() {
-        thread.interrupt();
-        pause = true;
+        if(thread != null) {
+            thread.interrupt();
+            pause = true;
+        }
         super.onPause();
     }
-
 
     @Override
     protected void onResume() {
         super.onResume();
         if (pause){
             sensorManager.unregisterListener(sensorListener);
+            finish();
             Context context = getApplicationContext();
             CharSequence text = "Bias estimation has failed.";
             int duration = Toast.LENGTH_LONG;
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
         }
     }
 
-
+    @Override
+    public void onBackPressed() {
+        if(thread != null){
+            thread.interrupt();
+            sensorManager.unregisterListener(sensorListener);
+            Context context = getApplicationContext();
+            CharSequence text = "Bias estimation has failed.";
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+        }
+        finish();
+    }
 
     public void start(View view){
-        Button btn = (Button) findViewById(R.id.button);
+        Button btn = (Button) findViewById(R.id.start_button);
         btn.setEnabled(false);
         ViewCompat.setBackgroundTintList(btn, getResources().getColorStateList(R.color.gray));
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -113,10 +110,25 @@ public class BiasEstimation extends AppCompatActivity {
             }
         });
         thread.start();
+        txttimer = (TextView) findViewById(R.id.textTimer);
+        new CountDownTimer(msecs, 1000){
+            public void onTick(long mseconds){
+                String txt = String.format("remaining time:" + "%d", mseconds / 1000);
+                txttimer.setText(txt);
+            }
+            public void onFinish() {
+                String txt = String.format("remaining time:" + "%d", 0);
+                txttimer.setText(txt);
+            }
+        }.start();
     }
 
     public void stop(){
-        f = new File(MainActivity.directory.getPath() + File.separator + fn);
+        File directory = new File(MainActivity.directory.getPath() + File.separator + dir);
+        if(!directory.exists()){
+            directory.mkdirs();
+        }
+        f = new File(MainActivity.directory.getPath() + File.separator + dir + File.separator + fn);
         try {
             f.createNewFile();
         } catch (IOException e) {
@@ -152,13 +164,13 @@ public class BiasEstimation extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        finish();
         Context context = getApplicationContext();
         CharSequence text = "Bias estimation has finished.";
         int duration = Toast.LENGTH_LONG;
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+
     }
 
     private class SensorListener implements SensorEventListener {
@@ -184,5 +196,4 @@ public class BiasEstimation extends AppCompatActivity {
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) { }
     }
-
 }

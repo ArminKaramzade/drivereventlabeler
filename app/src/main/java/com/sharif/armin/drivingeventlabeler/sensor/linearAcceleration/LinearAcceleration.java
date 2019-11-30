@@ -10,17 +10,14 @@ public class LinearAcceleration {
     private float[] acceleration = {0, 0, 0};
     private float[] gravity = {0, 0, 0};
     private long prevTime = 0;
-    private static float timeConstant = .2f;
+    private static float timeConstant;
 
     public float[] getAcceleration(){ return this.acceleration;}
+
     public float[] getGravity(){ return this.gravity;}
+
     public static void setTimeConstant(float timeConstant) {
         LinearAcceleration.timeConstant = timeConstant;
-    }
-    public void reset(){
-        gravity[0] = 0;
-        gravity[1] = 0;
-        gravity[2] = 0;
     }
 
     public void filter(SensorSample rac, SensorSample rot){
@@ -30,7 +27,6 @@ public class LinearAcceleration {
         this.acceleration = Utils.rotate(rotationVector.getConjugate(), rotatedRac);
     }
 
-
     public void filter(SensorSample rac){
         final float dT = (rac.time - this.prevTime) * MS2S;
         this.prevTime = rac.time;
@@ -39,5 +35,4 @@ public class LinearAcceleration {
         gravity[1] = gravity[1] * alpha + (1 - alpha) * rac.values[1];
         gravity[2] = gravity[2] * alpha + (1 - alpha) * rac.values[2];
     }
-
 }

@@ -9,7 +9,7 @@
     tools:showIn="@layout/activity_guided_labeling">
 
     <Button
-        android:id="@+id/Brake_buttom"
+        android:id="@+id/brake_button"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
@@ -18,15 +18,15 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:onClick="brake"
-        android:text="@string/brake"
-        app:layout_constraintBottom_toTopOf="@+id/Turn_buttom"
+        android:text="@string/brake_button_activity_guided_labeling"
+        app:layout_constraintBottom_toTopOf="@+id/turn_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textlabel" />
+        app:layout_constraintTop_toBottomOf="@+id/monitor" />
 
     <Button
-        android:id="@+id/Turn_buttom"
+        android:id="@+id/turn_button"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
@@ -34,15 +34,15 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:onClick="turn"
-        android:text="@string/turn"
-        app:layout_constraintBottom_toTopOf="@+id/LaneChange_button"
+        android:text="@string/turn_button_activity_guided_labeling"
+        app:layout_constraintBottom_toTopOf="@+id/lane_change_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Brake_buttom" />
+        app:layout_constraintTop_toBottomOf="@+id/brake_button" />
 
     <Button
-        android:id="@+id/remove_buttom"
+        android:id="@+id/remove_button"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
@@ -52,15 +52,15 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="28dp"
         android:onClick="remove"
-        android:text="@string/no_event"
+        android:text="@string/remove_button_activity_guided_labeling"
         app:layout_constraintBottom_toTopOf="@+id/textTimer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/LaneChange_button" />
+        app:layout_constraintTop_toBottomOf="@+id/lane_change_button" />
 
     <Button
-        android:id="@+id/LaneChange_button"
+        android:id="@+id/lane_change_button"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
@@ -68,27 +68,27 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:onClick="laneChange"
-        android:text="@string/lane_change"
-        app:layout_constraintBottom_toTopOf="@+id/remove_buttom"
+        android:text="@string/lane_change_button_activity_guided_labeling"
+        app:layout_constraintBottom_toTopOf="@+id/remove_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Turn_buttom" />
+        app:layout_constraintTop_toBottomOf="@+id/turn_button" />
 
     <TextView
-        android:id="@+id/textlabel"
+        android:id="@+id/monitor"
         android:layout_width="150dp"
         android:layout_height="50dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="24dp"
         android:textSize="36sp"
         android:textStyle="bold"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/Brake_buttom"
+        app:layout_constraintBottom_toTopOf="@+id/brake_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -108,7 +108,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/remove_buttom" />
+        app:layout_constraintTop_toBottomOf="@+id/remove_button" />
 
     <Button
         android:id="@+id/stop_button"
@@ -121,7 +121,7 @@
         android:layout_marginBottom="20dp"
         android:background="@color/red"
         android:onClick="stop"
-        android:text="@string/stop"
+        android:text="@string/stop_button_activity_guided_labeling"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

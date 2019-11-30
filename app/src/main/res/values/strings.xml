@@ -1,34 +1,89 @@
 <resources>
     <string name="app_name">DrivingEventLabeler</string>
-    <string name="title_activity_manual_labling">ManualLabling</string>
-    <string name="freq_hint">Enter a frequency</string>
-    <string name="default_frequency">100</string>
-    <string name="GPS_default_frequency">1000</string>
-    <string name="sensors">Sensors (Hz)</string>
-    <string name="gps">GPS (msec)</string>
-    <string name='stop'>Stop Recording</string>
 
-    <string name="accelerate">گاز</string>
-    <string name="brake">ترمز</string>
-    <string name="lane_change">تغییر باند</string>
-    <string name="turn_right">گردش به راست</string>
-    <string name="turn_left">گردش به چپ</string>
-    <string name="turn">گردش</string>
-    <string name="u_turn">گردش U شکل</string>
-    <string name="bump">دست انداز</string>
-    <string name="ramp">رمپ</string>
-    <string name="no_event">حذف</string>
-    <string name="aggresive">رانندگی خطرناک</string>
-    <string name="title_activity_guided_labling">GuidedLabling</string>
+    <!-- Titles -->
+    <string name="title_activity_guided_labeling">Guided Labeling</string>
     <string name="title_activity_visualization">Visualization</string>
-    <string name="title_activity_bias_estimation">bias_estimation</string>
+    <string name="title_activity_bias_estimation">Bias Estimation</string>
+    <string name="title_activity_manual_labeling">Manual Labeling</string>
+    <string name="title_activity_setting">Setting</string>
 
+    <!-- Main -->
+    <string name="sensors_default_frequency_activity_main">100</string>
+    <string name="gps_default_frequency_activity_main">1000</string>
+    <string name="sensors_text_activity_main">Sensors (Hz)</string>
+    <string name="gps_text_activity_main">GPS (msec)</string>
+
+
+    <!-- Manual Labeling -->
+    <string name="accelerate_button_activity_manual_labeling">گاز</string>
+    <string name="brake_button_activity_manual_labeling">ترمز</string>
+    <string name="lane_change_button_activity_manual_labeling">تغییر باند</string>
+    <string name="turn_right_button_activity_manual_labeling">گردش به راست</string>
+    <string name="turn_left_button_activity_manual_labeling">گردش به چپ</string>
+    <string name="u_turn_button_activity_manual_labeling">گردش U شکل</string>
+    <string name="aggressive_button_activity_manual_labeling">رانندگی خطرناک</string>
+    <string name="stop_button_activity_manual_labeling">Stop Recording</string>
+
+    <!-- Guided Labeling -->
+    <string name="brake_text_activity_guided_labeling">ترمز</string>
+    <string name="turn_text_activity_guided_labeling">چرخش</string>
+    <string name="lane_change_text_activity_guided_labeling">تغییر باند</string>
+    <string name="brake_button_activity_guided_labeling">ترمز</string>
+    <string name="turn_button_activity_guided_labeling">چرخش</string>
+    <string name="lane_change_button_activity_guided_labeling">تغییر باند</string>
+    <string name="remove_button_activity_guided_labeling">حذف</string>
+    <string name="stop_button_activity_guided_labeling">Stop Recording</string>
+
+    <!-- Bias Estimation -->
     <string name="text_activity_bias_estimation">
         Please put your phone on a flat area like table then touch the start
         button.
     </string>
     <string name="start_button_activity_bias_estimation">Start</string>
 
+    <!-- Visualization -->
+    <string name="linear_acc_button_activity_visualization">linear acc</string>
+    <string name="raw_acc_button_activity_visualization">raw acc</string>
+    <string name="gyr_button_button_activity_visualization">gyr</string>
+    <string name="grv_button_activity_visualization">gravity</string>
+    <string name="mgm_button_activity_visualization">magnet</string>
+    <string name="rotV_button_activity_visualization">rot vehicle</string>
+    <string name="rotP_button_activity_visualization">rot phone</string>
 
+    <!-- Setting -->
+    <string name="sensors_text_activity_setting">Sensors</string>
+    <string name="sensors_switch_text_activity_setting">Custom sensors</string>
+    <string name="linear_acceleration_time_constant_text_activity_setting">linear acceleration time constant</string>
+    <string name="orientation_time_constant_text_activity_setting">Orientation time constant</string>
+    <string name="madgwick_beta_text_activity_setting">Madgwick beta</string>
+
+    <string name="detector_text_activity_setting">Detector </string>
+    <string name="window_size_text_activity_setting">Window size</string>
+    <string name="Overlap">Overlap</string>
+    <string name="filter_left_size_text_activity_setting">Filter left size</string>
+    <string name="filter_right_size_text_activity_setting">Filter right size</string>
+    <string name="filter_degree_text_activity_setting">Filter degree</string>
+
+    <string name="min_duration_text_activity_setting">Min duration</string>
+    <string name="max_duration_text_activity_setting">Max duration</string>
+
+    <string name="brake_parameters_text_activity_setting"></string>
+    <string name="brake_lacY_energy_threshold_text_activity_setting">lacY energy threshold</string>
+    <string name="brake_var_threshold_text_activity_setting">Var threshold</string>
+    <string name="brake_accept_function_threshold_text_activity_setting">Accept function threshold</string>
+
+    <string name="turn_parameters_text_activity_setting">Turn parameters</string>
+    <string name="turn_gyrZ_energy_threshold_text_activity_setting">gyrZ energy threshold</string>
+    <string name="turn_accept_function_threshold_text_activity_setting">Accept function threshold</string>
+
+    <string name="lane_change_parameters_text_activity_setting">Brake parameters</string>
+    <string name="lane_change_lacX_energy_threshold_text_activity_setting">lacX energy threshold</string>
+    <string name="lane_change_gyrZ_energy_threshold_text_activity_setting">gyrZ energy threshold</string>
+    <string name="lane_change_subsample_parameter_text_activity_setting">subsample parameter</string>
+    <string name="lane_change_dtw_threshold_text_activity_setting">dtw threshold</string>
+
+    <string name="save_button_activity_setting">Save</string>
+    <string name="reset_button_activity_setting">Reset to default</string>
 
 </resources>

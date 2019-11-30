@@ -42,10 +42,10 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pause = false;
         setContentView(R.layout.activity_guided_labeling);
-        txtlabel = (TextView) findViewById(R.id.textlabel);
-        txttimer = (TextView) findViewById(R.id.textTimer);
+        pause = false;
+        txtlabel = findViewById(R.id.monitor);
+        txttimer = findViewById(R.id.textTimer);
         CountUpTimer timer = new CountUpTimer(24 * 60 * 60 * 1000) {
             public void onTick(int second) {
                 String txt = String.format("%d", second / 60) + ":" + String.format("%02d", second % 60);
@@ -68,9 +68,8 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             detector.registerObserver(this);
             detector.start();
             sensorTest.start();
-            filename = new String(TestDir + "test.zip");
+            filename = TestDir + "test.zip";
         }
-
         else {
             sensors = Sensors.getInstance();
             sensors.setSensorManager((SensorManager) getSystemService(Context.SENSOR_SERVICE));
@@ -81,15 +80,8 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             detector.registerObserver(this);
             detector.start();
             sensors.start();
-
         }
         upcomingEvents = new LinkedList<>();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
     }
 
     @Override
@@ -99,11 +91,11 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             this.writer.saveAndRemove(filename);
             this.sensorTest.stop();
             this.detector.stop();
-//            Context context = getApplicationContext();
-//            CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
-//            int duration = Toast.LENGTH_LONG;
-//            Toast toast = Toast.makeText(context, text, duration);
-//            toast.show();
+            Context context = getApplicationContext();
+            CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
             Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
@@ -126,11 +118,11 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
                         public void run() {
                             txtlabel.setBackgroundResource(R.color.red);
                             if (event.getEventLabel().compareTo("turn") == 0)
-                                txtlabel.setText(R.string.turn);
+                                txtlabel.setText(R.string.turn_text_activity_guided_labeling);
                             else if (event.getEventLabel().compareTo("brake") == 0)
-                                txtlabel.setText(R.string.brake);
+                                txtlabel.setText(R.string.brake_text_activity_guided_labeling);
                             else if (event.getEventLabel().compareTo("lane_change") == 0)
-                                txtlabel.setText(R.string.lane_change);
+                                txtlabel.setText(R.string.lane_change_text_activity_guided_labeling);
                         }
                     });
                     Thread.sleep(2000);
@@ -142,7 +134,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            txtlabel.setBackgroundResource(R.color.design_default_color_primary);
+                            txtlabel.setBackgroundColor(0x00000000);
                             txtlabel.setText("");
                         }
                     });
@@ -164,7 +156,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             sensorTest.stop();
         }
         this.detector.stop();
-        detector.removeObserver(this);
+        this.detector.removeObserver(this);
         pause = true;
         super.onPause();
     }
@@ -173,14 +165,32 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
     protected void onResume() {
         super.onResume();
         if(pause){
+            finish();
             Context context = getApplicationContext();
             CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
             int duration = Toast.LENGTH_LONG;
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        this.writer.saveAndRemove(filename);
+        if (!TestFlag) {
+            this.sensors.stop();
+        }
+        else {
+            sensorTest.stop();
+        }
+        this.detector.stop();
+        this.detector.removeObserver(this);
+        finish();
+        Context context = getApplicationContext();
+        CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
+        int duration = Toast.LENGTH_LONG;
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
     }
 
     public void stop(View view){
@@ -192,13 +202,13 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             sensorTest.stop();
         }
         this.detector.stop();
+        this.detector.removeObserver(this);
+        finish();
         Context context = getApplicationContext();
         CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
         int duration = Toast.LENGTH_LONG;
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
     }
 
     public void laneChange(View view) {

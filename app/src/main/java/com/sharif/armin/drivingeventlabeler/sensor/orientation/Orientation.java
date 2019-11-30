@@ -11,18 +11,15 @@ public class Orientation {
     private float[] angularVelocity = new float[3],
             gravity = new float[3],
             magnetic = new float[3];
-    private static float timeConstant = 0.1f;
+    private static float timeConstant;
     private Madgwick madgwick = new Madgwick();
 
     public static void setTimeConstant(float timeConstant){
         Orientation.timeConstant = timeConstant;
     }
+
     public Quaternion getRotationVector(){
         return this.rotationVector;
-    }
-    public void reset(){
-        prevTime = 0;
-        rotationVector = null;
     }
 
     public void filter(SensorSample angularVelocitySS, SensorSample gravitySS, SensorSample magneticSS, long time) {

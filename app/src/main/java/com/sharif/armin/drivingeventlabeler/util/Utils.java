@@ -1,7 +1,6 @@
 package com.sharif.armin.drivingeventlabeler.util;
 
 import android.hardware.SensorManager;
-import android.util.Log;
 
 import com.opencsv.CSVReader;
 import com.sharif.armin.drivingeventlabeler.activity.MainActivity;
@@ -11,12 +10,9 @@ import org.apache.commons.math3.geometry.euclidean.threed.Rotation;
 import org.apache.commons.math3.geometry.euclidean.threed.RotationConvention;
 import org.apache.commons.math3.geometry.euclidean.threed.RotationOrder;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Scanner;
 
 public class Utils {
     public static int freq2delay(int f) {

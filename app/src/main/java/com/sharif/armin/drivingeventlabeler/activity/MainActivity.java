@@ -19,13 +19,10 @@ import com.sharif.armin.drivingeventlabeler.R;
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
-
     public static final String sensor_frequency = "com.drivingeventlabeler.mainActivity.sensor_frequency";
     public static final String gps_delay = "com.drivingeventlabeler.mainActivity.gps_delay";
     public static final String TestFlag = "com.drivingeventlabeler.mainActivity.TestFlag";
     public static final String Direction = "com.drivingeventlabeler.mainActivity.Direction";
-
-
     public static File directory;
 
     @Override
@@ -44,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
             Toast toast = Toast.makeText(context, (Environment.getExternalStorageDirectory()+File.separator+"SensorCollector"), duration);
             toast.show();
         }
+        Setting.setParameters();
     }
 
     public void requestForPermissions(){
@@ -92,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void biasEstimation(View view){
         Intent intent = new Intent(this, BiasEstimation.class);
+        startActivity(intent);
+    }
+
+    public void setting(View view){
+        Intent intent = new Intent(this, Setting.class);
         startActivity(intent);
     }
 }

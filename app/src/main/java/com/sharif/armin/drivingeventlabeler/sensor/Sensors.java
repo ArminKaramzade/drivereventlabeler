@@ -41,6 +41,8 @@ public class Sensors {
         }
     }
 
+    private static boolean useAndroidDefaultSensors;
+
     private SensorManager sensorManager;
     private SensorListener sensorListener;
     private LocationManager locationManager;
@@ -61,11 +63,7 @@ public class Sensors {
                          linearAccelerationVehicle,
                          rotationVectorEarth,
                          rotationVectorVehicle,
-                         headingAnglePhone,
-                         // start to delete
-                         rotationVectorEarthAndroid,
-                         linearAccelerationPhoneAndroid;
-                         // end to remove
+                         headingAnglePhone;
 
     private Location location;
 
@@ -78,11 +76,9 @@ public class Sensors {
                             TYPE_LINEAR_ACCELERATION_VEHICLE = 6,
                             TYPE_ROTATION_VECTOR_EARTH = 7,
                             TYPE_ROTATION_VECTOR_VEHICLE = 8,
-                            TYPE_HEADING_ANGLE_VEHICLE = 9,
-                            // start to remove
-                            TYPE_ROTATION_VECTOR_EARTH_ANDROID = 10,
-                            TYPE_LINEAR_ACCELERATION_PHONE_ANDROID = 11;
-                            // end to remove
+                            TYPE_HEADING_ANGLE_VEHICLE = 9;
+
+    public static void setUseAndroidDefaultSensors(boolean useAndroidDefaultSensors){ Sensors.useAndroidDefaultSensors = useAndroidDefaultSensors;}
 
     public SensorSample getMagneticPhone() {
         return this.magneticPhone;
@@ -114,25 +110,19 @@ public class Sensors {
     public SensorSample getAngularVelocityEarth(){
         return this.angularVelocityEarth;
     }
-
     public Location     getLocation() {
         return this.location;
     }
-    // start to delete
-    public SensorSample getRotationVectorEarthAndroid() {
-        return this.rotationVectorEarthAndroid;
-    }
-    public SensorSample getLinearAccelerationPhoneAndroid(){
-        return this.linearAccelerationPhoneAndroid;
-    }
-    // end to remove
+
 
     private Sensors(){
         this.sensorListener = new SensorListener();
         this.locationListener = new GPSListener();
         headingAngleFilter = new VehicleHeadingAngle();
-        fusedOrientationFilter = new Orientation();
-        linearAccelerationFilter = new LinearAcceleration();
+        if(!useAndroidDefaultSensors) {
+            fusedOrientationFilter = new Orientation();
+            linearAccelerationFilter = new LinearAcceleration();
+        }
         angularVelocityPhone = new SensorSample(3, TYPE_ANGULAR_VELOCITY_PHONE);
         angularVelocityEarth = new SensorSample(3, TYPE_ANGULAR_VELOCITY_EARTH);
         magneticPhone = new SensorSample(3, TYPE_MAGNETIC_PHONE);
@@ -143,10 +133,6 @@ public class Sensors {
         rotationVectorEarth = new SensorSample(4, TYPE_ROTATION_VECTOR_EARTH);
         rotationVectorVehicle = new SensorSample(4, TYPE_ROTATION_VECTOR_VEHICLE);
         headingAnglePhone = new SensorSample(1, TYPE_HEADING_ANGLE_VEHICLE);
-        // start to delete
-        rotationVectorEarthAndroid = new SensorSample(4, TYPE_ROTATION_VECTOR_EARTH_ANDROID);
-        linearAccelerationPhoneAndroid = new SensorSample(3, TYPE_LINEAR_ACCELERATION_PHONE_ANDROID);
-        // end to remove
         mObservers = new ArrayList<>();
         angularVelocityBias = Utils.getGyrBias();
         rawAccelerationBias = Utils.getRacBias();
@@ -178,9 +164,6 @@ public class Sensors {
     }
     public void stop() {
         unRegister();
-        headingAngleFilter.reset();
-        fusedOrientationFilter.reset();
-        linearAccelerationFilter.reset();
     }
 
     @SuppressLint("MissingPermission")
@@ -198,15 +181,19 @@ public class Sensors {
                 this.gpsDelay,
                 0,
                 this.locationListener);
-        // start to remove
-        sensorManager.registerListener(this.sensorListener,
-                sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
-                Utils.freq2delay(this.sensorFrequency));
-        sensorManager.registerListener(this.sensorListener,
-                sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION),
-                Utils.freq2delay(this.sensorFrequency));
-        // end to remove
+        if(Sensors.useAndroidDefaultSensors) {
+            sensorManager.registerListener(this.sensorListener,
+                    sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
+                    Utils.freq2delay(this.sensorFrequency));
+            sensorManager.registerListener(this.sensorListener,
+                    sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION),
+                    Utils.freq2delay(this.sensorFrequency));
+            sensorManager.registerListener(this.sensorListener,
+                    sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),
+                    Utils.freq2delay(this.sensorFrequency));
+        }
     }
+
     private void unRegister(){
         sensorManager.unregisterListener(this.sensorListener);
         locationManager.removeUpdates(this.locationListener);
@@ -217,11 +204,13 @@ public class Sensors {
         this.angularVelocityEarth.time = time;
         notifyObserversSensorChanged(this.angularVelocityEarth);
     }
+
     private void processLinearAccelerationVehicle(long time, float[] event){
         System.arraycopy(event, 0, this.linearAccelerationVehicle.values, 0, this.linearAccelerationVehicle.values.length);
         this.linearAccelerationVehicle.time = time;
         notifyObserversSensorChanged(this.linearAccelerationVehicle);
     }
+
     private void processAngularVelocityPhone(long time, SensorEvent event){
         System.arraycopy(event.values, 0, angularVelocityPhone.values, 0, this.angularVelocityPhone.values.length);
         this.angularVelocityPhone.values[0] -= angularVelocityBias[0];
@@ -230,20 +219,24 @@ public class Sensors {
         this.angularVelocityPhone.time = time;
         notifyObserversSensorChanged(this.angularVelocityPhone);
         if(this.rawAccelerationArrived && this.magneticArrived){
-            fusedOrientationFilter.filter(getAngularVelocityPhone(), getGravityPhone(),
-                                          getMagneticPhone(), time);
-            Quaternion rotE = fusedOrientationFilter.getRotationVector();
-            processRotationVectorEarth(time, new float[] {(float) rotE.getQ0(), (float) rotE.getQ1(),
-                    (float) rotE.getQ2(), (float) rotE.getQ3()});
-            linearAccelerationFilter.filter(getRawAccelerationPhone(), getRotationVectorEarth());
-            processLinearAccelerationPhone(time, linearAccelerationFilter.getAcceleration());
-            processGravityPhone(time, linearAccelerationFilter.getGravity());
+            if(!useAndroidDefaultSensors) {
+                fusedOrientationFilter.filter(getAngularVelocityPhone(), getGravityPhone(),
+                        getMagneticPhone(), time);
+                Quaternion rotE = fusedOrientationFilter.getRotationVector();
+                processRotationVectorEarth(time, new float[]{(float) rotE.getQ0(), (float) rotE.getQ1(),
+                        (float) rotE.getQ2(), (float) rotE.getQ3()});
+                linearAccelerationFilter.filter(getRawAccelerationPhone(), getRotationVectorEarth());
+                processLinearAccelerationPhone(time, linearAccelerationFilter.getAcceleration());
+                processGravityPhone(time, linearAccelerationFilter.getGravity());
+            }
             float[] gyrEarth = Utils.rotate(getRotationVectorEarth().values, getAngularVelocityPhone().values);
             processAngularVelocityEarth(time, gyrEarth);
             if(this.headingAngleArrived) {
                 headingAngleFilter.predict(gyrEarth[2], time);
                 float angle = headingAngleFilter.getAngle();
                 processHeadingAngleVehicle(time, new float [] {angle});
+                Quaternion rotE = new Quaternion(rotationVectorEarth.values[0], rotationVectorEarth.values[1],
+                                                 rotationVectorEarth.values[2], rotationVectorEarth.values[3]);
                 Quaternion rotV = (new Quaternion(Math.cos(angle/2f), 0, 0, Math.sin(-angle/2f))).multiply(rotE);
                 processRotationVectorVehicle(time, new float[] {(float) rotV.getQ0(), (float) rotV.getQ1(),
                         (float) rotV.getQ2(), (float) rotV.getQ3()});
@@ -252,6 +245,7 @@ public class Sensors {
             }
         }
     }
+
     private void processRawAccelerationPhone(long time, SensorEvent event){
         System.arraycopy(event.values, 0, rawAccelerationPhone.values, 0, this.rawAccelerationPhone.values.length);
         this.rawAccelerationPhone.values[0] -= rawAccelerationBias[0];
@@ -260,52 +254,49 @@ public class Sensors {
         this.rawAccelerationPhone.time = time;
         notifyObserversSensorChanged(this.rawAccelerationPhone);
         rawAccelerationArrived = true;
-        linearAccelerationFilter.filter(getRawAccelerationPhone());
-        processGravityPhone(time, linearAccelerationFilter.getGravity());
+        if(!useAndroidDefaultSensors) {
+            linearAccelerationFilter.filter(getRawAccelerationPhone());
+            processGravityPhone(time, linearAccelerationFilter.getGravity());
+        }
     }
+
     private void processMagneticPhone(long time, SensorEvent event){
         System.arraycopy(event.values, 0, magneticPhone.values, 0, this.magneticPhone.values.length);
         this.magneticPhone.time = time;
         notifyObserversSensorChanged(this.magneticPhone);
         magneticArrived = true;
     }
+
     private void processLinearAccelerationPhone(long time, float[] event){
         System.arraycopy(event, 0, this.linearAccelerationPhone.values, 0, this.linearAccelerationPhone.values.length);
         this.linearAccelerationPhone.time = time;
         notifyObserversSensorChanged(this.linearAccelerationPhone);
     }
+
     private void processGravityPhone(long time, float[] event){
         System.arraycopy(event, 0, gravityPhone.values, 0, this.gravityPhone.values.length);
         this.gravityPhone.time = time;
         notifyObserversSensorChanged(this.gravityPhone);
     }
+
     private void processRotationVectorEarth(long time, float[] event){
         System.arraycopy(event, 0, this.rotationVectorEarth.values, 0, this.rotationVectorEarth.values.length);
         this.rotationVectorEarth.time = time;
         notifyObserversSensorChanged(this.rotationVectorEarth);
     }
-    // start to remove
-    private void processRotationVectorEarthAndroid(long time, SensorEvent event){
-        System.arraycopy(event.values, 0, this.rotationVectorEarthAndroid.values, 0, this.rotationVectorEarthAndroid.values.length);
-        this.rotationVectorEarthAndroid.time = time;
-        notifyObserversSensorChanged(this.rotationVectorEarthAndroid);
-    }
-    private void processLinearAccelerationAndroid(long time, SensorEvent event){
-        System.arraycopy(event.values, 0, this.linearAccelerationPhoneAndroid.values, 0, this.linearAccelerationPhoneAndroid.values.length);
-        this.linearAccelerationPhoneAndroid.time = time;
-        notifyObserversSensorChanged(this.linearAccelerationPhoneAndroid);
-    }
-    // end to remove
+
     private void processRotationVectorVehicle(long time, float[] event){
         System.arraycopy(event, 0, this.rotationVectorVehicle.values, 0, this.rotationVectorVehicle.values.length);
         this.rotationVectorVehicle.time = time;
         notifyObserversSensorChanged(this.rotationVectorVehicle);
     }
+
     private void processHeadingAngleVehicle(long time, float[] event){
         this.headingAnglePhone.values[0] = event[0];
         this.headingAnglePhone.time = time;
         notifyObserversSensorChanged(this.headingAnglePhone);
     }
+
     private void processLocation(Location location){
         this.location = location;
         notifyObserversLocationChanged(this.location);
@@ -343,19 +334,25 @@ public class Sensors {
                 case Sensor.TYPE_ACCELEROMETER:
                     processRawAccelerationPhone(time, event);
                     break;
-                // start to remove
+
                 case Sensor.TYPE_ROTATION_VECTOR:
-                    processRotationVectorEarthAndroid(time, event);
+                    if(Sensors.useAndroidDefaultSensors)
+                        processRotationVectorEarth(time, event.values);
                     break;
                 case Sensor.TYPE_LINEAR_ACCELERATION:
-                    processLinearAccelerationAndroid(time, event);
+                    if(Sensors.useAndroidDefaultSensors)
+                        processLinearAccelerationPhone(time, event.values);
                     break;
-                // end to remove
+                case Sensor.TYPE_GRAVITY:
+                    if(Sensors.useAndroidDefaultSensors)
+                        processGravityPhone(time, event.values);
+                    break;
             }
         }
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) { }
     }
+
     private class GPSListener implements LocationListener{
         @Override
         public void onLocationChanged(Location _location) {

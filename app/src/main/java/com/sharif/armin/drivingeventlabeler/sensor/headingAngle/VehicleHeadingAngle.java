@@ -27,10 +27,6 @@ public class VehicleHeadingAngle {
         this.prevTime = prevTime;
     }
 
-    public void reset(){
-        prevTime = 0;
-    }
-
     public void predict(float w, long time){
         if (prevTime != 0) {
             float dT = (time - prevTime) * MS2S;

@@ -37,9 +37,9 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        pause = false;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_manual_labeling);
+        pause = false;
         txtCounter = (TextView) findViewById(R.id.textTimer);
         CountUpTimer timer = new CountUpTimer(24 * 60 * 60 * 1000) {
             public void onTick(int second) {
@@ -58,47 +58,60 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
         sensor_f = Integer.parseInt(intent.getStringExtra(MainActivity.sensor_frequency));
         gps_delay = Integer.parseInt(intent.getStringExtra(MainActivity.gps_delay));
         writer = new Writer(MainActivity.directory.getPath());
-        sensors = Sensors.getInstance();
-        sensors.setSensorManager((SensorManager) getSystemService(Context.SENSOR_SERVICE));
-        sensors.setLocationManager((LocationManager) getSystemService((Context.LOCATION_SERVICE)));
-        sensors.setGpsDelay(gps_delay);
-        sensors.setSensorFrequency(sensor_f);
-        sensors.registerObserver(this);
-        sensors.start();
+        this.sensors = Sensors.getInstance();
+        this.sensors.setSensorManager((SensorManager) getSystemService(Context.SENSOR_SERVICE));
+        this.sensors.setLocationManager((LocationManager) getSystemService((Context.LOCATION_SERVICE)));
+        this.sensors.setGpsDelay(gps_delay);
+        this.sensors.setSensorFrequency(sensor_f);
+        this.sensors.registerObserver(this);
+        this.sensors.start();
         filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
     }
 
+    @Override
     protected void onPause() {
         this.writer.saveAndRemove(filename);
-        sensors.removeObserver(this);
-        sensors.stop();
+        this.sensors.removeObserver(this);
+        this.sensors.stop();
         pause = true;
         super.onPause();
     }
 
+    @Override
     protected void onResume() {
         super.onResume();
         if(pause){
+            finish();
             Context context = getApplicationContext();
             CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
             int duration = Toast.LENGTH_LONG;
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
         }
     }
 
-    public void stop(View view){
+    @Override
+    public void onBackPressed()
+    {
         this.sensors.stop();
         this.writer.saveAndRemove(filename);
+        finish();
         Context context = getApplicationContext();
         CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
         int duration = Toast.LENGTH_LONG;
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+    }
+
+    public void stop(View view){
+        this.sensors.stop();
+        this.writer.saveAndRemove(filename);
+        finish();
+        Context context = getApplicationContext();
+        CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
+        int duration = Toast.LENGTH_LONG;
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
     }
 
     @Override
@@ -134,17 +147,9 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
             case Sensors.TYPE_HEADING_ANGLE_VEHICLE:
                 writer.writeHeadingAngleVehicle(sample);
                 break;
-
-            // start to remove
-            case Sensors.TYPE_ROTATION_VECTOR_EARTH_ANDROID:
-                writer.writeRotationVectorEarthAndroid(sample);
-                break;
-            case Sensors.TYPE_LINEAR_ACCELERATION_PHONE_ANDROID:
-                writer.writeLinearAccelerationPhoneAndroid(sample);
-                break;
-            // end to remove
         }
     }
+
     @Override
     public void onLocationChanged(Location location){
         writer.writeGPS(location);

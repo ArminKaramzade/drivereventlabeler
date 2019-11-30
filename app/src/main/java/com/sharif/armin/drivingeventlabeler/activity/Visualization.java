@@ -35,16 +35,13 @@ public class Visualization extends AppCompatActivity{
     private Thread thread = null;
     private int sensor_f, gpsDelay;
     private boolean plotData = true;
-
     private SensorListener sensorListener;
     private SensorManager sensorManager;
-
-    private String to_plot = "acc";
+    private String to_plot = "lAcc";
     private boolean x = true, y = true, z = true;
     private int x_pos = 0;
     ILineDataSet set, set1, set2;
     LineData data;
-
     private TextView tvX, tvY, tvZ;
 
     @Override
@@ -221,6 +218,7 @@ public class Visualization extends AppCompatActivity{
         set.setLabel("x");
         return  set;
     }
+
     private LineDataSet createSet1(){
         LineDataSet set = new LineDataSet(null,"Y Axis");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -234,6 +232,7 @@ public class Visualization extends AppCompatActivity{
         set.setLabel("y");
         return  set;
     }
+
     private LineDataSet createSet2(){
         LineDataSet set = new LineDataSet(null,"Z Axis");
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -247,6 +246,7 @@ public class Visualization extends AppCompatActivity{
         set.setLabel("z");
         return  set;
     }
+
     @Override
     public void onPause() {
         super.onPause();
@@ -255,16 +255,16 @@ public class Visualization extends AppCompatActivity{
         }
         sensors.stop();
     }
+
     @Override
     public void onResume() {
         super.onResume();
         sensors.start();
     }
+
     @Override
-    public void onDestroy() {
-        sensors.stop();
-        thread.interrupt();
-        super.onDestroy();
+    public void onBackPressed() {
+        finish();
     }
 
     public void change(String to_plot){
@@ -276,37 +276,45 @@ public class Visualization extends AppCompatActivity{
     }
 
     public void linearAcc(View view){
-        change("lac");
+        change("lAcc");
     }
-    public void ownLinearAcc(View view){
-        change("acc");
-    }
+
     public void rawAcc(View view){
-        change("rac");
+        change("rAcc");
     }
-    public void gyro(View view){
-        change("rotv");
+
+    public void rotV(View view){
+        change("rotV");
     }
-    public void magno(View view){
-        change("rot");
+
+    public void rotP(View view){
+        change("rotP");
     }
+
+    public void gyr(View view){ change("gyr");}
+
+    public void grv(View view){ change("grv");}
+
+    public void mgm(View view){ change("mgm");}
 
     private class SensorListener implements SensorEventListener {
         @Override
         public void onSensorChanged(SensorEvent event) {
             if (plotData) {
-                if (to_plot == "rac") {
+                if (to_plot == "rAcc") {
                     addEntry(sensors.getRawAccelerationPhone().values);
-                } else if (to_plot == "acc") {
+                } else if (to_plot == "lAcc") {
                     addEntry(sensors.getLinearAccelerationPhone().values);
-                } else if (to_plot == "rotv") {
+                } else if (to_plot == "rotV") {
                     addEntry(Utils.quaternion2euler(sensors.getRotationVectorVehicle().values));
-                } else if (to_plot == "rot") {
+                } else if (to_plot == "rotP") {
                     addEntry(Utils.quaternion2euler(sensors.getRotationVectorEarth().values));
-                } else if (to_plot == "lac") {
-//                    addEntry(sensors.getGravityPhone().values);
-                    addEntry(sensors.getLinearAccelerationPhoneAndroid().values);
-//                    addEntry(sensors.getMagneticPhone().values);
+                } else if (to_plot == "gyr") {
+                    addEntry(sensors.getAngularVelocityPhone().values);
+                } else if(to_plot == "grv") {
+                    addEntry(sensors.getGravityPhone().values);
+                } else if(to_plot == "mgm"){
+                    addEntry(sensors.getMagneticPhone().values);
                 }
             }
             plotData = false;
