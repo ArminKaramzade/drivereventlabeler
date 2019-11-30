@@ -336,8 +336,10 @@ public class Sensors {
                     break;
 
                 case Sensor.TYPE_ROTATION_VECTOR:
-                    if(Sensors.useAndroidDefaultSensors)
-                        processRotationVectorEarth(time, event.values);
+                    if(Sensors.useAndroidDefaultSensors) {
+                        float vals[] = new float[]{event.values[3], event.values[0], event.values[1], event.values[2]};
+                        processRotationVectorEarth(time, vals);
+                    }
                     break;
                 case Sensor.TYPE_LINEAR_ACCELERATION:
                     if(Sensors.useAndroidDefaultSensors)

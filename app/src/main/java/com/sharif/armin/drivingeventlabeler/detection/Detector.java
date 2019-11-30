@@ -177,8 +177,8 @@ public class Detector {
             }
         }
         else {
-            accSS =  sensors.getLinearAccelerationVehicle();
-            gyrSS =  sensors.getAngularVelocityEarth();
+            accSS =  sensors.getLinearAccelerationPhone();
+            gyrSS =  sensors.getAngularVelocityPhone();
         }
         float[] acc = accSS.values,
                 gyr = gyrSS.values;

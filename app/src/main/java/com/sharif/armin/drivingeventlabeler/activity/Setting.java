@@ -2,7 +2,6 @@ package com.sharif.armin.drivingeventlabeler.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -162,14 +161,12 @@ public class Setting extends AppCompatActivity {
             e.printStackTrace();
         }
         Setting.setParameters();
+        finish();
         Context context = getApplicationContext();
         CharSequence text = "Saved successfully.";
         int duration = Toast.LENGTH_LONG;
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     public void reset(View view){
