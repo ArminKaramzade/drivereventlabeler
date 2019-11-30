@@ -43,6 +43,8 @@ public class Detector {
     private double[] savgolcoeffs;
     private SGFilter sgFilter;
 
+    private static boolean useVehicleSensors;
+
     private int sensorFreq;
     private Sensors sensors;
     private SensorTest sensorsTest;
@@ -59,6 +61,7 @@ public class Detector {
     private float[] gyrEnergy = new float[1];
     private float[] gyrMean = new float[1];
 
+    public static void setUseVehicleSensors(boolean useVehicleSensors){Detector.useVehicleSensors = useVehicleSensors; }
     public static void setWindowSize(int windowSize){ Detector.windowSize = windowSize;}
     public static void setOverLap(int overLap){ Detector.overLap = overLap;}
     public static void setSavgolNl(int savgolNl){ Detector.savgolNl = savgolNl;}
@@ -177,8 +180,14 @@ public class Detector {
             }
         }
         else {
-            accSS =  sensors.getLinearAccelerationPhone();
-            gyrSS =  sensors.getAngularVelocityPhone();
+            if(useVehicleSensors) {
+                accSS = sensors.getLinearAccelerationVehicle();
+                gyrSS = sensors.getAngularVelocityEarth();
+            }
+            else{
+                accSS = sensors.getLinearAccelerationPhone();
+                gyrSS = sensors.getAngularVelocityPhone();
+            }
         }
         float[] acc = accSS.values,
                 gyr = gyrSS.values;

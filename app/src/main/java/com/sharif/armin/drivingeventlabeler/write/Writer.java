@@ -180,6 +180,23 @@ public class Writer {
             file.delete();
         }
     }
+    public void remove(String fn){
+        try {
+            for (name n : name.values()) {
+                writers[n.ordinal()].close();
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        String [] files = new String[name.values().length];
+        for (name n: name.values()){
+            files[n.ordinal()] = path + File.separator + filenames[n.ordinal()];
+        }
+        for (int i = 0; i < files.length; i++) {
+            File file = new File(files[i]);
+            file.delete();
+        }
+    }
     public void zip(String[] _files, String zipFileName) {
         try {
             BufferedInputStream origin = null;

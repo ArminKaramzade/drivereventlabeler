@@ -148,7 +148,6 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
 
     @Override
     protected void onPause(){
-        this.writer.saveAndRemove(filename);
         if (!TestFlag) {
             this.sensors.stop();
         }
@@ -165,47 +164,35 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
     protected void onResume() {
         super.onResume();
         if(pause){
+            this.writer.saveAndRemove(filename);
             finish();
-            Context context = getApplicationContext();
-            CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
-            int duration = Toast.LENGTH_LONG;
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
+            showSavedToast();
         }
     }
 
     @Override
     public void onBackPressed() {
-        this.writer.saveAndRemove(filename);
-        if (!TestFlag) {
-            this.sensors.stop();
-        }
-        else {
-            sensorTest.stop();
-        }
-        this.detector.stop();
-        this.detector.removeObserver(this);
+        this.writer.remove(filename);
         finish();
-        Context context = getApplicationContext();
-        CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
-        int duration = Toast.LENGTH_LONG;
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
+        showCancelledToast();
     }
 
     public void stop(View view){
         this.writer.saveAndRemove(filename);
-        if (!TestFlag) {
-            this.sensors.stop();
-        }
-        else {
-            sensorTest.stop();
-        }
-        this.detector.stop();
-        this.detector.removeObserver(this);
         finish();
+        showSavedToast();
+    }
+
+    private void showSavedToast(){
         Context context = getApplicationContext();
-        CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
+        CharSequence text = "Data saved into " + MainActivity.directory.getPath() + filename + ".";
+        int duration = Toast.LENGTH_LONG;
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+    }
+    private void showCancelledToast(){
+        Context context = getApplicationContext();
+        CharSequence text = "Data didn't saved.";
         int duration = Toast.LENGTH_LONG;
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();

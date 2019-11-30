@@ -59,6 +59,7 @@
     <string name="madgwick_beta_text_activity_setting">Madgwick beta</string>
 
     <string name="detector_text_activity_setting">Detector </string>
+    <string name="sensors_WRT_vehicle_text_activity_setting">Use sensors w.r.t vehicle</string>
     <string name="window_size_text_activity_setting">Window size</string>
     <string name="Overlap">Overlap</string>
     <string name="filter_left_size_text_activity_setting">Filter left size</string>

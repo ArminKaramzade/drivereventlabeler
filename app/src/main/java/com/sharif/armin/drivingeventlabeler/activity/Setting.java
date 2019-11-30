@@ -84,6 +84,7 @@ public class Setting extends AppCompatActivity {
         ((EditText) findViewById(R.id.orientationTimeConstant_te)).setText(map.get("orientationTimeConstant").toString());
         ((EditText) findViewById(R.id.madgwickBeta_te)).setText(map.get("madgwickBeta").toString());
 
+        ((Switch) findViewById(R.id.vehicleSensors)).setChecked(!(map.get("vehicleSensors") == 0f));
         ((EditText) findViewById(R.id.windowSize_te)).setText(Integer.toString(map.get("windowSize").intValue()));
         ((EditText) findViewById(R.id.overlap_te)).setText(Integer.toString(map.get("overlap").intValue()));
         ((EditText) findViewById(R.id.filterLeftSize_te)).setText(Integer.toString(map.get("filterLeftSize").intValue()));
@@ -115,6 +116,7 @@ public class Setting extends AppCompatActivity {
         map.put("orientationTimeConstant", Float.parseFloat(((EditText) findViewById(R.id.orientationTimeConstant_te)).getText().toString()));
         map.put("madgwickBeta", Float.parseFloat(((EditText) findViewById(R.id.madgwickBeta_te)).getText().toString()));
 
+        map.put("vehicleSensors", ((Switch)findViewById(R.id.vehicleSensors)).isChecked() ? 1f : 0f);
         map.put("windowSize", Float.parseFloat(((EditText) findViewById(R.id.windowSize_te)).getText().toString()));
         map.put("overlap", Float.parseFloat(((EditText) findViewById(R.id.overlap_te)).getText().toString()));
         map.put("filterLeftSize", Float.parseFloat(((EditText) findViewById(R.id.filterLeftSize_te)).getText().toString()));
@@ -131,7 +133,6 @@ public class Setting extends AppCompatActivity {
         map.put("turnMaxDuration", Float.parseFloat(((EditText) findViewById(R.id.turnMaxDuration_te)).getText().toString()));
         map.put("turnLacYEnergyThreshold", Float.parseFloat(((EditText) findViewById(R.id.turnGyrZEnergyThreshold_te)).getText().toString()));
         map.put("turnAcceptFunctionThreshold", Float.parseFloat(((EditText) findViewById(R.id.turnAcceptFunctionThreshold_te)).getText().toString()));
-
 
         map.put("laneMinDuration", Float.parseFloat(((EditText) findViewById(R.id.laneMinDuration_te)).getText().toString()));
         map.put("laneMaxDuration", Float.parseFloat(((EditText) findViewById(R.id.laneMaxDuration_te)).getText().toString()));
@@ -176,6 +177,7 @@ public class Setting extends AppCompatActivity {
         ((EditText) findViewById(R.id.orientationTimeConstant_te)).setText(map.get("orientationTimeConstant").toString());
         ((EditText) findViewById(R.id.madgwickBeta_te)).setText(map.get("madgwickBeta").toString());
 
+        ((Switch) findViewById(R.id.vehicleSensors)).setChecked(!(map.get("vehicleSensors") == 0f));
         ((EditText) findViewById(R.id.windowSize_te)).setText(Integer.toString(map.get("windowSize").intValue()));
         ((EditText) findViewById(R.id.overlap_te)).setText(Integer.toString(map.get("overlap").intValue()));
         ((EditText) findViewById(R.id.filterLeftSize_te)).setText(Integer.toString(map.get("filterLeftSize").intValue()));
@@ -225,6 +227,7 @@ public class Setting extends AppCompatActivity {
         Orientation.setTimeConstant(map.get("orientationTimeConstant"));
         Madgwick.setBeta(map.get("madgwickBeta"));
 
+        Detector.setUseVehicleSensors(!(map.get("vehicleSensors")==0f));
         Detector.setWindowSize(map.get("windowSize").intValue());
         Detector.setOverLap(map.get("overlap").intValue());
         Detector.setSavgolNl(map.get("filterLeftSize").intValue());
@@ -257,6 +260,7 @@ public class Setting extends AppCompatActivity {
             put("orientationTimeConstant", 0.1f);
             put("madgwickBeta", 0.01f);
 
+            put("vehicleSensors", 1f);
             put("windowSize", 40f);
             put("overlap", 30f);
             put("filterLeftSize", 15f);

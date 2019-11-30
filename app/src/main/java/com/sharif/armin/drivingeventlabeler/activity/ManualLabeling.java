@@ -70,7 +70,6 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
 
     @Override
     protected void onPause() {
-        this.writer.saveAndRemove(filename);
         this.sensors.removeObserver(this);
         this.sensors.stop();
         pause = true;
@@ -81,34 +80,36 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
     protected void onResume() {
         super.onResume();
         if(pause){
+            this.writer.saveAndRemove(filename);
             finish();
-            Context context = getApplicationContext();
-            CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
-            int duration = Toast.LENGTH_LONG;
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
+            showSavedToast();
         }
     }
 
     @Override
     public void onBackPressed()
     {
-        this.sensors.stop();
+        this.writer.remove(filename);
+        finish();
+        showCancelledToast();
+    }
+
+    public void stop(View view){
         this.writer.saveAndRemove(filename);
         finish();
+        showSavedToast();
+    }
+
+    private void showSavedToast(){
         Context context = getApplicationContext();
-        CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
+        CharSequence text = "Data saved into " + MainActivity.directory.getPath() + filename + ".";
         int duration = Toast.LENGTH_LONG;
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
     }
-
-    public void stop(View view){
-        this.sensors.stop();
-        this.writer.saveAndRemove(filename);
-        finish();
+    private void showCancelledToast(){
         Context context = getApplicationContext();
-        CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
+        CharSequence text = "Data didn't saved.";
         int duration = Toast.LENGTH_LONG;
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
