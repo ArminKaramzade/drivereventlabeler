@@ -47,16 +47,45 @@ public class BiasEstimation extends AppCompatActivity {
     final static int msecs = 20000;
     boolean finished = false;
     File f;
+    private Thread thread;
+    private boolean pause;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        pause = false;
         setContentView(R.layout.activity_bias_estimation);
         gyrMu = new float[] {0, 0, 0};
         racMu = new float[] {0, 0, 0};
         gyrN = 0;
         racN = 0;
+
     }
+
+    @Override
+    protected void onPause() {
+        thread.interrupt();
+        pause = true;
+        super.onPause();
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (pause){
+            sensorManager.unregisterListener(sensorListener);
+            Context context = getApplicationContext();
+            CharSequence text = "Bias estimation has failed.";
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
+    }
+
+
 
     public void start(View view){
         Button btn = (Button) findViewById(R.id.button);
@@ -70,7 +99,7 @@ public class BiasEstimation extends AppCompatActivity {
         sensorManager.registerListener(sensorListener,
                 sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
                 SensorManager.SENSOR_DELAY_FASTEST);
-        Thread thread = new Thread(new Runnable() {
+        thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 while(true){

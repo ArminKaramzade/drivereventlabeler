@@ -37,10 +37,12 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
     private Event event;
     private SensorTest sensorTest;
     private boolean removeFlag = false, proccessingFlag = false;
+    private boolean pause;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        pause = false;
         setContentView(R.layout.activity_guided_labeling);
         txtlabel = (TextView) findViewById(R.id.textlabel);
         txttimer = (TextView) findViewById(R.id.textTimer);
@@ -82,6 +84,12 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
 
         }
         upcomingEvents = new LinkedList<>();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
     }
 
     @Override
@@ -146,18 +154,33 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
         thread.start();
     }
 
-    protected void onStop(){
-        super.onStop();
-    }
-    protected void onDestroy(){
-        super.onDestroy();
+    @Override
+    protected void onPause(){
+        this.writer.saveAndRemove(filename);
         if (!TestFlag) {
-            sensors.stop();
+            this.sensors.stop();
         }
         else {
             sensorTest.stop();
         }
-        detector.stop();
+        this.detector.stop();
+        detector.removeObserver(this);
+        pause = true;
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(pause){
+            Context context = getApplicationContext();
+            CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
     }
 
     public void stop(View view){

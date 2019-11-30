@@ -32,10 +32,12 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
     private long accelerateStart, brakeStart, turnRightStart,
             turnLeftStart, uTurnStart, laneChangeStart;
     private String filename;
+    private boolean pause;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        pause = false;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_manual_labeling);
         txtCounter = (TextView) findViewById(R.id.textTimer);
@@ -66,15 +68,25 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
         filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
     }
 
-    protected void onStop(){
-        super.onStop();
+    protected void onPause() {
+        this.writer.saveAndRemove(filename);
         sensors.removeObserver(this);
         sensors.stop();
+        pause = true;
+        super.onPause();
     }
-    protected void onDestroy(){
-        super.onDestroy();
-        sensors.removeObserver(this);
-        sensors.stop();
+
+    protected void onResume() {
+        super.onResume();
+        if(pause){
+            Context context = getApplicationContext();
+            CharSequence text = "Data Saved into " + MainActivity.directory.getPath() + filename + ".";
+            int duration = Toast.LENGTH_LONG;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        }
     }
 
     public void stop(View view){
