@@ -20,6 +20,16 @@ public class LinearAcceleration {
         LinearAcceleration.timeConstant = timeConstant;
     }
 
+    public void reset(){
+        gravity[0] = 0;
+        gravity[1] = 0;
+        gravity[2] = 0;
+        acceleration[0] = 0;
+        acceleration[1] = 0;
+        acceleration[2] = 0;
+        prevTime = 0;
+    }
+
     public void filter(SensorSample rac, SensorSample rot){
         Quaternion rotationVector = new Quaternion(rot.values[0], rot.values[1], rot.values[2], rot.values[3]);
         float[] rotatedRac = Utils.rotate(rotationVector, rac.values);

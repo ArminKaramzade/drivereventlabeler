@@ -17,6 +17,11 @@ public class Orientation {
     public static void setTimeConstant(float timeConstant){
         Orientation.timeConstant = timeConstant;
     }
+    public void reset(){
+        prevTime = 0;
+        rotationVector = null;
+    }
+
 
     public Quaternion getRotationVector(){
         return this.rotationVector;
