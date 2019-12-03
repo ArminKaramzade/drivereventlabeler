@@ -78,7 +78,7 @@
     <string name="turn_gyrZ_energy_threshold_text_activity_setting">gyrZ energy threshold</string>
     <string name="turn_accept_function_threshold_text_activity_setting">Accept function threshold</string>
 
-    <string name="lane_change_parameters_text_activity_setting">Brake parameters</string>
+    <string name="lane_change_parameters_text_activity_setting">Lane change parameters</string>
     <string name="lane_change_lacX_energy_threshold_text_activity_setting">lacX energy threshold</string>
     <string name="lane_change_gyrZ_energy_threshold_text_activity_setting">gyrZ energy threshold</string>
     <string name="lane_change_subsample_parameter_text_activity_setting">subsample parameter</string>
