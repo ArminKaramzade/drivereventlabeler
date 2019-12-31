@@ -29,9 +29,8 @@
     <string name="brake_text_activity_guided_labeling">ترمز</string>
     <string name="turn_text_activity_guided_labeling">چرخش</string>
     <string name="lane_change_text_activity_guided_labeling">تغییر باند</string>
-    <string name="brake_button_activity_guided_labeling">ترمز</string>
-    <string name="turn_button_activity_guided_labeling">چرخش</string>
-    <string name="lane_change_button_activity_guided_labeling">تغییر باند</string>
+    <string name="normal_button_activity_guided_labeling">تأیید</string>
+    <string name="aggressive_button_activity_guided_labeling">خطرناک</string>
     <string name="remove_button_activity_guided_labeling">حذف</string>
     <string name="stop_button_activity_guided_labeling">Stop Recording</string>
 
@@ -69,7 +68,7 @@
     <string name="min_duration_text_activity_setting">Min duration</string>
     <string name="max_duration_text_activity_setting">Max duration</string>
 
-    <string name="brake_parameters_text_activity_setting"></string>
+    <string name="brake_parameters_text_activity_setting">Brake Parameters</string>
     <string name="brake_lacY_energy_threshold_text_activity_setting">lacY energy threshold</string>
     <string name="brake_var_threshold_text_activity_setting">Var threshold</string>
     <string name="brake_accept_function_threshold_text_activity_setting">Accept function threshold</string>

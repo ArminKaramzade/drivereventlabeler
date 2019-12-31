@@ -7,7 +7,9 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,12 +38,12 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
     private LinkedList<Event> upcomingEvents;
     private Event event;
     private SensorTest sensorTest;
-    private boolean removeFlag = false, proccessingFlag = false;
     private boolean pause;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_guided_labeling);
         pause = false;
         txtlabel = findViewById(R.id.monitor);
@@ -86,7 +88,6 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
 
     @Override
     public void onEventDetected(Event _event) {
-        upcomingEvents.add(_event);
         if (TestFlag && _event.getEventLabel().compareTo("Finish") == 0){
             this.writer.saveAndRemove(filename);
             this.sensorTest.stop();
@@ -97,40 +98,62 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
             Intent intent = new Intent(this, MainActivity.class);
+            finish();
             startActivity(intent);
         }
-        proccessingFlag = true;
-        event = upcomingEvents.getFirst();
-        upcomingEvents.removeFirst();
+        event = _event;
         correctEvent(event);
     }
 
     private void correctEvent(final Event event) {
+        upcomingEvents.addFirst(event);
+        boolean show = true;
         if(thread != null) {
+            if(upcomingEvents.size() > 1) {
+                Event lastEvent = upcomingEvents.get(1);
+                upcomingEvents.removeLast();
+                String lbl = lastEvent.getEventLabel();
+                int i = lbl.indexOf('/');
+                if(lbl.substring(i+1).compareTo("lane_change") == 0){
+                    if(i != -1){
+                        event.setEventLabel(lbl);
+                        upcomingEvents.get(0).setEventLabel(lbl);
+                        show = false;
+                    }
+                    event.setStart(lastEvent.getStart());
+                    upcomingEvents.get(0).setStart(lastEvent.getStart());
+                }
+                else {
+                    lastEvent.setEventLabel("intrupted/" + lastEvent.getEventLabel());
+                    writer.writeLabel(lastEvent.getEventLabel(), lastEvent.getStart(), lastEvent.getEnd());
+                }
+            }
             thread.interrupt();
         }
+        final boolean _show = show;
         thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 try{
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            txtlabel.setBackgroundResource(R.color.red);
-                            if (event.getEventLabel().compareTo("turn") == 0)
-                                txtlabel.setText(R.string.turn_text_activity_guided_labeling);
-                            else if (event.getEventLabel().compareTo("brake") == 0)
-                                txtlabel.setText(R.string.brake_text_activity_guided_labeling);
-                            else if (event.getEventLabel().compareTo("lane_change") == 0)
-                                txtlabel.setText(R.string.lane_change_text_activity_guided_labeling);
-                        }
-                    });
-                    Thread.sleep(2000);
-                    if (! removeFlag) {
-                        writer.writeLabel(event.getEventLabel(), event.getStart(), event.getEnd());
+                    if (_show) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                txtlabel.setBackgroundResource(R.color.red);
+                                if (event.getEventLabel().compareTo("turn") == 0)
+                                    txtlabel.setText(R.string.turn_text_activity_guided_labeling);
+                                else if (event.getEventLabel().compareTo("brake") == 0)
+                                    txtlabel.setText(R.string.brake_text_activity_guided_labeling);
+                                else if (event.getEventLabel().compareTo("lane_change") == 0)
+                                    txtlabel.setText(R.string.lane_change_text_activity_guided_labeling);
+                            }
+                        });
                     }
-                    removeFlag = false;
-                    proccessingFlag = false;
+                    Thread.sleep(2000);
+                    if(event.getEventLabel().indexOf('/') == -1) {
+                        event.setEventLabel("notConfirmed/" + event.getEventLabel());
+                    }
+                    writer.writeLabel(event.getEventLabel(), event.getStart(), event.getEnd());
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -138,6 +161,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
                             txtlabel.setText("");
                         }
                     });
+                    upcomingEvents.removeFirst();
                 }catch (InterruptedException e){
                     e.printStackTrace();
                 }
@@ -198,27 +222,42 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
         toast.show();
     }
 
-    public void laneChange(View view) {
-        if(proccessingFlag) {
-            event.setEventLabel("lane_change/" + event.getEventLabel());
+    public void aggresive(View view) {
+        if(thread != null && event != null) {
+            event.setEventLabel("aggresive/" + event.getEventLabel());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    txtlabel.setBackgroundColor(0x00000000);
+                    txtlabel.setText("");
+                }
+            });
         }
     }
 
-    public void turn(View view) {
-        if(proccessingFlag) {
-            event.setEventLabel("turn/" + event.getEventLabel());
-        }
-    }
-
-    public void brake(View view) {
-        if(proccessingFlag) {
-            event.setEventLabel("brake/" + event.getEventLabel());
+    public void normal(View view) {
+        if(thread != null && event != null) {
+            event.setEventLabel("normal/" + event.getEventLabel());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    txtlabel.setBackgroundColor(0x00000000);
+                    txtlabel.setText("");
+                }
+            });
         }
     }
 
     public void remove(View view) {
-        if(proccessingFlag){
-            removeFlag = true;
+        if(thread != null && event != null) {
+            event.setEventLabel("remove/" + event.getEventLabel());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    txtlabel.setBackgroundColor(0x00000000);
+                    txtlabel.setText("");
+                }
+            });
         }
     }
 
