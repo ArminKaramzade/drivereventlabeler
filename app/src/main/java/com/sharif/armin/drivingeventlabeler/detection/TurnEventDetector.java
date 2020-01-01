@@ -9,13 +9,16 @@ public class TurnEventDetector {
     private static float AcceptFunctionThreshold;
 
     private long turnStart, turnStop;
-    private static boolean turnEvent = false;
+    private boolean turnEvent;
 
     public static void setMinDuration(int MinDuration){ TurnEventDetector.MinDuration = MinDuration;}
     public static void setMaxDuration(int MaxDuration){ TurnEventDetector.MaxDuration = MaxDuration;}
     public static void setGyrZEnergyThreshold(float gyrZEnergyThreshold){ TurnEventDetector.gyrZEnergyThreshold = gyrZEnergyThreshold;}
     public static void setAcceptFunctionThreshold(float AcceptFunctionThreshold){ TurnEventDetector.AcceptFunctionThreshold = AcceptFunctionThreshold;}
 
+    public TurnEventDetector(){
+        turnEvent = false;
+    }
     private boolean AcceptWindowFunction(float Mean){
         return Math.abs(Mean) >= AcceptFunctionThreshold;
     }

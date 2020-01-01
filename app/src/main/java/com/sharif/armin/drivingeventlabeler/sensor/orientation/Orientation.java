@@ -6,25 +6,35 @@ import org.apache.commons.math3.complex.Quaternion;
 
 public class Orientation {
     private static final float MS2S = 1.0f / 1000.0f;
-    private long prevTime = 0;
-    private Quaternion rotationVector = null;
-    private float[] angularVelocity = new float[3],
-            gravity = new float[3],
-            magnetic = new float[3];
     private static float timeConstant;
-    private Madgwick madgwick = new Madgwick();
 
     public static void setTimeConstant(float timeConstant){
         Orientation.timeConstant = timeConstant;
     }
-    public void reset(){
-        prevTime = 0;
-        rotationVector = null;
-    }
 
+    private long prevTime;
+    private Quaternion rotationVector;
+    private float[] angularVelocity,
+                    gravity,
+                    magnetic;
+    private Madgwick madgwick;
 
     public Quaternion getRotationVector(){
         return this.rotationVector;
+    }
+
+    public Orientation(){
+        prevTime = 0;
+        rotationVector = null;
+        angularVelocity = new float[3];
+        gravity = new float[3];
+        magnetic = new float[3];
+        madgwick = new Madgwick();
+    }
+
+    public void reset(){
+        prevTime = 0;
+        rotationVector = null;
     }
 
     public void filter(SensorSample angularVelocitySS, SensorSample gravitySS, SensorSample magneticSS, long time) {

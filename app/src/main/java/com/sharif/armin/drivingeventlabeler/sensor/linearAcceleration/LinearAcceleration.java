@@ -7,17 +7,29 @@ import org.apache.commons.math3.complex.Quaternion;
 
 public class LinearAcceleration {
     private static final float MS2S = 1.0f / 1000.0f;
-    private float[] acceleration = {0, 0, 0};
-    private float[] gravity = {0, 0, 0};
-    private long prevTime = 0;
     private static float timeConstant;
-
-    public float[] getAcceleration(){ return this.acceleration;}
-
-    public float[] getGravity(){ return this.gravity;}
 
     public static void setTimeConstant(float timeConstant) {
         LinearAcceleration.timeConstant = timeConstant;
+    }
+
+    private float[] acceleration;
+    private float[] gravity;
+    private long prevTime;
+
+    public float[] getAcceleration(){ return this.acceleration;}
+    public float[] getGravity(){ return this.gravity;}
+
+    public LinearAcceleration(){
+        acceleration = new float[3];
+        acceleration[0] = 0;
+        acceleration[1] = 0;
+        acceleration[2] = 0;
+        gravity = new float[3];
+        gravity[0] = 0;
+        gravity[1] = 0;
+        gravity[2] = 0;
+        prevTime = 0;
     }
 
     public void reset(){

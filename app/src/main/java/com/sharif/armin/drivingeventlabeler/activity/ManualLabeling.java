@@ -58,7 +58,7 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
         sensor_f = Integer.parseInt(intent.getStringExtra(MainActivity.sensor_frequency));
         gps_delay = Integer.parseInt(intent.getStringExtra(MainActivity.gps_delay));
         writer = new Writer(MainActivity.directory.getPath());
-        this.sensors = Sensors.getInstance();
+        this.sensors = new Sensors();
         this.sensors.setSensorManager((SensorManager) getSystemService(Context.SENSOR_SERVICE));
         this.sensors.setLocationManager((LocationManager) getSystemService((Context.LOCATION_SERVICE)));
         this.sensors.setGpsDelay(gps_delay);

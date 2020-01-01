@@ -10,9 +10,9 @@ public class BrakeEventDetector {
     private static float VarThreshold;
     private static float AcceptFunctionThreshold;
 
-    private boolean brakeEvent = false;
+    private boolean brakeEvent;
     private long brakeStart, brakeStop;
-    private LinkedList<Float> brakeWindow = new LinkedList<>();
+    private LinkedList<Float> brakeWindow;
 
     public static void setMinDuration(int MinDuration){ BrakeEventDetector.MinDuration = MinDuration;}
     public static void setMaxDuration(int MaxDuration){ BrakeEventDetector.MaxDuration = MaxDuration;}
@@ -20,7 +20,11 @@ public class BrakeEventDetector {
     public static void setVarThreshold(float VarThreshold){ BrakeEventDetector.VarThreshold = VarThreshold;}
     public static void setAcceptFunctionThreshold(float AcceptFunctionThreshold){ BrakeEventDetector.AcceptFunctionThreshold = AcceptFunctionThreshold;}
 
+    public BrakeEventDetector(){
+        brakeEvent = false;
+        brakeWindow = new LinkedList<>();
 
+    }
     private boolean AcceptWindowFunction(float Mean){
         return Mean < BrakeEventDetector.AcceptFunctionThreshold;
     }

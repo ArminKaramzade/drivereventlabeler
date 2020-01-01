@@ -7,7 +7,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -73,7 +72,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             filename = TestDir + "test.zip";
         }
         else {
-            sensors = Sensors.getInstance();
+            sensors = new Sensors();
             sensors.setSensorManager((SensorManager) getSystemService(Context.SENSOR_SERVICE));
             sensors.setLocationManager((LocationManager) getSystemService((Context.LOCATION_SERVICE)));
             sensors.setGpsDelay(gps_delay);

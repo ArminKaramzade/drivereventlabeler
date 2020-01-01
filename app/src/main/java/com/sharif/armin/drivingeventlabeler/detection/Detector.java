@@ -27,7 +27,7 @@ public class Detector {
         }
     }
 
-    private Thread threadSensor = null;
+    private Thread threadSensor;
 
     private boolean TestFlag = false;
 
@@ -35,7 +35,7 @@ public class Detector {
 
     public static int windowSize;
     public static int overLap;
-    public static int step;
+    public int step;
 
     private static int savgolNl;
     private static int savgolNr;
@@ -56,10 +56,10 @@ public class Detector {
     private LinkedList<float[]> lacSavgolWindow;
     private LinkedList<float[]> gyrSavgolWindow;
 
-    private float[] lacEnergy = new float[2];
-    private float[] lacMean = new float[2];
-    private float[] gyrEnergy = new float[1];
-    private float[] gyrMean = new float[1];
+    private float[] lacEnergy;
+    private float[] lacMean;
+    private float[] gyrEnergy;
+    private float[] gyrMean;
 
     public static void setUseVehicleSensors(boolean useVehicleSensors){Detector.useVehicleSensors = useVehicleSensors; }
     public static void setWindowSize(int windowSize){ Detector.windowSize = windowSize;}
@@ -75,6 +75,11 @@ public class Detector {
 
     public Detector(int sensorFreq, Sensors sensors){
         step = windowSize - overLap - 1;
+        threadSensor = null;
+        lacEnergy = new float[2];
+        lacMean = new float[2];
+        gyrEnergy = new float[1];
+        gyrMean = new float[1];
         mObservers = new ArrayList<>();
         this.sensorFreq = sensorFreq;
 
@@ -97,6 +102,11 @@ public class Detector {
 
     public Detector(int sensorFreq, SensorTest sensorTest) {
         step = windowSize - overLap - 1;
+        threadSensor = null;
+        lacEnergy = new float[2];
+        lacMean = new float[2];
+        gyrEnergy = new float[1];
+        gyrMean = new float[1];
         mObservers = new ArrayList<>();
         this.sensorFreq = sensorFreq;
 

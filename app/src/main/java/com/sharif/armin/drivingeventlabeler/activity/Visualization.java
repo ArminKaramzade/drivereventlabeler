@@ -58,13 +58,11 @@ public class Visualization extends AppCompatActivity{
         sensor_f = Integer.parseInt(intent.getStringExtra(MainActivity.sensor_frequency));
         gpsDelay = Integer.parseInt(intent.getStringExtra(MainActivity.gps_delay));
 
-        sensors = Sensors.getInstance();
+        sensors = new Sensors();
         sensors.setSensorManager((SensorManager) getSystemService(Context.SENSOR_SERVICE));
         sensors.setLocationManager((LocationManager) getSystemService((Context.LOCATION_SERVICE)));
         sensors.setGpsDelay(gpsDelay);
         sensors.setSensorFrequency(sensor_f);
-
-        sensors.start();
 
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         sensorListener = new SensorListener();
@@ -254,6 +252,7 @@ public class Visualization extends AppCompatActivity{
             thread.interrupt();
         }
         sensors.stop();
+        sensorManager.unregisterListener(this.sensorListener);
     }
 
     @Override

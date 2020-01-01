@@ -4,9 +4,9 @@ public class VehicleHeadingAngle {
     private static final float MS2S = 1.0f / 1000.0f;
 
     private float sigma2W, sigma2A;
-    private float[] muX = new float[2];
-    private float[][] covX = new float[2][2];
-    private float prevTime = 0;
+    private float[] muX;
+    private float[][] covX;
+    private float prevTime;
 
     public float getAngle(){
         return this.muX[0];
@@ -27,6 +27,12 @@ public class VehicleHeadingAngle {
         this.prevTime = prevTime;
     }
     public void reset(){
+        prevTime = 0;
+    }
+
+    public VehicleHeadingAngle(){
+        muX = new float[2];
+        covX = new float[2][2];
         prevTime = 0;
     }
 

@@ -1,7 +1,5 @@
 package com.sharif.armin.drivingeventlabeler.detection;
 
-import android.os.Environment;
-
 import com.sharif.armin.drivingeventlabeler.activity.MainActivity;
 import com.sharif.armin.drivingeventlabeler.sensor.SensorSample;
 import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
@@ -10,7 +8,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.LinkedList;
 
 public class SensorTest {
     String path;

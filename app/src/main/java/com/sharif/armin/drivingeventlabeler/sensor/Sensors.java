@@ -42,6 +42,20 @@ public class Sensors {
     }
 
     private static boolean useAndroidDefaultSensors;
+    public static final int TYPE_ANGULAR_VELOCITY_PHONE = 0,
+            TYPE_ANGULAR_VELOCITY_EARTH = 1,
+            TYPE_MAGNETIC_PHONE = 2,
+            TYPE_GRAVITY_PHONE = 3,
+            TYPE_RAW_ACCELERATION_PHONE = 4,
+            TYPE_LINEAR_ACCELERATION_PHONE = 5,
+            TYPE_LINEAR_ACCELERATION_VEHICLE = 6,
+            TYPE_ROTATION_VECTOR_EARTH = 7,
+            TYPE_ROTATION_VECTOR_VEHICLE = 8,
+            TYPE_HEADING_ANGLE_VEHICLE = 9;
+
+    public static void setUseAndroidDefaultSensors(boolean useAndroidDefaultSensors){
+        Sensors.useAndroidDefaultSensors = useAndroidDefaultSensors;
+    }
 
     private SensorManager sensorManager;
     private SensorListener sensorListener;
@@ -64,21 +78,7 @@ public class Sensors {
                          rotationVectorEarth,
                          rotationVectorVehicle,
                          headingAnglePhone;
-
     private Location location;
-
-    public static final int TYPE_ANGULAR_VELOCITY_PHONE = 0,
-                            TYPE_ANGULAR_VELOCITY_EARTH = 1,
-                            TYPE_MAGNETIC_PHONE = 2,
-                            TYPE_GRAVITY_PHONE = 3,
-                            TYPE_RAW_ACCELERATION_PHONE = 4,
-                            TYPE_LINEAR_ACCELERATION_PHONE = 5,
-                            TYPE_LINEAR_ACCELERATION_VEHICLE = 6,
-                            TYPE_ROTATION_VECTOR_EARTH = 7,
-                            TYPE_ROTATION_VECTOR_VEHICLE = 8,
-                            TYPE_HEADING_ANGLE_VEHICLE = 9;
-
-    public static void setUseAndroidDefaultSensors(boolean useAndroidDefaultSensors){ Sensors.useAndroidDefaultSensors = useAndroidDefaultSensors;}
 
     public SensorSample getMagneticPhone() {
         return this.magneticPhone;
@@ -115,7 +115,7 @@ public class Sensors {
     }
 
 
-    private Sensors(){
+    public Sensors(){
         this.sensorListener = new SensorListener();
         this.locationListener = new GPSListener();
         headingAngleFilter = new VehicleHeadingAngle();
@@ -136,12 +136,6 @@ public class Sensors {
         mObservers = new ArrayList<>();
         angularVelocityBias = Utils.getGyrBias();
         rawAccelerationBias = Utils.getRacBias();
-    }
-    private static class BillPughSingleton{
-        private static final Sensors INSTANCE = new Sensors();
-    }
-    public static Sensors getInstance() {
-        return BillPughSingleton.INSTANCE;
     }
     public void setSensorManager(SensorManager sensorManager) {
         this.sensorManager = sensorManager;
