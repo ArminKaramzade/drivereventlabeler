@@ -2,6 +2,7 @@
 <android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nestedScrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -12,6 +13,74 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".activity.Setting"
         tools:showIn="@layout/activity_setting">
+
+        <TextView
+            android:id="@+id/textView35"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:text="@string/lane_change_delay_text_activity_setting"
+            app:layout_constraintBottom_toBottomOf="@+id/laneDelay_te"
+            app:layout_constraintEnd_toStartOf="@+id/laneDelay_te"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/laneTemplateSize_te"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textView10"
+            app:layout_constraintTop_toBottomOf="@+id/laneWinLength_te" />
+
+        <EditText
+            android:id="@+id/laneWinLength_te"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textView34"
+            app:layout_constraintTop_toBottomOf="@+id/laneDtwThreshold_te" />
+
+        <TextView
+            android:id="@+id/textView34"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/lane_change_win_length_text_activity_setting"
+            app:layout_constraintBottom_toBottomOf="@+id/laneWinLength_te"
+            app:layout_constraintEnd_toStartOf="@+id/laneWinLength_te"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/textView10"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@string/lane_change_template_size_text_activity_setting"
+            app:layout_constraintBottom_toBottomOf="@+id/laneTemplateSize_te"
+            app:layout_constraintEnd_toStartOf="@+id/laneTemplateSize_te"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/laneDelay_te"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:inputType="numberDecimal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textView35"
+            app:layout_constraintTop_toBottomOf="@+id/laneTemplateSize_te" />
 
         <EditText
             android:id="@+id/laneDtwThreshold_te"
@@ -599,8 +668,7 @@
             android:id="@+id/save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="20dp"
             android:background="@color/green"
             android:onClick="save"
             android:text="@string/save_button_activity_setting"
@@ -608,13 +676,13 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/button2"
-            app:layout_constraintTop_toBottomOf="@+id/laneDtwThreshold_te" />
+            app:layout_constraintStart_toEndOf="@+id/button2" />
 
         <Button
             android:id="@+id/button2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="60dp"
             android:background="@color/orange"
             android:onClick="reset"
             android:text="@string/reset_button_activity_setting"
@@ -622,7 +690,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/save"
             app:layout_constraintEnd_toStartOf="@+id/save"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView35" />
 
         <Switch
             android:id="@+id/vehicleSensors"

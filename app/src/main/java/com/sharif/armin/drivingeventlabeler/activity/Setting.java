@@ -108,6 +108,9 @@ public class Setting extends AppCompatActivity {
         ((EditText) findViewById(R.id.laneGyrZEnergyThreshold_te)).setText(map.get("laneGyrZEnergyThreshold").toString());
         ((EditText) findViewById(R.id.laneDtwThreshold_te)).setText(map.get("laneDtwThreshold").toString());
         ((EditText) findViewById(R.id.laneSubSampleParameter_te)).setText(Integer.toString(map.get("laneSubSampleParameter").intValue()));
+        ((EditText) findViewById(R.id.laneDelay_te)).setText(Integer.toString(map.get("laneDelay").intValue()));
+        ((EditText) findViewById(R.id.laneTemplateSize_te)).setText(Integer.toString(map.get("laneTemplateSize").intValue()));
+        ((EditText) findViewById(R.id.laneWinLength_te)).setText(Integer.toString(map.get("laneWinLength").intValue()));
     }
 
     public void save(View view){
@@ -140,6 +143,9 @@ public class Setting extends AppCompatActivity {
         map.put("laneGyrZEnergyThreshold", Float.parseFloat(((EditText) findViewById(R.id.laneGyrZEnergyThreshold_te)).getText().toString()));
         map.put("laneDtwThreshold", Float.parseFloat(((EditText) findViewById(R.id.laneDtwThreshold_te)).getText().toString()));
         map.put("laneSubSampleParameter", Float.parseFloat(((EditText) findViewById(R.id.laneSubSampleParameter_te)).getText().toString()));
+        map.put("laneDelay", Float.parseFloat(((EditText) findViewById(R.id.laneDelay_te)).getText().toString()));
+        map.put("laneTemplateSize", Float.parseFloat(((EditText) findViewById(R.id.laneTemplateSize_te)).getText().toString()));
+        map.put("laneWinLength", Float.parseFloat(((EditText) findViewById(R.id.laneWinLength_te)).getText().toString()));
 
         f = new File(MainActivity.directory.getPath() + File.separator + dir + File.separator + fn);
         try {
@@ -201,6 +207,9 @@ public class Setting extends AppCompatActivity {
         ((EditText) findViewById(R.id.laneGyrZEnergyThreshold_te)).setText(map.get("laneGyrZEnergyThreshold").toString());
         ((EditText) findViewById(R.id.laneDtwThreshold_te)).setText(map.get("laneDtwThreshold").toString());
         ((EditText) findViewById(R.id.laneSubSampleParameter_te)).setText(Integer.toString(map.get("laneSubSampleParameter").intValue()));
+        ((EditText) findViewById(R.id.laneDelay_te)).setText(Integer.toString(map.get("laneDelay").intValue()));
+        ((EditText) findViewById(R.id.laneTemplateSize_te)).setText(Integer.toString(map.get("laneTemplateSize").intValue()));
+        ((EditText) findViewById(R.id.laneWinLength_te)).setText(Integer.toString(map.get("laneWinLength").intValue()));
     }
 
     @Override
@@ -251,6 +260,9 @@ public class Setting extends AppCompatActivity {
         LaneChangeDetector.setGyrZEnergyThreshold(map.get("laneGyrZEnergyThreshold"));
         LaneChangeDetector.setDtwThreshold(map.get("laneDtwThreshold"));
         LaneChangeDetector.setSubSampleParameter(map.get("laneSubSampleParameter").intValue());
+        LaneChangeDetector.setWinLength(map.get("laneWinLength").intValue());
+        LaneChangeDetector.setLaneChangeDist(map.get("laneDelay").intValue());
+        LaneChangeDetector.setTemplateSize(map.get("laneTemplateSize").intValue());
     }
 
     private static Map<String, Float> getInitialMap(){
@@ -284,6 +296,9 @@ public class Setting extends AppCompatActivity {
             put("laneGyrZEnergyThreshold", 0.001f);
             put("laneDtwThreshold", 0.2f);
             put("laneSubSampleParameter", 10f);
+            put("laneWinLength", 300f);
+            put("laneDelay", 1000f);
+            put("laneTemplateSize", 25f);
         }};
         return map;
     }

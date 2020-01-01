@@ -112,21 +112,8 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             if(upcomingEvents.size() > 1) {
                 Event lastEvent = upcomingEvents.get(1);
                 upcomingEvents.removeLast();
-                String lbl = lastEvent.getEventLabel();
-                int i = lbl.indexOf('/');
-                if(lbl.substring(i+1).compareTo("lane_change") == 0){
-                    if(i != -1){
-                        event.setEventLabel(lbl);
-                        upcomingEvents.get(0).setEventLabel(lbl);
-                        show = false;
-                    }
-                    event.setStart(lastEvent.getStart());
-                    upcomingEvents.get(0).setStart(lastEvent.getStart());
-                }
-                else {
-                    lastEvent.setEventLabel("intrupted/" + lastEvent.getEventLabel());
-                    writer.writeLabel(lastEvent.getEventLabel(), lastEvent.getStart(), lastEvent.getEnd());
-                }
+                lastEvent.setEventLabel("intrupted/" + lastEvent.getEventLabel());
+                writer.writeLabel(lastEvent.getEventLabel(), lastEvent.getStart(), lastEvent.getEnd());
             }
             thread.interrupt();
         }

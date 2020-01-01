@@ -69,6 +69,9 @@ public class Detector {
     public static void setSavgolDegree(int savgolDegree){ Detector.savgolDegree = savgolDegree;}
 
     public LinkedList<Event> eventList;
+    private BrakeEventDetector brakeEventDetector;
+    private TurnEventDetector turnEventDetector;
+    private LaneChangeDetector laneChangeDetector;
 
     public Detector(int sensorFreq, Sensors sensors){
         step = windowSize - overLap - 1;
@@ -86,6 +89,10 @@ public class Detector {
 
         sgFilter = new SGFilter(savgolNl, savgolNr);
         savgolcoeffs = SGFilter.computeSGCoefficients(savgolNl, savgolNr, savgolDegree);
+
+        brakeEventDetector = new BrakeEventDetector();
+        turnEventDetector = new TurnEventDetector();
+        laneChangeDetector = new LaneChangeDetector();
     }
 
     public Detector(int sensorFreq, SensorTest sensorTest) {
@@ -106,6 +113,10 @@ public class Detector {
 
         sgFilter = new SGFilter(savgolNl, savgolNr);
         savgolcoeffs = SGFilter.computeSGCoefficients(savgolNl, savgolNr, savgolDegree);
+
+        brakeEventDetector = new BrakeEventDetector();
+        turnEventDetector = new TurnEventDetector();
+        laneChangeDetector = new LaneChangeDetector();
     }
 
     public void stop() {
@@ -156,9 +167,9 @@ public class Detector {
             lacY.add(t[1]);
         }
 
-        event1 = BrakeEventDetector.brakeDetect(lacY, lacEnergy[Y], lacMean[Y], time);
-        event2 = TurnEventDetector.turnDetect(gyrEnergy[0], gyrMean[0], time);
-        event3 = LaneChangeDetector.lanechangeDetect(lacX, gyrEnergy[0], lacEnergy[X], time);
+        event1 = brakeEventDetector.brakeDetect(lacY, lacEnergy[Y], lacMean[Y], time);
+        event2 = turnEventDetector.turnDetect(gyrEnergy[0], gyrMean[0], time);
+        event3 = laneChangeDetector.lanechangeDetect(lacX, gyrEnergy[0], lacEnergy[X], time);
         if (event1 != null){
             eventList.add(event1);
             notifyObserversEventDetected(event1);

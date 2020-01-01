@@ -9,9 +9,10 @@ public class BrakeEventDetector {
     private static float lacYEnergyThreshold;
     private static float VarThreshold;
     private static float AcceptFunctionThreshold;
-    private static boolean brakeEvent = false;
-    private static long brakeStart, brakeStop;
-    private static LinkedList<Float> brakeWindow = new LinkedList<>();
+
+    private boolean brakeEvent = false;
+    private long brakeStart, brakeStop;
+    private LinkedList<Float> brakeWindow = new LinkedList<>();
 
     public static void setMinDuration(int MinDuration){ BrakeEventDetector.MinDuration = MinDuration;}
     public static void setMaxDuration(int MaxDuration){ BrakeEventDetector.MaxDuration = MaxDuration;}
@@ -20,11 +21,11 @@ public class BrakeEventDetector {
     public static void setAcceptFunctionThreshold(float AcceptFunctionThreshold){ BrakeEventDetector.AcceptFunctionThreshold = AcceptFunctionThreshold;}
 
 
-    public static boolean AcceptWindowFunction(float Mean){
-        return Mean < AcceptFunctionThreshold;
+    private boolean AcceptWindowFunction(float Mean){
+        return Mean < BrakeEventDetector.AcceptFunctionThreshold;
     }
 
-    public static boolean AcceptEventFunction(LinkedList<Float> event){
+    private boolean AcceptEventFunction(LinkedList<Float> event){
         double sqSum = 0, sum = 0;
         Iterator<Float> iter = event.iterator();
 
@@ -36,12 +37,11 @@ public class BrakeEventDetector {
         int n = event.size();
         double mean = sum / n;
         double var = sqSum / n - mean * mean;
-        return var > VarThreshold;
+        return var > BrakeEventDetector.VarThreshold;
     }
 
-    public static Event brakeDetect(LinkedList<Float> lac, float lacYEnergy, float lacYMean, LinkedList<Long> time) {
-        if (lacYEnergy / Detector.windowSize >= BrakeEventDetector.lacYEnergyThreshold &&
-                BrakeEventDetector.AcceptWindowFunction(lacYMean)) {
+    public Event brakeDetect(LinkedList<Float> lac, float lacYEnergy, float lacYMean, LinkedList<Long> time) {
+        if (lacYEnergy / Detector.windowSize >= BrakeEventDetector.lacYEnergyThreshold && AcceptWindowFunction(lacYMean)) {
             if (!brakeEvent) {
                 brakeWindow = (LinkedList<Float>) lac.clone();
                 brakeStart = time.getFirst();
@@ -54,7 +54,7 @@ public class BrakeEventDetector {
         else if (brakeEvent) {
             brakeEvent = false;
             brakeStop = time.get(Detector.overLap);
-            if (BrakeEventDetector.AcceptEventFunction(brakeWindow) &&
+            if (AcceptEventFunction(brakeWindow) &&
                     brakeStop - brakeStart < BrakeEventDetector.MaxDuration &&
                     brakeStop - brakeStart > BrakeEventDetector.MinDuration ){
                 return new Event(brakeStart, brakeStop, "brake");

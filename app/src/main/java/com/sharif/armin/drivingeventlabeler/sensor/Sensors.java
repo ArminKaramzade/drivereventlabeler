@@ -165,8 +165,10 @@ public class Sensors {
     public void stop() {
         unRegister();
         headingAngleFilter.reset();
-        fusedOrientationFilter.reset();
-        linearAccelerationFilter.reset();
+        if(! useAndroidDefaultSensors) {
+            fusedOrientationFilter.reset();
+            linearAccelerationFilter.reset();
+        }
     }
 
     @SuppressLint("MissingPermission")

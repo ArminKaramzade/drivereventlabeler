@@ -1,5 +1,7 @@
 package com.sharif.armin.drivingeventlabeler.detection;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -10,18 +12,24 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 public class LaneChangeDetector {
-    private static int MinDuration = 2 * 1000;
-    public static int MaxDuration = 10 * 1000;
-    private static float lacEnergyThreshold = 0.01f;
-    private static float gyrEnergyThreshold = 0.0008f;
-    private static int subSampleParameter = 10;
-    private static int winLength = 300;
-    private static boolean laneChangeEvent = false, laneChangeEventStopCheck = false;
-    private static int laneChangeDist = 1 * 1000;
-    private static int laneChangeStopIndex = 0;
-    private static long laneChangeStart, laneChangeStop;
-    private static LinkedList<Float> laneChangeWindow = new LinkedList<>();
-    private static float dtwThreshold = 0.09f;
+    private static int MinDuration;
+    private static int MaxDuration;
+    private static float lacEnergyThreshold;
+    private static float gyrEnergyThreshold;
+    private static int subSampleParameter;
+    private static int winLength;
+    private static int laneChangeDist;
+    private static float dtwThreshold;
+    private static int templateSize;
+
+    private long start, stop;
+    private int dtwStartPtr;
+    private boolean currentIsCandidate, lastWasCandidate;
+    private boolean hasExpired;
+    private LinkedList<Float> lacWindow = new LinkedList<>();
+    private LinkedList<Long> timeWindow = new LinkedList<>();
+    private float[] template1, template2;
+
 
     public static void setMinDuration(int MinDuration){ LaneChangeDetector.MinDuration = MinDuration;}
     public static void setMaxDuration(int MaxDuration){ LaneChangeDetector.MaxDuration = MaxDuration;}
@@ -29,25 +37,34 @@ public class LaneChangeDetector {
     public static void setGyrZEnergyThreshold(float gyrZEnergyThreshold){ LaneChangeDetector.gyrEnergyThreshold = gyrZEnergyThreshold;}
     public static void setSubSampleParameter(int subSampleParameter){ LaneChangeDetector.subSampleParameter = subSampleParameter;}
     public static void setDtwThreshold(float dtwThreshold){ LaneChangeDetector.dtwThreshold = dtwThreshold;}
+    public static void setWinLength(int winLength){ LaneChangeDetector.winLength = winLength;}
+    public static void setLaneChangeDist(int laneChangeDist){ LaneChangeDetector.laneChangeDist = laneChangeDist;}
+    public static void setTemplateSize(int templateSize){ LaneChangeDetector.templateSize = templateSize;}
 
+    public LaneChangeDetector(){
+        template1 = new float[templateSize];
+        template2 = new float[templateSize];
+        for (int j = 0; j < templateSize; j++) {
+            template1[j] = (float) Math.sin(((float)j/(float)templateSize) * 2f * Math.PI);
+            template2[j] = -template1[j];
+        }
+        currentIsCandidate = false;
+        lastWasCandidate = false;
+        hasExpired = true;
+        dtwStartPtr = 0;
+        start = -1;
+        stop = -1;
+    }
 
-
-
-    private static boolean dtwDetection(LinkedList<Float> laneChangeWindow) {
+    private boolean dtwDetection(LinkedList<Float> laneChangeWindow) {
         ArrayList<Float> subSample = new ArrayList<>();
-        int i = 10;
+        int i = subSampleParameter;
         for (Float sample: laneChangeWindow) {
             if (i == subSampleParameter){
                 i = 0;
                 subSample.add(sample);
             }
             i += 1;
-        }
-        float[] template1 = new float[25],
-                template2 = new float[25];
-        for (int j = 0; j < 25; j++) {
-            template1[j] = (float) Math.sin(((float)j/25.0f) * 2 * Math.PI);
-            template2[j] = -template1[j];
         }
 
         float[] win = new float[subSample.size()];
@@ -66,136 +83,80 @@ public class LaneChangeDetector {
         return false;
     }
 
-    public static Event lanechangeDetect(LinkedList<Float> lac, float gyrZEnergy, float lacXEnergy, LinkedList<Long> time) {
-        if (gyrZEnergy / Detector.windowSize >= LaneChangeDetector.gyrEnergyThreshold || lacXEnergy / Detector.windowSize >= LaneChangeDetector.lacEnergyThreshold) {
-            if (!laneChangeEvent && !laneChangeEventStopCheck) {
-                laneChangeWindow = (LinkedList<Float>) lac.clone();
-                laneChangeStart = time.getFirst();
-            }
-            else if (laneChangeEventStopCheck){
-                laneChangeEventStopCheck = false;
-                laneChangeWindow.addAll(lac.subList(Detector.overLap, Detector.windowSize));
-            }
-            else {
-                laneChangeWindow.addAll(lac.subList(Detector.overLap, Detector.windowSize));
-            }
-
-            laneChangeEvent = true;
-            if (laneChangeWindow.size() >= winLength) {
-                LinkedList<Float> temp = new LinkedList<>();
-                ListIterator<Float> iter = laneChangeWindow.listIterator(laneChangeWindow.size() - winLength);
-                for (int i = 0; i < winLength; i++) {
-                    if(iter.hasNext())
-                        temp.add(iter.next());
-                }
-                if (LaneChangeDetector.dtwDetection(temp)) {
-                    long end = time.getLast();
-                    return new Event(end - winLength*10, end, "lane_change");
-                }
-            }
+    public Event lanechangeDetect(LinkedList<Float> lac, float gyrZEnergy, float lacXEnergy, LinkedList<Long> time) {
+        currentIsCandidate = (gyrZEnergy / Detector.windowSize >= LaneChangeDetector.gyrEnergyThreshold || lacXEnergy / Detector.windowSize >= LaneChangeDetector.lacEnergyThreshold);
+        if(!currentIsCandidate && !lastWasCandidate && hasExpired) {
+            // goto next window
         }
-        else if (laneChangeEvent) {
-            laneChangeStop = time.get(Detector.overLap);
-            laneChangeEventStopCheck = true;
-            laneChangeEvent = false;
-            laneChangeStopIndex = laneChangeWindow.size();
+        else if(lastWasCandidate && hasExpired){
+            throw new AssertionError("Should not enter here!");
         }
-        if (laneChangeEventStopCheck) {
-            long t = time.getFirst();
-            if (t - laneChangeStop < laneChangeDist){
-                laneChangeWindow.addAll(lac.subList(Detector.overLap, Detector.windowSize));
-            }
-            else {
-                laneChangeEventStopCheck = false;
+        else if(currentIsCandidate && !lastWasCandidate && hasExpired){
+            timeWindow = (LinkedList<Long>) time.clone();
+            lacWindow = (LinkedList<Float>) lac.clone();
+            start = -1;
+            stop = -1;
+            dtwStartPtr = 0;
+            lastWasCandidate = true;
+            hasExpired = false;
+        }
+        else if((currentIsCandidate && !hasExpired) || (!currentIsCandidate && lastWasCandidate && !hasExpired)){
+            timeWindow.addAll(time.subList(Detector.overLap, Detector.windowSize));
+            lacWindow.addAll(lac.subList(Detector.overLap, Detector.windowSize));
+        }
+        else if(!currentIsCandidate && !lastWasCandidate && !hasExpired){
+            if(time.getLast() - timeWindow.get(dtwStartPtr) > LaneChangeDetector.laneChangeDist){
+                hasExpired = true;
                 LinkedList<Float> temp = new LinkedList<>();
-                ListIterator<Float> iter = laneChangeWindow.listIterator(laneChangeStopIndex - Math.min(winLength, laneChangeStopIndex));
-                for (int i = 0; iter.hasNext(); i++) {
+                ListIterator<Float> iter = lacWindow.listIterator(dtwStartPtr);
+                int j = 0;
+                while(j < winLength && iter.hasNext()){
                     temp.add(iter.next());
+                    j += 1;
                 }
-                if (LaneChangeDetector.dtwDetection(temp)) {
-//                    long end = time.get(Detector.overLap);
-                    return new Event(Math.max(laneChangeStop - winLength*10, laneChangeStart), laneChangeStop, "lane_change");
+                if(dtwDetection(temp)){
+                    if(start == -1){
+                        start = timeWindow.get(dtwStartPtr);
+                    }
+                    stop = timeWindow.get(Math.min(dtwStartPtr+winLength, timeWindow.size()-1));
+                    lacWindow.clear();
+                    timeWindow.clear();
+                    if(LaneChangeDetector.MinDuration <= stop - start && stop - start <= LaneChangeDetector.MaxDuration)
+                        return new Event(start, stop, "lane_change");
                 }
             }
-
         }
+        else{
+            throw new AssertionError("It's not possible!");
+        }
+
+        if(lacWindow.size() >= winLength && dtwStartPtr < lacWindow.size()){
+            LinkedList<Float> temp = new LinkedList<>();
+            ListIterator<Float> iter = lacWindow.listIterator(dtwStartPtr);
+            int j = 0;
+            while(j < winLength && iter.hasNext()){
+                temp.add(iter.next());
+                j += 1;
+            }
+            if(dtwDetection(temp)){
+                if(start == -1){
+                    start = timeWindow.get(dtwStartPtr);
+                }
+                stop = timeWindow.get(Math.min(dtwStartPtr+winLength, timeWindow.size()-1));
+            }
+            else {
+                if(hasExpired){
+                    if (start != -1) {
+                        lacWindow.clear();
+                        timeWindow.clear();
+                        if(LaneChangeDetector.MinDuration <= stop - start && stop - start <= LaneChangeDetector.MaxDuration)
+                            return new Event(start, stop, "lane_change");
+                    }
+                }
+            }
+            dtwStartPtr += (Detector.windowSize - Detector.overLap);
+        }
+        lastWasCandidate = currentIsCandidate;
         return null;
     }
 }
-
-
-
-//public class LaneChangeDetector {
-//    private static int MinDuration;
-//    public static int MaxDuration;
-//    private static float lacXEnergyThreshold;
-//    private static float gyrZEnergyThreshold;
-//    private static int subSampleParameter;
-//    private static float dtwThreshold;
-//    private static boolean laneChangeEvent = false;
-//    private static long laneChangeStart, laneChangeStop;
-//    private static LinkedList<Float> laneChangeWindow = new LinkedList<>();
-//
-//    public static void setMinDuration(int MinDuration){ LaneChangeDetector.MinDuration = MinDuration;}
-//    public static void setMaxDuration(int MaxDuration){ LaneChangeDetector.MaxDuration = MaxDuration;}
-//    public static void setLacXEnergyThreshold(float lacXEnergyThreshold){ LaneChangeDetector.lacXEnergyThreshold = lacXEnergyThreshold;}
-//    public static void setGyrZEnergyThreshold(float gyrZEnergyThreshold){ LaneChangeDetector.gyrZEnergyThreshold = gyrZEnergyThreshold;}
-//    public static void setSubSampleParameter(int subSampleParameter){ LaneChangeDetector.subSampleParameter = subSampleParameter;}
-//    public static void setDtwThreshold(float dtwThreshold){ LaneChangeDetector.dtwThreshold = dtwThreshold;}
-//
-//
-//    private static boolean dtwDetection(LinkedList<Float> laneChangeWindow) {
-//        ArrayList<Float> subSample = new ArrayList<>();
-//        int i = 10;
-//        for (Float sample: laneChangeWindow) {
-//            if (i == subSampleParameter){
-//                i = 0;
-//                subSample.add(sample);
-//            }
-//            i += 1;
-//        }
-//        float[] template1 = new float[25],
-//                template2 = new float[25];
-//        for (int j = 0; j < 25; j++) {
-//            template1[j] = (float) Math.sin(((float)j/25.0f) * 2 * Math.PI);
-//            template2[j] = -template1[j];
-//        }
-//
-//        float[] win = new float[subSample.size()];
-//        Iterator<Float> subitr = subSample.listIterator(0);
-//        for (int k = 0; k < subSample.size(); k++) {
-//            win[k] = subitr.next();
-//        }
-//
-//        DTW dtw = new DTW(win, template1);
-//        DTW dtw1 = new DTW(win, template2);
-//        float dis = Math.min(dtw.getDistance(), dtw1.getDistance());
-//        if (dis < dtwThreshold){
-//            return true;
-//        }
-//        return false;
-//    }
-//
-//    public static Event lanechangeDetect(LinkedList<Float> lac, float gyrZEnergy, float lacXEnergy, LinkedList<Long> time) {
-//        if (gyrZEnergy / Detector.windowSize >= LaneChangeDetector.gyrZEnergyThreshold || lacXEnergy / Detector.windowSize >= LaneChangeDetector.lacXEnergyThreshold) {
-//            if (!laneChangeEvent) {
-//                laneChangeWindow = (LinkedList<Float>) lac.clone();
-//                laneChangeStart = time.getFirst();
-//            }
-//            else {
-//                laneChangeWindow.addAll(lac.subList(Detector.overLap, Detector.windowSize));
-//            }
-//            laneChangeEvent = true;
-//        }
-//        else if (laneChangeEvent) {
-//            laneChangeStop = time.get(Detector.overLap);
-//            laneChangeEvent = false;
-//            if (LaneChangeDetector.dtwDetection(laneChangeWindow) &&
-//                    laneChangeStop - laneChangeStart < LaneChangeDetector.MaxDuration &&
-//                    laneChangeStop - laneChangeStart > LaneChangeDetector.MinDuration ) {
-//                return new Event(laneChangeStart, laneChangeStop, "lane_change");
-//            }
-//        }
-//        return null;
-//    }
-//}

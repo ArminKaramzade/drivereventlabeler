@@ -82,6 +82,9 @@
     <string name="lane_change_gyrZ_energy_threshold_text_activity_setting">gyrZ energy threshold</string>
     <string name="lane_change_subsample_parameter_text_activity_setting">subsample parameter</string>
     <string name="lane_change_dtw_threshold_text_activity_setting">dtw threshold</string>
+    <string name="lane_change_delay_text_activity_setting">delay</string>
+    <string name="lane_change_win_length_text_activity_setting">dtw window length</string>
+    <string name="lane_change_template_size_text_activity_setting">template size</string>
 
     <string name="save_button_activity_setting">Save</string>
     <string name="reset_button_activity_setting">Reset to default</string>
