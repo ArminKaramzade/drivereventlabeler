@@ -14,6 +14,7 @@ import android.os.SystemClock;
 import com.sharif.armin.drivingeventlabeler.sensor.headingAngle.VehicleHeadingAngle;
 import com.sharif.armin.drivingeventlabeler.sensor.linearAcceleration.LinearAcceleration;
 import com.sharif.armin.drivingeventlabeler.sensor.orientation.Orientation;
+import com.sharif.armin.drivingeventlabeler.sensor.magnetometer.Magnetometer;
 import com.sharif.armin.drivingeventlabeler.util.Utils;
 import org.apache.commons.math3.complex.Quaternion;
 import java.util.ArrayList;
@@ -64,6 +65,7 @@ public class Sensors {
     private VehicleHeadingAngle headingAngleFilter;
     private Orientation fusedOrientationFilter;
     private LinearAcceleration linearAccelerationFilter;
+    private Magnetometer magnetometer;
     private long time;
     private int sensorFrequency, gpsDelay;
     private boolean rawAccelerationArrived, magneticArrived, headingAngleArrived;
@@ -119,6 +121,7 @@ public class Sensors {
         this.sensorListener = new SensorListener();
         this.locationListener = new GPSListener();
         headingAngleFilter = new VehicleHeadingAngle();
+        magnetometer = new Magnetometer();
         if(!useAndroidDefaultSensors) {
             fusedOrientationFilter = new Orientation();
             linearAccelerationFilter = new LinearAcceleration();
@@ -159,6 +162,7 @@ public class Sensors {
     public void stop() {
         unRegister();
         headingAngleFilter.reset();
+        magnetometer.reset();
         if(! useAndroidDefaultSensors) {
             fusedOrientationFilter.reset();
             linearAccelerationFilter.reset();
@@ -260,8 +264,12 @@ public class Sensors {
     }
 
     private void processMagneticPhone(long time, SensorEvent event){
-        System.arraycopy(event.values, 0, magneticPhone.values, 0, this.magneticPhone.values.length);
+//        System.arraycopy(event.values, 0, magneticPhone.values, 0, this.magneticPhone.values.length);
         this.magneticPhone.time = time;
+        magnetometer.filter(event.values, time);
+        this.magneticPhone.values[0] = magnetometer.getMagnetic()[0];
+        this.magneticPhone.values[1] = magnetometer.getMagnetic()[1];
+        this.magneticPhone.values[2] = magnetometer.getMagnetic()[2];
         notifyObserversSensorChanged(this.magneticPhone);
         magneticArrived = true;
     }

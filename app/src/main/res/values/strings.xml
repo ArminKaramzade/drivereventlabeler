@@ -54,6 +54,7 @@
     <string name="sensors_text_activity_setting">Sensors</string>
     <string name="sensors_switch_text_activity_setting">Custom sensors</string>
     <string name="linear_acceleration_time_constant_text_activity_setting">linear acceleration time constant</string>
+    <string name="magnetometer_time_constant_text_activity_setting">Magnetometer time constant</string>
     <string name="orientation_time_constant_text_activity_setting">Orientation time constant</string>
     <string name="madgwick_beta_text_activity_setting">Madgwick beta</string>
 

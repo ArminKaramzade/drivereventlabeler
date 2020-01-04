@@ -28,6 +28,7 @@ import com.sharif.armin.drivingeventlabeler.detection.LaneChangeDetector;
 import com.sharif.armin.drivingeventlabeler.detection.TurnEventDetector;
 import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
 import com.sharif.armin.drivingeventlabeler.sensor.linearAcceleration.LinearAcceleration;
+import com.sharif.armin.drivingeventlabeler.sensor.magnetometer.Magnetometer;
 import com.sharif.armin.drivingeventlabeler.sensor.orientation.Madgwick;
 import com.sharif.armin.drivingeventlabeler.sensor.orientation.Orientation;
 
@@ -54,11 +55,13 @@ public class Setting extends AppCompatActivity {
                         if(isChecked){
                             findViewById(R.id.lacTimeConstant_te).setEnabled(true);
                             findViewById(R.id.orientationTimeConstant_te).setEnabled(true);
+                            findViewById(R.id.magnetometerTimeConstant_te).setEnabled(true);
                             findViewById(R.id.madgwickBeta_te).setEnabled(true);
                         }
                         else{
                             findViewById(R.id.lacTimeConstant_te).setEnabled(false);
                             findViewById(R.id.orientationTimeConstant_te).setEnabled(false);
+                            findViewById(R.id.magnetometerTimeConstant_te).setEnabled(false);
                             findViewById(R.id.madgwickBeta_te).setEnabled(false);
                         }
                     }
@@ -82,6 +85,7 @@ public class Setting extends AppCompatActivity {
         ((Switch) findViewById(R.id.customSwitch)).setChecked(!(map.get("customSensors") == 0f));
         ((EditText) findViewById(R.id.lacTimeConstant_te)).setText(map.get("lacTimeConstant").toString());
         ((EditText) findViewById(R.id.orientationTimeConstant_te)).setText(map.get("orientationTimeConstant").toString());
+        ((EditText) findViewById(R.id.magnetometerTimeConstant_te)).setText(map.get("magnetometerTimeConstant").toString());
         ((EditText) findViewById(R.id.madgwickBeta_te)).setText(map.get("madgwickBeta").toString());
 
         ((Switch) findViewById(R.id.vehicleSensors)).setChecked(!(map.get("vehicleSensors") == 0f));
@@ -117,6 +121,7 @@ public class Setting extends AppCompatActivity {
         map.put("customSensors", ((Switch)findViewById(R.id.customSwitch)).isChecked() ? 1f : 0f);
         map.put("lacTimeConstant", Float.parseFloat(((EditText) findViewById(R.id.lacTimeConstant_te)).getText().toString()));
         map.put("orientationTimeConstant", Float.parseFloat(((EditText) findViewById(R.id.orientationTimeConstant_te)).getText().toString()));
+        map.put("magnetometerTimeConstant", Float.parseFloat(((EditText) findViewById(R.id.magnetometerTimeConstant_te)).getText().toString()));
         map.put("madgwickBeta", Float.parseFloat(((EditText) findViewById(R.id.madgwickBeta_te)).getText().toString()));
 
         map.put("vehicleSensors", ((Switch)findViewById(R.id.vehicleSensors)).isChecked() ? 1f : 0f);
@@ -181,6 +186,7 @@ public class Setting extends AppCompatActivity {
         ((Switch) findViewById(R.id.customSwitch)).setChecked(!(map.get("customSensors") == 0f));
         ((EditText) findViewById(R.id.lacTimeConstant_te)).setText(map.get("lacTimeConstant").toString());
         ((EditText) findViewById(R.id.orientationTimeConstant_te)).setText(map.get("orientationTimeConstant").toString());
+        ((EditText) findViewById(R.id.magnetometerTimeConstant_te)).setText(map.get("magnetometerTimeConstant").toString());
         ((EditText) findViewById(R.id.madgwickBeta_te)).setText(map.get("madgwickBeta").toString());
 
         ((Switch) findViewById(R.id.vehicleSensors)).setChecked(!(map.get("vehicleSensors") == 0f));
@@ -234,6 +240,7 @@ public class Setting extends AppCompatActivity {
         Sensors.setUseAndroidDefaultSensors(map.get("customSensors")==0f);
         LinearAcceleration.setTimeConstant(map.get("lacTimeConstant"));
         Orientation.setTimeConstant(map.get("orientationTimeConstant"));
+        Magnetometer.setTimeConstant(map.get("magnetometerTimeConstant"));
         Madgwick.setBeta(map.get("madgwickBeta"));
 
         Detector.setUseVehicleSensors(!(map.get("vehicleSensors")==0f));
@@ -270,6 +277,7 @@ public class Setting extends AppCompatActivity {
             put("customSensors", 1f);
             put("lacTimeConstant", 0.2f);
             put("orientationTimeConstant", 0.1f);
+            put("magnetometerTimeConstant", 0.1f);
             put("madgwickBeta", 0.01f);
 
             put("vehicleSensors", 1f);
