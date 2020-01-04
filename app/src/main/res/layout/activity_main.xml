@@ -1,149 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.MainActivity">
+    android:fillViewport="true">
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".activity.MainActivity">
+        <EditText
+            android:id="@+id/sns_te"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="@string/sensors_default_frequency_activity_main"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textView4"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/sns_te"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="@string/sensors_default_frequency_activity_main"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/textView4"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="124dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sensors_text_activity_main"
+            app:layout_constraintBottom_toBottomOf="@+id/sns_te"
+            app:layout_constraintEnd_toStartOf="@+id/sns_te"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
-        android:id="@+id/textView4"
-        android:layout_width="124dp"
-        android:layout_height="wrap_content"
-        android:text="@string/sensors_text_activity_main"
-        app:layout_constraintBottom_toBottomOf="@+id/sns_te"
-        app:layout_constraintEnd_toStartOf="@+id/sns_te"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
+        <EditText
+            android:id="@+id/gps_te"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="@string/gps_default_frequency_activity_main"
+            app:layout_constraintStart_toStartOf="@+id/sns_te"
+            app:layout_constraintTop_toBottomOf="@+id/sns_te" />
 
-    <EditText
-        android:id="@+id/gps_te"
-        android:layout_width="80dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="@string/gps_default_frequency_activity_main"
-        app:layout_constraintStart_toStartOf="@+id/sns_te"
-        app:layout_constraintTop_toBottomOf="@+id/sns_te" />
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="80dp"
+            android:layout_height="19dp"
+            android:text="@string/gps_text_activity_main"
+            app:layout_constraintBottom_toBottomOf="@+id/gps_te"
+            app:layout_constraintStart_toStartOf="@+id/textView4" />
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="80dp"
-        android:layout_height="19dp"
-        android:text="@string/gps_text_activity_main"
-        app:layout_constraintBottom_toBottomOf="@+id/gps_te"
-        app:layout_constraintStart_toStartOf="@+id/textView4" />
+        <Button
+            android:id="@+id/manual_labling"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:background="@color/green"
+            android:onClick="manualLabeling"
+            android:text="@string/title_activity_manual_labeling"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintStart_toStartOf="@+id/visualization"
+            app:layout_constraintTop_toBottomOf="@+id/visualization" />
 
-    <Button
-        android:id="@+id/manual_labling"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:background="@color/green"
-        android:onClick="manualLabeling"
-        android:text="@string/title_activity_manual_labeling"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        app:layout_constraintStart_toStartOf="@+id/visualization"
-        app:layout_constraintTop_toBottomOf="@+id/visualization" />
+        <Button
+            android:id="@+id/visualization"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:background="@color/green"
+            android:onClick="visualization"
+            android:text="@string/title_activity_visualization"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintEnd_toStartOf="@+id/bias_estimation"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dir" />
 
-    <Button
-        android:id="@+id/visualization"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="@color/green"
-        android:onClick="visualization"
-        android:text="@string/title_activity_visualization"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        app:layout_constraintEnd_toStartOf="@+id/bias_estimation"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dir" />
+        <Button
+            android:id="@+id/guided_labling"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:background="@color/green"
+            android:onClick="guidedLabeling"
+            android:text="@string/title_activity_guided_labeling"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintEnd_toEndOf="@+id/bias_estimation"
+            app:layout_constraintTop_toBottomOf="@+id/bias_estimation" />
 
-    <Button
-        android:id="@+id/guided_labling"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:background="@color/green"
-        android:onClick="guidedLabeling"
-        android:text="@string/title_activity_guided_labeling"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        app:layout_constraintEnd_toEndOf="@+id/bias_estimation"
-        app:layout_constraintTop_toBottomOf="@+id/bias_estimation" />
+        <Button
+            android:id="@+id/bias_estimation"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:background="@color/green"
+            android:onClick="biasEstimation"
+            android:text="@string/title_activity_bias_estimation"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/visualization"
+            app:layout_constraintTop_toBottomOf="@+id/dir" />
 
-    <Button
-        android:id="@+id/bias_estimation"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:background="@color/green"
-        android:onClick="biasEstimation"
-        android:text="@string/title_activity_bias_estimation"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/visualization"
-        app:layout_constraintTop_toBottomOf="@+id/dir" />
+        <CheckBox
+            android:id="@+id/TestFlag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="16dp"
+            android:checked="false"
+            android:text="Test Guided Labeling"
+            app:layout_constraintBottom_toTopOf="@+id/dir"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/gps_te" />
 
-    <CheckBox
-        android:id="@+id/TestFlag"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="16dp"
-        android:checked="false"
-        android:text="Test Guided Labeling"
-        app:layout_constraintBottom_toTopOf="@+id/dir"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/gps_te" />
+        <EditText
+            android:id="@+id/dir"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:text="test1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/TestFlag" />
 
-    <EditText
-        android:id="@+id/dir"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="test1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/TestFlag" />
+        <Button
+            android:id="@+id/setting"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="20dp"
+            android:background="@color/green"
+            android:onClick="setting"
+            android:text="@string/title_activity_setting"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/manual_labling"
+            app:layout_constraintVertical_bias="0.0" />
 
-    <Button
-        android:id="@+id/setting"
-        android:layout_width="120dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:background="@color/green"
-        android:onClick="setting"
-        android:text="@string/title_activity_setting"
-        android:textAllCaps="false"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/manual_labling" />
+    </android.support.constraint.ConstraintLayout>
 
-</android.support.constraint.ConstraintLayout>
+</android.support.v4.widget.NestedScrollView>
