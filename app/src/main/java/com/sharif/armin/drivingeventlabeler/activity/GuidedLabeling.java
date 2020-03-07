@@ -182,7 +182,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
 
     @Override
     public void onBackPressed() {
-        this.writer.remove(filename);
+        this.writer.remove();
         finish();
         showCancelledToast();
     }

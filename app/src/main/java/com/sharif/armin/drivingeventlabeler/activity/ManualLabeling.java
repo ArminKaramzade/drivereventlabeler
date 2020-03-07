@@ -5,11 +5,14 @@ import android.content.Intent;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
@@ -21,6 +24,8 @@ import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
 import com.sharif.armin.drivingeventlabeler.sensor.SensorsObserver;
 import com.sharif.armin.drivingeventlabeler.write.Writer;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -33,6 +38,14 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
             turnLeftStart, uTurnStart, laneChangeStart;
     private String filename;
     private boolean pause;
+    private static boolean voiceRecording;
+    private MediaRecorder recorder = null;
+    private String voiceName = "voice.3gp";
+    private String voiceDir = MainActivity.directory.getPath() + File.separator + this.voiceName;
+
+    static void setVoiceRecording(boolean voiceRecording){
+        ManualLabeling.voiceRecording = voiceRecording;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,12 +62,35 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
         };
         timer.start();
         Intent intent = getIntent();
-        initButton((Button) findViewById(R.id.lane_change_button));
-        initButton((Button) findViewById(R.id.accelerate_button));
-        initButton((Button) findViewById(R.id.brake_button));
-        initButton((Button) findViewById(R.id.u_turn_button));
-        initButton((Button) findViewById(R.id.turn_right_button));
-        initButton((Button) findViewById(R.id.turn_left_button));
+        if (! voiceRecording) {
+            initButton((Button) findViewById(R.id.lane_change_button));
+            initButton((Button) findViewById(R.id.accelerate_button));
+            initButton((Button) findViewById(R.id.brake_button));
+            initButton((Button) findViewById(R.id.u_turn_button));
+            initButton((Button) findViewById(R.id.turn_right_button));
+            initButton((Button) findViewById(R.id.turn_left_button));
+        }
+        else{
+            ViewGroup layout = (ViewGroup) findViewById(R.id.lane_change_button).getParent();
+            layout.removeView(findViewById(R.id.lane_change_button));
+            layout.removeView(findViewById(R.id.accelerate_button));
+            layout.removeView(findViewById(R.id.brake_button));
+            layout.removeView(findViewById(R.id.lane_change_button));
+            layout.removeView(findViewById(R.id.u_turn_button));
+            layout.removeView(findViewById(R.id.turn_right_button));
+            layout.removeView(findViewById(R.id.turn_left_button));
+            this.recorder = new MediaRecorder();
+            this.recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            this.recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            this.recorder.setOutputFile(MainActivity.directory.getPath() + File.separator + this.voiceName);
+            this.recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            try {
+                this.recorder.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
         sensor_f = Integer.parseInt(intent.getStringExtra(MainActivity.sensor_frequency));
         gps_delay = Integer.parseInt(intent.getStringExtra(MainActivity.gps_delay));
         writer = new Writer(MainActivity.directory.getPath());
@@ -65,6 +101,7 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
         this.sensors.setSensorFrequency(sensor_f);
         this.sensors.registerObserver(this);
         this.sensors.start();
+        this.recorder.start();
         filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
     }
 
@@ -72,6 +109,10 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
     protected void onPause() {
         this.sensors.removeObserver(this);
         this.sensors.stop();
+        if(this.recorder != null) {
+            this.recorder.stop();
+            this.recorder.release();
+        }
         pause = true;
         super.onPause();
     }
@@ -80,22 +121,37 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
     protected void onResume() {
         super.onResume();
         if(pause){
-            this.writer.saveAndRemove(filename);
+            if(voiceRecording){
+                this.writer.saveAndRemove(filename, new String[]{this.voiceDir});
+            } else {
+                this.writer.saveAndRemove(filename);
+            }
             finish();
             showSavedToast();
         }
     }
 
     @Override
-    public void onBackPressed()
-    {
-        this.writer.remove(filename);
+    public void onBackPressed() {
+        if(voiceRecording){
+            this.writer.remove(new String[]{this.voiceDir});
+        } else {
+            this.writer.remove();
+        }
+
         finish();
         showCancelledToast();
     }
 
     public void stop(View view){
-        this.writer.saveAndRemove(filename);
+        if(voiceRecording){
+            this.recorder.stop();
+            this.recorder.release();
+            this.writer.saveAndRemove(filename, new String[]{this.voiceDir});
+            this.recorder = null;
+        } else {
+            this.writer.saveAndRemove(filename);
+        }
         finish();
         showSavedToast();
     }

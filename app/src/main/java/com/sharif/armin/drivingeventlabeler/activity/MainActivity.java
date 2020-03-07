@@ -8,6 +8,7 @@ import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.CheckBox;
@@ -32,13 +33,32 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         requestForPermissions();
+    }
 
-        directory = new File(Environment.getExternalStorageDirectory()+File.separator+"DrivingEventLabeler");
-        if (! directory.exists()) {
-            directory.mkdir();
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 0 : {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    init();
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "Permission denied", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+        }
+    }
+
+    public void init(){
+        directory = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DrivingEventLabeler");
+        if (!directory.exists()) {
+            directory.mkdirs();
             Context context = getApplicationContext();
             int duration = Toast.LENGTH_LONG;
-            Toast toast = Toast.makeText(context, (Environment.getExternalStorageDirectory()+File.separator+"SensorCollector"), duration);
+            Toast toast = Toast.makeText(context, (Environment.getExternalStorageDirectory().toString() + File.separator + "DrivingEventLabeler"), duration);
             toast.show();
         }
         Setting.setParameters();
@@ -46,9 +66,13 @@ public class MainActivity extends AppCompatActivity {
 
     public void requestForPermissions(){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+                    Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.RECORD_AUDIO}, 0);
+        }
+        else{
+            init();
         }
     }
 

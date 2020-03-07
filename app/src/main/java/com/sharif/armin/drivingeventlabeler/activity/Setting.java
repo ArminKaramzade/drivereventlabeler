@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -82,6 +83,8 @@ public class Setting extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        ((Switch) findViewById(R.id.customSwitch)).setChecked(!(map.get("voiceRecording") == 0f));
+
         ((Switch) findViewById(R.id.customSwitch)).setChecked(!(map.get("customSensors") == 0f));
         ((EditText) findViewById(R.id.lacTimeConstant_te)).setText(map.get("lacTimeConstant").toString());
         ((EditText) findViewById(R.id.orientationTimeConstant_te)).setText(map.get("orientationTimeConstant").toString());
@@ -118,6 +121,8 @@ public class Setting extends AppCompatActivity {
     }
 
     public void save(View view){
+        map.put("voiceRecording", ((Switch)findViewById(R.id.voiceSwitch)).isChecked() ? 1f : 0f);
+
         map.put("customSensors", ((Switch)findViewById(R.id.customSwitch)).isChecked() ? 1f : 0f);
         map.put("lacTimeConstant", Float.parseFloat(((EditText) findViewById(R.id.lacTimeConstant_te)).getText().toString()));
         map.put("orientationTimeConstant", Float.parseFloat(((EditText) findViewById(R.id.orientationTimeConstant_te)).getText().toString()));
@@ -183,6 +188,8 @@ public class Setting extends AppCompatActivity {
 
     public void reset(View view){
         map = getInitialMap();
+        ((Switch) findViewById(R.id.voiceSwitch)).setChecked(!(map.get("voiceRecording") == 0f));
+
         ((Switch) findViewById(R.id.customSwitch)).setChecked(!(map.get("customSensors") == 0f));
         ((EditText) findViewById(R.id.lacTimeConstant_te)).setText(map.get("lacTimeConstant").toString());
         ((EditText) findViewById(R.id.orientationTimeConstant_te)).setText(map.get("orientationTimeConstant").toString());
@@ -236,6 +243,7 @@ public class Setting extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        ManualLabeling.setVoiceRecording(!(map.get("voiceRecording")==0f));
 
         Sensors.setUseAndroidDefaultSensors(map.get("customSensors")==0f);
         LinearAcceleration.setTimeConstant(map.get("lacTimeConstant"));
@@ -274,6 +282,8 @@ public class Setting extends AppCompatActivity {
 
     private static Map<String, Float> getInitialMap(){
         Map<String, Float> map = new HashMap<String, Float>() {{
+            put("voiceRecording", 1f);
+
             put("customSensors", 1f);
             put("lacTimeConstant", 0.2f);
             put("orientationTimeConstant", 0.1f);

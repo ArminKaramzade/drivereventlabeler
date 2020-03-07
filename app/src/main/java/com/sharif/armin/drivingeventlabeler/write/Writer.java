@@ -5,6 +5,8 @@ import android.location.Location;
 import com.opencsv.CSVWriter;
 import com.sharif.armin.drivingeventlabeler.sensor.SensorSample;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -162,6 +164,25 @@ public class Writer {
         writers[name.GPS.ordinal()].writeNext(line);
     }
 
+    public void saveAndRemove(String fn, String[] extraFiles){
+        try {
+            for (name n : name.values()) {
+                writers[n.ordinal()].close();
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        String [] files = new String[name.values().length];
+        for (name n: name.values()){
+            files[n.ordinal()] = path + File.separator + filenames[n.ordinal()];
+        }
+        String[] allFiles = ArrayUtils.addAll(files, extraFiles);
+        zip(allFiles, path + File.separator + fn);
+        for (int i = 0; i < allFiles.length; i++) {
+            File file = new File(allFiles[i]);
+            file.delete();
+        }
+    }
     public void saveAndRemove(String fn){
         try {
             for (name n : name.values()) {
@@ -180,7 +201,25 @@ public class Writer {
             file.delete();
         }
     }
-    public void remove(String fn){
+    public void remove(String[] extraFiles){
+        try {
+            for (name n : name.values()) {
+                writers[n.ordinal()].close();
+            }
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+        String [] files = new String[name.values().length];
+        for (name n: name.values()){
+            files[n.ordinal()] = path + File.separator + filenames[n.ordinal()];
+        }
+        String[] allFiles = ArrayUtils.addAll(files, extraFiles);
+        for (int i = 0; i < allFiles.length; i++) {
+            File file = new File(allFiles[i]);
+            file.delete();
+        }
+    }
+    public void remove(){
         try {
             for (name n : name.values()) {
                 writers[n.ordinal()].close();
