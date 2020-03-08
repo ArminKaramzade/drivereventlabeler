@@ -453,7 +453,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/voiceSwitch" />
+            app:layout_constraintTop_toBottomOf="@+id/textView38" />
 
         <Switch
             android:id="@+id/customSwitch"
@@ -750,6 +750,51 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView36" />
+
+        <TextView
+            android:id="@+id/textView37"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="40dp"
+            android:text="@string/guided_labeling_text_activity_setting"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/voiceSwitch" />
+
+        <Switch
+            android:id="@+id/debugging"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/debug_switch_text_activity_setting"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView37" />
+
+        <TextView
+            android:id="@+id/textView38"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/directory_text_activity_setting"
+            app:layout_constraintBottom_toBottomOf="@+id/directory"
+            app:layout_constraintEnd_toStartOf="@+id/directory"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <EditText
+            android:id="@+id/directory"
+            android:layout_width="150dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:ems="10"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textView38"
+            app:layout_constraintTop_toBottomOf="@+id/debugging" />
 
     </android.support.constraint.ConstraintLayout>
 </android.support.v4.widget.NestedScrollView>

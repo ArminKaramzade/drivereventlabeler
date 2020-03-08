@@ -60,6 +60,7 @@
             android:onClick="manualLabeling"
             android:text="@string/title_activity_manual_labeling"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintBottom_toBottomOf="@+id/guided_labling"
             app:layout_constraintStart_toStartOf="@+id/visualization"
             app:layout_constraintTop_toBottomOf="@+id/visualization" />
 
@@ -67,17 +68,16 @@
             android:id="@+id/visualization"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:background="@color/green"
             android:onClick="visualization"
             android:text="@string/title_activity_visualization"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            app:layout_constraintBottom_toBottomOf="@+id/bias_estimation"
             app:layout_constraintEnd_toStartOf="@+id/bias_estimation"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/dir" />
+            app:layout_constraintStart_toStartOf="parent" />
 
         <Button
             android:id="@+id/guided_labling"
@@ -95,7 +95,7 @@
             android:id="@+id/bias_estimation"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="100dp"
             android:background="@color/green"
             android:onClick="biasEstimation"
             android:text="@string/title_activity_bias_estimation"
@@ -103,36 +103,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/visualization"
-            app:layout_constraintTop_toBottomOf="@+id/dir" />
-
-        <CheckBox
-            android:id="@+id/TestFlag"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="16dp"
-            android:checked="false"
-            android:text="Test Guided Labeling"
-            app:layout_constraintBottom_toTopOf="@+id/dir"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/gps_te" />
-
-        <EditText
-            android:id="@+id/dir"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="50dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:text="test1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/TestFlag" />
 
         <Button
             android:id="@+id/setting"

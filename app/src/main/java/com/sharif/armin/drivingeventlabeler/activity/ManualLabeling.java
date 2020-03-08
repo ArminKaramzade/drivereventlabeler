@@ -101,7 +101,9 @@ public class ManualLabeling extends AppCompatActivity implements SensorsObserver
         this.sensors.setSensorFrequency(sensor_f);
         this.sensors.registerObserver(this);
         this.sensors.start();
-        this.recorder.start();
+        if (voiceRecording) {
+            this.recorder.start();
+        }
         filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
     }
 

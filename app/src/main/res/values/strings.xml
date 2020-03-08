@@ -54,6 +54,10 @@
     <string name="manual_labeling_text_activity_setting">Manual Labeling</string>
     <string name="voice_switch_text_activity_setting">Voice Recording</string>
 
+    <string name="guided_labeling_text_activity_setting">Guided Labeling</string>
+    <string name="debug_switch_text_activity_setting">Debugging</string>
+    <string name="directory_text_activity_setting">Directory</string>
+
     <string name="sensors_text_activity_setting">Sensors</string>
     <string name="sensors_switch_text_activity_setting">Custom sensors</string>
     <string name="linear_acceleration_time_constant_text_activity_setting">linear acceleration time constant</string>

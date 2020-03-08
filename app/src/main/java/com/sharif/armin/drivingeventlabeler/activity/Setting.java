@@ -39,8 +39,8 @@ public class Setting extends AppCompatActivity {
     private CSVWriter writer;
     private CSVReader reader;
     File f;
-    Switch customSensors;
     private Map<String, Float> map= Setting.getInitialMap();
+    private String debuggingDirectory = "debug";
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -48,8 +48,13 @@ public class Setting extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
 
-        customSensors = (Switch) findViewById(R.id.customSwitch);
-
+        Switch customSensors = (Switch) findViewById(R.id.customSwitch);
+        if(!customSensors.isChecked()){
+            findViewById(R.id.lacTimeConstant_te).setEnabled(false);
+            findViewById(R.id.orientationTimeConstant_te).setEnabled(false);
+            findViewById(R.id.magnetometerTimeConstant_te).setEnabled(false);
+            findViewById(R.id.madgwickBeta_te).setEnabled(false);
+        }
         customSensors.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -68,6 +73,22 @@ public class Setting extends AppCompatActivity {
                     }
                 }
         );
+        Switch debugging = (Switch) findViewById(R.id.debugging);
+        if(!debugging.isChecked()){
+            findViewById(R.id.directory).setEnabled(false);
+        }
+        debugging.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if(isChecked){
+                            findViewById(R.id.directory).setEnabled(true);
+                        }
+                        else{
+                            findViewById(R.id.directory).setEnabled(false);
+                        }
+                    }
+                }
+        );
         File directory = new File(MainActivity.directory.getPath() + File.separator + dir);
         if(!directory.exists()){
             directory.mkdirs();
@@ -76,14 +97,21 @@ public class Setting extends AppCompatActivity {
             reader = new CSVReader(new FileReader(MainActivity.directory.getPath() + File.separator + dir + File.separator + fn));
             String[] nextLine;
             while ((nextLine = reader.readNext()) != null) {
-                map.put(nextLine[0], Float.parseFloat(nextLine[1]));
+                if(nextLine[0].equals("debuggingDirectory")){
+                    debuggingDirectory = nextLine[1];
+                }else {
+                    map.put(nextLine[0], Float.parseFloat(nextLine[1]));
+                }
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ((Switch) findViewById(R.id.customSwitch)).setChecked(!(map.get("voiceRecording") == 0f));
+        ((Switch) findViewById(R.id.voiceSwitch)).setChecked(!(map.get("voiceRecording") == 0f));
+
+        ((Switch) findViewById(R.id.debugging)).setChecked(!(map.get("debugging") == 0f));
+        ((EditText) findViewById(R.id.directory)).setText(debuggingDirectory);
 
         ((Switch) findViewById(R.id.customSwitch)).setChecked(!(map.get("customSensors") == 0f));
         ((EditText) findViewById(R.id.lacTimeConstant_te)).setText(map.get("lacTimeConstant").toString());
@@ -122,6 +150,9 @@ public class Setting extends AppCompatActivity {
 
     public void save(View view){
         map.put("voiceRecording", ((Switch)findViewById(R.id.voiceSwitch)).isChecked() ? 1f : 0f);
+
+        map.put("debugging", ((Switch)findViewById(R.id.debugging)).isChecked() ? 1f : 0f);
+        debuggingDirectory = ((EditText)findViewById(R.id.directory)).getText().toString();
 
         map.put("customSensors", ((Switch)findViewById(R.id.customSwitch)).isChecked() ? 1f : 0f);
         map.put("lacTimeConstant", Float.parseFloat(((EditText) findViewById(R.id.lacTimeConstant_te)).getText().toString()));
@@ -172,6 +203,8 @@ public class Setting extends AppCompatActivity {
             String[] line = new String [] {entry.getKey(), entry.getValue().toString()};
             writer.writeNext((line));
         }
+        String[] line = new String[] {"debuggingDirectory", debuggingDirectory};
+        writer.writeNext((line));
         try {
             writer.close();
         } catch (IOException e) {
@@ -188,7 +221,11 @@ public class Setting extends AppCompatActivity {
 
     public void reset(View view){
         map = getInitialMap();
+        debuggingDirectory = "debug";
         ((Switch) findViewById(R.id.voiceSwitch)).setChecked(!(map.get("voiceRecording") == 0f));
+
+        ((Switch) findViewById(R.id.debugging)).setChecked(!(map.get("debugging") == 0f));
+        ((EditText) findViewById(R.id.directory)).setText(debuggingDirectory);
 
         ((Switch) findViewById(R.id.customSwitch)).setChecked(!(map.get("customSensors") == 0f));
         ((EditText) findViewById(R.id.lacTimeConstant_te)).setText(map.get("lacTimeConstant").toString());
@@ -232,11 +269,17 @@ public class Setting extends AppCompatActivity {
 
     public static void setParameters(){
         Map<String, Float> map = Setting.getInitialMap();
+        String debuggingDirectory = null;
         try{
             CSVReader reader = new CSVReader(new FileReader(MainActivity.directory.getPath() + File.separator + dir + File.separator + fn));
             String[] nextLine;
             while ((nextLine = reader.readNext()) != null) {
-                map.put(nextLine[0], Float.parseFloat(nextLine[1]));
+                if(nextLine[0].equals("debuggingDirectory")){
+                    debuggingDirectory = nextLine[1];
+                }
+                else {
+                    map.put(nextLine[0], Float.parseFloat(nextLine[1]));
+                }
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -244,6 +287,9 @@ public class Setting extends AppCompatActivity {
             e.printStackTrace();
         }
         ManualLabeling.setVoiceRecording(!(map.get("voiceRecording")==0f));
+
+        GuidedLabeling.setTestFlag(!(map.get("debugging")==0f));
+        GuidedLabeling.setTestDir(debuggingDirectory);
 
         Sensors.setUseAndroidDefaultSensors(map.get("customSensors")==0f);
         LinearAcceleration.setTimeConstant(map.get("lacTimeConstant"));
@@ -283,6 +329,8 @@ public class Setting extends AppCompatActivity {
     private static Map<String, Float> getInitialMap(){
         Map<String, Float> map = new HashMap<String, Float>() {{
             put("voiceRecording", 1f);
+
+            put("debugging", 0f);
 
             put("customSensors", 1f);
             put("lacTimeConstant", 0.2f);

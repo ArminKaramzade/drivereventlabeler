@@ -20,6 +20,7 @@ import com.sharif.armin.drivingeventlabeler.detection.SensorTest;
 import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
 import com.sharif.armin.drivingeventlabeler.write.Writer;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
@@ -30,14 +31,21 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
     private int sensor_f, gps_delay;
     private Sensors sensors;
     private Writer writer;
-    boolean TestFlag = false;
-    private String TestDir;
+    static boolean TestFlag;
+    static String TestDir;
     private String filename;
     private Detector detector;
     private LinkedList<Event> upcomingEvents;
     private Event event;
     private SensorTest sensorTest;
     private boolean pause;
+
+    public static void setTestFlag(boolean testFlag){
+        GuidedLabeling.TestFlag = testFlag;
+    }
+    public static void setTestDir(String testDir){
+        GuidedLabeling.TestDir = testDir;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,8 +66,6 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
         Intent intent = getIntent();
         sensor_f = Integer.parseInt(intent.getStringExtra(MainActivity.sensor_frequency));
         gps_delay = Integer.parseInt(intent.getStringExtra(MainActivity.gps_delay));
-        TestFlag = intent.getBooleanExtra(MainActivity.TestFlag, false);
-        TestDir = intent.getStringExtra(MainActivity.Direction);
 
         writer = new Writer(MainActivity.directory.getPath());
         filename = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss").format(new Date()) + ".zip";
@@ -69,7 +75,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             detector.registerObserver(this);
             detector.start();
             sensorTest.start();
-            filename = TestDir + "test.zip";
+            filename = TestDir + File.separator + "test.zip";
         }
         else {
             sensors = new Sensors();

@@ -22,8 +22,6 @@ import java.io.File;
 public class MainActivity extends AppCompatActivity {
     public static final String sensor_frequency = "com.drivingeventlabeler.mainActivity.sensor_frequency";
     public static final String gps_delay = "com.drivingeventlabeler.mainActivity.gps_delay";
-    public static final String TestFlag = "com.drivingeventlabeler.mainActivity.TestFlag";
-    public static final String Direction = "com.drivingeventlabeler.mainActivity.Direction";
     public static File directory;
 
     @Override
@@ -100,15 +98,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GuidedLabeling.class);
         String sns_f = ((EditText)findViewById(R.id.sns_te)).getText().toString();
         String gps_f = ((EditText)findViewById(R.id.gps_te)).getText().toString();
-        String dir = ((EditText)findViewById(R.id.dir)).getText().toString();
-        CheckBox check = ((CheckBox)findViewById(R.id.TestFlag));
-        boolean flag = check.isChecked();
-
 
         intent.putExtra(sensor_frequency, sns_f);
         intent.putExtra(gps_delay, gps_f);
-        intent.putExtra(TestFlag, flag);
-        intent.putExtra(Direction, dir);
         startActivity(intent);
     }
 
