@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">DrivingEventLabeler</string>
+    <string name="app_name">Driving Event Labeler</string>
 
     <!-- Titles -->
     <string name="title_activity_guided_labeling">Guided Labeling</string>

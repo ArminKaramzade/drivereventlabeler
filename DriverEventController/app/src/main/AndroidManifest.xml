@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sharif.hamid.drivereventcontroller">
+    package="com.sharif.armin.drivereventcontroller">
 
-    <uses-permission android:name = "android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name = "android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name = "android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -14,14 +14,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".GuidedLabeling"
-            android:label="@string/title_activity_guided_labeling"
+            android:name=".activity.ManualLabeling"
+            android:label="@string/title_activity_manual_labeling"
             android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
-            android:name=".ManualLabeling"
-            android:label="@string/title_activity_manual_labeling"
+            android:name=".activity.GuidedLabeling"
+            android:label="@string/title_activity_guided_labeling"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
