@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".ManualLabeling"
+    tools:showIn="@layout/activity_manual_labeling">
+
+
+    <Button
+        android:id="@+id/lane_change_button"
+        android:layout_width="140dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="30dp"
+        android:background="@color/green"
+        android:onClick="laneChange"
+        android:text="@string/lane_change_button_activity_manual_labeling"
+        app:layout_constraintEnd_toStartOf="@+id/u_turn_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/turn_left_button" />
+
+    <Button
+        android:id="@+id/u_turn_button"
+        android:layout_width="140dp"
+        android:layout_height="80dp"
+        android:background="@color/green"
+        android:onClick="uTurn"
+        android:text="@string/u_turn_button_activity_manual_labeling"
+        app:layout_constraintBottom_toBottomOf="@+id/lane_change_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/lane_change_button"
+        app:layout_constraintTop_toTopOf="@+id/lane_change_button" />
+
+    <Button
+        android:id="@+id/turn_right_button"
+        android:layout_width="140dp"
+        android:layout_height="80dp"
+        android:background="@color/green"
+        android:onClick="turnRight"
+        android:text="@string/turn_right_button_activity_manual_labeling"
+        app:layout_constraintBottom_toBottomOf="@+id/turn_left_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/turn_left_button"
+        app:layout_constraintTop_toTopOf="@+id/turn_left_button" />
+
+    <Button
+        android:id="@+id/brake_button"
+        android:layout_width="140dp"
+        android:layout_height="80dp"
+        android:background="@color/green"
+        android:onClick="brake"
+        android:text="@string/brake_button_activity_manual_labeling"
+        app:layout_constraintBottom_toBottomOf="@+id/accelerate_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/accelerate_button"
+        app:layout_constraintTop_toTopOf="@+id/accelerate_button" />
+
+    <Button
+        android:id="@+id/turn_left_button"
+        android:layout_width="140dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="30dp"
+        android:background="@color/green"
+        android:onClick="turnLeft"
+        android:text="@string/turn_left_button_activity_manual_labeling"
+        app:layout_constraintEnd_toStartOf="@+id/turn_right_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/accelerate_button" />
+
+    <Button
+        android:id="@+id/accelerate_button"
+        android:layout_width="140dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/green"
+        android:onClick="accelerate"
+        android:text="@string/accelerate_button_activity_manual_labeling"
+        app:layout_constraintEnd_toStartOf="@+id/brake_button"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/stop_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="20dp"
+        android:background="@color/red"
+        android:onClick="stop"
+        android:text="@string/stop_button_activity_manual_labeling"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/textTimer"
+        android:layout_width="wrap_content"
+        android:layout_height="17dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="17dp"
+        android:text="Time"
+        app:layout_constraintBottom_toTopOf="@+id/stop_button"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lane_change_button"
+        app:layout_constraintVertical_bias="0.911" />
+</androidx.constraintlayout.widget.ConstraintLayout>

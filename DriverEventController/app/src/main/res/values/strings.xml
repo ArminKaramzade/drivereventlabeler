@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">DriverEventController</string>
+    <string name="title_activity_manual_labeling">ManualLabeling</string>
+
+    <string name="accelerate_button_activity_manual_labeling">گاز</string>
+    <string name="brake_button_activity_manual_labeling">ترمز</string>
+    <string name="lane_change_button_activity_manual_labeling">تغییر باند</string>
+    <string name="turn_right_button_activity_manual_labeling">گردش به راست</string>
+    <string name="turn_left_button_activity_manual_labeling">گردش به چپ</string>
+    <string name="u_turn_button_activity_manual_labeling">گردش U شکل</string>
+    <string name="aggressive_button_activity_manual_labeling">رانندگی خطرناک</string>
+    <string name="stop_button_activity_manual_labeling">Stop Recording</string>
+    <string name="title_activity_guided_labeling">GuidedLabeling</string>
+
+    <string name="brake_text_activity_guided_labeling">ترمز</string>
+    <string name="turn_text_activity_guided_labeling">چرخش</string>
+    <string name="lane_change_text_activity_guided_labeling">تغییر باند</string>
+    <string name="normal_button_activity_guided_labeling">تأیید</string>
+    <string name="aggressive_button_activity_guided_labeling">خطرناک</string>
+    <string name="remove_button_activity_guided_labeling">حذف</string>
+    <string name="stop_button_activity_guided_labeling">Stop Recording</string>
+
+</resources>
