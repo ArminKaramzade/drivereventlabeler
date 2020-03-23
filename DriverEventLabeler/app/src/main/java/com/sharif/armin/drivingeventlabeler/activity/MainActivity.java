@@ -60,7 +60,9 @@ public class MainActivity extends AppCompatActivity implements SocketObserver {
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        socket.disconnect();
+        if (controller && socket != null) {
+            socket.disconnect();
+        }
     }
 
     @Override

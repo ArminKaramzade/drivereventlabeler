@@ -21,7 +21,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        socket.disconnect();
+        if (socket != null) {
+            socket.disconnect();
+        }
     }
 
     EditText ipAddressTxt;

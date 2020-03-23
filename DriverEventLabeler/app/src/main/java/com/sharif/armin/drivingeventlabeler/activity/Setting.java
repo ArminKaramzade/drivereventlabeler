@@ -114,6 +114,16 @@ public class Setting extends AppCompatActivity {
                     }
                 }
         );
+        Switch voice = (Switch) findViewById(R.id.voiceSwitch);
+        voice.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if(isChecked){
+                            ((Switch)findViewById(R.id.use_controller)).setChecked(false);
+                        }
+                    }
+                }
+        );
         Switch debugging = (Switch) findViewById(R.id.debugging);
         if(!debugging.isChecked()){
             findViewById(R.id.directory).setEnabled(false);
@@ -389,7 +399,7 @@ public class Setting extends AppCompatActivity {
             put("magnetometerTimeConstant", 0.1f);
             put("madgwickBeta", 0.01f);
 
-            put("vehicleSensors", 1f);
+            put("vehicleSensors", 0f);
             put("windowSize", 40f);
             put("overlap", 30f);
             put("filterLeftSize", 15f);
