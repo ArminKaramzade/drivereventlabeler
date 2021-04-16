@@ -3,6 +3,7 @@ package com.sharif.armin.drivingeventlabeler.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.SensorManager;
+import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -18,7 +19,9 @@ import com.sharif.armin.drivingeventlabeler.detection.Detector;
 import com.sharif.armin.drivingeventlabeler.detection.DetectorObserver;
 import com.sharif.armin.drivingeventlabeler.detection.Event;
 import com.sharif.armin.drivingeventlabeler.detection.SensorTest;
+import com.sharif.armin.drivingeventlabeler.sensor.SensorSample;
 import com.sharif.armin.drivingeventlabeler.sensor.Sensors;
+import com.sharif.armin.drivingeventlabeler.sensor.SensorsObserver;
 import com.sharif.armin.drivingeventlabeler.socket.MySocket;
 import com.sharif.armin.drivingeventlabeler.socket.SocketObserver;
 import com.sharif.armin.drivingeventlabeler.write.Writer;
@@ -28,7 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 
-public class GuidedLabeling extends AppCompatActivity implements DetectorObserver, SocketObserver {
+public class GuidedLabeling extends AppCompatActivity implements DetectorObserver, SocketObserver, SensorsObserver {
     private Thread thread = null;
     private TextView txttimer, txtlabel;
     private int sensor_f, gps_delay;
@@ -93,6 +96,7 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
             sensors.setLocationManager((LocationManager) getSystemService((Context.LOCATION_SERVICE)));
             sensors.setGpsDelay(gps_delay);
             sensors.setSensorFrequency(sensor_f);
+            sensors.registerObserver(this);
             detector = new Detector(sensor_f, sensors);
             detector.registerObserver(this);
             detector.start();
@@ -328,6 +332,47 @@ public class GuidedLabeling extends AppCompatActivity implements DetectorObserve
         public void onFinish() {
             onTick(duration / 1000);
         }
+    }
+
+    @Override
+    public void onSensorChanged(SensorSample sample){
+        switch (sample.type){
+            case Sensors.TYPE_LINEAR_ACCELERATION_PHONE:
+                writer.writeLinearAccelerationPhone(sample);
+                break;
+            case Sensors.TYPE_LINEAR_ACCELERATION_VEHICLE:
+                writer.writeLinearAccelerationVehicle(sample);
+                break;
+            case Sensors.TYPE_RAW_ACCELERATION_PHONE:
+                writer.writeRawAccelerationPhone(sample);
+                break;
+            case Sensors.TYPE_ANGULAR_VELOCITY_PHONE:
+                writer.writeAngularVelocityPhone(sample);
+                break;
+            case Sensors.TYPE_ANGULAR_VELOCITY_EARTH:
+                writer.writeAngularVelocityEarth(sample);
+                break;
+            case Sensors.TYPE_MAGNETIC_PHONE:
+                writer.writeMagneticPhone(sample);
+                break;
+            case Sensors.TYPE_GRAVITY_PHONE:
+                writer.writeGravityPhone(sample);
+                break;
+            case Sensors.TYPE_ROTATION_VECTOR_EARTH:
+                writer.writeRotationVectorEarth(sample);
+                break;
+            case Sensors.TYPE_ROTATION_VECTOR_VEHICLE:
+                writer.writeRotationVectorVehicle(sample);
+                break;
+            case Sensors.TYPE_HEADING_ANGLE_VEHICLE:
+                writer.writeHeadingAngleVehicle(sample);
+                break;
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location){
+        writer.writeGPS(location);
     }
 }
 
